@@ -1,23 +1,15 @@
 import mongoose from "mongoose";
 
 const roommateSchema = new mongoose.Schema({
-    userId: {
+    user1: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
-    roomId: {
+    user2: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Room',
+        ref: 'User',
         required: true
-    },
-    pets :{
-        type : String,
-        required : true
-    },
-    haveRoom : {
-        type : Boolean,
-        required : true
     }
 
 },{timestamps : true});
