@@ -16,3 +16,17 @@ what if i make system to refund 80 % and if user doesnot request refund and also
  - if verified, room status change to available and refund money.
  - else ask for proof that it is checked in by same user already if true then give money to owner and room status change to checkedin.
  - else room status change to available and give money to user and send notification to both.
+# FACET
+Stage	        What It Does            	        Example Use Case
+
+$match	        Filters documents 🎯	            { price: { $gte: 100 } } to get expensive items
+$group	        Groups by a field & applies 
+                aggregations                        { _id: "$category", count: { $sum: 1 } } to count items   per category
+$bucket	        Divides values into fixed ranges 	{ boundaries: [0, 50, 100], groupBy: "$price" }
+$bucketAuto	    Same as $bucket, but auto-fits
+                ranges Useful when you don’t know
+                exact boundaries
+$facet	        Runs multiple pipelines in parallel    { total: [ { $count: "totalDocs" } ], avgPrice: [ {                                                     $group: {...} } ] }
+$unwind	    Flattens arrays into multiple documents	
+            Converts { tags: ["A", "B"] } → { tags: "A" }, { tags: "B" }
+$count	    Counts total documents at that stage 	      { $count: "total" } at the end to get total count

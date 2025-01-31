@@ -7,10 +7,8 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import uploadOnCloudinary from "../utils/Cloudinary.js";
 import { isValidObjectId } from "mongoose";
-const uploadMultipleFilesOnCloudinary = async (...args) => {
-    const result = await Promise.all(args.map(async (arg) => await uploadOnCloudinary(arg)));
-    return result;
-}
+import { uploadMultipleFilesOnCloudinary } from "../utils/Cloudinary.js";
+
 const registerRoommate = asyncHandler(async (req, res) => {
     const { job, pets, smoking, haveRoom, description } = req.body;
 
@@ -417,4 +415,3 @@ export {
     rejectRoommateRequest,
     cancelRoommateRequest
 }
-//for message use roommate id not user id 

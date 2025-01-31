@@ -13,11 +13,11 @@ const roomSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    maxPeople: {
+    capacity: {
         type: Number,
         required: true
     },
-    roomNumbers: {
+    totalRooms: {
         type : Number,
         required: true
     },
@@ -26,13 +26,17 @@ const roomSchema = new mongoose.Schema({
             type: String
         }
     ],
+    thumbnail: {
+        type: String,
+        required: true
+    },
     category : {
         type: String,
         required: true
     },
     location : {
-        type: String,
-        required: true
+        type : mongoose.Schema.Types.ObjectId,
+        ref : "Location"
     },
     video : {
         type: String
