@@ -19,7 +19,7 @@ const createRefund = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'Reason is required');
     }
 
-    const amount = await Room.findById(roomId)?.price;
+    const amount = (await Room.findById(roomId)?.price)*0.9;
     if (!amount) {
         throw new ApiError(500, 'Failed to get room price');
     }
