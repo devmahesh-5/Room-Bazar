@@ -11,16 +11,11 @@ const reviewSchema = new mongoose.Schema({
         ref: 'Room',
         required: true
     },
-    roomowner: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
     rating: {
         type: Number,
         required: true
     },
-    review: {
+    comment: {
         type: String,
         required: true
     }

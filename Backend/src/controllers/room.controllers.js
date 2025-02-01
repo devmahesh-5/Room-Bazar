@@ -25,7 +25,7 @@ const createRoom = asyncHandler(async (req, res) => {
 
     let roomPhotosCloudinaryPath = await uploadMultipleFilesOnCloudinary(roomPhotosLocalPath);
 
-    roomPhotosCloudinaryPath = roomPhotosCloudinaryPath.map((photo) => photo.url);
+    // roomPhotosCloudinaryPath = roomPhotosCloudinaryPath.map((photo) => photo.url);
 
     if (!roomPhotosCloudinaryPath || roomPhotosCloudinaryPath.length === 0) {
         throw new ApiError(500, 'Failed to upload image');

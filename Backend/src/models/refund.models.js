@@ -13,7 +13,8 @@ const refundSchema = new mongoose.Schema({
     },
     status : {
         type : String,
-        enum : ['Pending', 'Approved', 'Rejected'],
+        enum : ['Pending', 'Approved', 'RejectedByOwner', 'RejectedByAdmin'],
+        default : 'Pending'
     },
     reason : {
         type : String,
@@ -23,5 +24,28 @@ const refundSchema = new mongoose.Schema({
         type : Number,
         required : true
     },
+    ownerRejectionReason : {
+        type : String
+    },
+    ownerRejectionPhotos : [
+        {
+            type : String
+        }
+    ]
     
 },{timestamps : true});
+
+const Refund = mongoose.model('Refund', refundSchema);
+
+refundSchema.pre("save", async function (next) {
+        if(!this.isModified("status")){
+            next();
+        }else{
+            //here call the function for payment
+            next(); 
+        }
+    })
+
+
+
+export default Refund;

@@ -30,3 +30,33 @@ $facet	        Runs multiple pipelines in parallel    { total: [ { $count: "tota
 $unwind	    Flattens arrays into multiple documents	
             Converts { tags: ["A", "B"] } → { tags: "A" }, { tags: "B" }
 $count	    Counts total documents at that stage 	      { $count: "total" } at the end to get total count
+
+## Refund Policy
+
+User Requests Refund → Admin Reviews → Notify Owner → Owner Responds → 
+   ↓                               ↓
+Approve → Release Escrow → Notify User    Reject → Save Reason/Photos → Notify User
+
+
+
+- i make a function that sends money according to the reffund status [Approved----> send to user,RejectedByAdmin --->send to Owner]
+- when owner approves,refund status:approved, 
+- when owner rejects, refund status: rejectedByOwner[in this should provide photos and reason]
+- now i see the reason and photos of each refund collection if it is genieune, i send the money to the owner
+I use 
+//for code, make md 
+
+```javascript
+
+ refundSchema.pre("save", async function (next) {
+
+         if (this.status === "Approved") {
+            send money to user
+         }else if(this.status === "RejectedByAdmin"){
+            send money to owner
+         }
+        
+         next();
+         });
+
+```

@@ -47,7 +47,7 @@ import fs from "fs";
  }
  export const uploadMultipleFilesOnCloudinary = async (...args) => {
      const result = await Promise.all(args.map(async (arg) => await uploadOnCloudinary(arg)));
-     return result;
+     return result.map((result) => result.url);
  }
 
  export default uploadOnCloudinary;

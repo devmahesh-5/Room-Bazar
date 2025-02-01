@@ -11,7 +11,7 @@ const reportSchema = new mongoose.Schema({
         ref: 'Room',
         required: true
     },
-    message: {
+    reason: {
         type: String,
         required: true
     },
