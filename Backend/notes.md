@@ -49,14 +49,27 @@ I use
 ```javascript
 
  refundSchema.pre("save", async function (next) {
-
-         if (this.status === "Approved") {
-            send money to user
-         }else if(this.status === "RejectedByAdmin"){
-            send money to owner
-         }
-        
-         next();
+         if(!this.isModified("status")){
+            next();
+        }else{
+            //here call the function for payment
+            //function(this)
+            next(); 
+        }
          });
 
 ```
+
+### Payment Modle
+
+- When user clicks book in room then room status change to reserved.
+- this creates payment model.(where the data needed for esewa payment is sent as resonse)
+- these data is used in frontEnd to make a payment request.
+- Redirects to Esewa payment page.
+- remember i may need to send html response for esewa payment page when user clicks book.
+- User makes payment.
+- Esewa sends Response,if Sucess,it is redirected to success page where i make a patch request with transaction uuid [it is set in backend as query parameter in sucess_url] of the payment to handleSucess where status is modified to success.
+- then,if the the status is modified,change the status of the room to booked f status of payment is sucess.(get roomid from payment model).
+- else room status change to available.
+
+  

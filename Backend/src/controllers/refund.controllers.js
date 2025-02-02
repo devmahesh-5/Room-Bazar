@@ -119,7 +119,7 @@ const getAllRefunds = asyncHandler(async (req, res) => {
 });
 
 const rejectRefund = asyncHandler(async (req, res) => {
-    const { ownerRejectReason } = req.body;
+    const { ownerRejectReason,status } = req.body;
     const refundId = req.params?.id;
 
     if (!isValidObjectId(refundId)) {
@@ -146,7 +146,7 @@ const ownerRejectionPhotosLocalFilesPath = req.files?.ownerRejectionPhotos?.map(
 
     refund.ownerRejectionReason = ownerRejectReason;
     refund.ownerRejectionPhotos = ownerRejectionPhotosCloudinaryPath;
-    refund.status = 'RejectedByOwner';
+    refund.status = status;
 
     await refund.save({ validateBeforeSave: false });
 });

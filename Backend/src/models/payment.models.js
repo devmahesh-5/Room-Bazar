@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
-
+import Room from "./room.models.js";
+import {ApiError} from "../utils/ApiError.js";
 const paymentSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -19,5 +20,33 @@ const paymentSchema = new mongoose.Schema({
         type: String,
         enum: ['Pending', 'Success', 'Failed'],
         default: 'Pending'
+    },
+    paymentGateway: {
+        type: String
+    },
+    transaction_uuid: {
+        type: String
     }
-},{timestamps : true});
+}, { timestamps: true });
+
+paymentSchema.pre('save', async function (next) {
+   try {
+     if (!this.isModified('status')) next();
+     const room = await Room.findById(this.roomId);
+     if(!room) throw new ApiError(500, 'Room not found');
+
+     if (this.status === 'Success') {
+         room.status = 'Booked';
+         await room.save({ validateBeforeSave: false });
+         next();
+     } else if (this.status === 'Failed') {
+         room.status = 'Available';
+         await room.save({ validateBeforeSave: false });
+         next();
+     }
+   } catch (error) {
+     throw new ApiError(500, error.message);
+   }
+});
+
+export const Payment = mongoose.model('Payment', paymentSchema);
