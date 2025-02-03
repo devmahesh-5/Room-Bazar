@@ -63,7 +63,7 @@ I use
 ### Payment Modle
 
 - When user clicks book in room then room status change to reserved.
-- this creates payment model.(where the data needed for esewa payment is sent as resonse)
+- this creates payment model.(where the data needed for esewa payment is sent as response)
 - these data is used in frontEnd to make a payment request.
 - Redirects to Esewa payment page.
 - remember i may need to send html response for esewa payment page when user clicks book.
@@ -73,3 +73,84 @@ I use
 - else room status change to available.
 
   
+## Notification Occasions
+
+# NOTE : this all notification are made in each corresponding controllers
+
+### 1. When a payment is updated
+- **Receiver:** Current user
+- **roomId:** `payment.roomId`
+- **paymentId:** `payment._id`
+- **Message:** `payment.status`
+
+### 2. When a booking is made
+- **Receiver:** Current user, `booking.room.ownerId`
+- **roomId:** `booking.roomId`
+- **bookingId:** `booking._id`
+- **Message:** `booking.status`
+
+### 3. When a booking is updated
+- **Receiver:** Current user, `booking.room.ownerId`
+- **roomId:** `booking.roomId`
+- **bookingId:** `booking._id`
+- **Message:** `booking.status`
+
+### 4. When a review is made
+- **Receiver:** Current user, `review.room.ownerId`
+- **roomId:** `review.roomId`
+- **reviewId:** `review._id`
+- **Message:** `review.rating`
+
+### 5. When a report is made
+- **Receiver:** Current user, admin
+- **roomId:** `report.roomId`
+- **reportId:** `report._id`
+- **Message:** `report.reason`
+
+### 6. When a roommate request is made
+- **Receiver:** `roommateRequest.receiver`
+- **Message:** `roommateRequest.sender` sent you a roommate request
+
+### 7. When a roommate request is accepted
+- **Receiver:** `roommateRequest.sender`
+- **Message:** `roommateRequest.receiver` accepted your roommate request
+
+### 8. When a roommate request is rejected
+- **Receiver:** `roommateRequest.sender`
+- **Message:** `roommateRequest.receiver` rejected your roommate request
+
+### 9. When a roommate request is cancelled
+- **Receiver:** Current user
+- **Message:** You cancelled your roommate request
+
+### 10. When a roommate is registered
+- **Receiver:** `roommate.userId`
+- **Message:** Welcome Mr. `roommate.fullName`
+
+### 11. When a registration is made
+- **Receiver:** Current user
+- **Message:** Welcome Mr. `user.fullName`
+
+### 12. When a message is sent
+- **Receiver:** `message.receiver`
+- **Message:** `message.sender` sent you a message
+
+### 13. When a room is listed
+- **Receiver:** `room.ownerId`
+- **Message:** `room.name` is listed on RoomBazar
+
+### 14. When a refund is requested
+- **Receiver:** `refund.userId`
+- **Message:** `refund.status`
+
+### 15. When a refund is approved
+- **Receiver:** `refund.userId`
+- **Message:** `refund.status`
+
+### 16. When a refund is rejected
+- **Receiver:** `refund.userId`
+- **Message:** `refund.status`
+
+### 17. When a favorite is added
+- **Receiver:** `favorite.userId`
+- **Message:** `favorite.status`   

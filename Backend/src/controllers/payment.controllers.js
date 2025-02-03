@@ -30,6 +30,29 @@ const createPayment = asyncHandler(async (req, res) => {
     const signature = crypto.createHmac('sha512', process.env.ESEWA_SECRET_KEY).update(dataToSign)
         .digest('base64');
 
+
+        const htmlForm = `
+        <html>
+            <body>
+                <form action="https://rc-epay.esewa.com.np/api/epay/main/v2/form" method="POST">
+                    <input type="hidden" name="amount" value="${amount}">
+                    <input type="hidden" name="tax_amount" value="0">
+                    <input type="hidden" name="total_amount" value="${total_amount}">
+                    <input type="hidden" name="transaction_uuid" value="${transaction_uuid}">
+                    <input type="hidden" name="product_code" value="${product_code}">
+                    <input type="hidden" name="product_service_charge" value="${product_service_charge}"}>
+                    <input type="hidden" name="product_delivery_charge" value="0">
+                    <input type="hidden" name="success_url" value="${success_url}">
+                    <input type="hidden" name="failure_url" value="${failure_url}">
+                    <input type="hidden" name="signed_field_names" value="${signed_field_names}">
+                    <input type="hidden" name="signature" value="${signature}">
+                    <input type="submit" value = "Pay Now"></input>
+                </form>
+                
+            </body>
+        </html>
+    `;
+
     const payment = await Payment.create({
         userId: req.user?._id,
         roomId,
@@ -46,17 +69,7 @@ const createPayment = asyncHandler(async (req, res) => {
         .json(
             new ApiResponse(
                 200,
-                {amount,
-                tax_amount: 0,
-                product_service_charge,
-                product_delivery_charge: 0,
-                total_amount,
-                transaction_uuid,
-                product_code,
-                success_url,
-                failure_url,
-                signed_field_names,
-                signature},
+                htmlForm,
                 'Payment initiated successfully'
             )
         );
@@ -116,5 +129,4 @@ const handleFailure = asyncHandler(async (req, res) => {
 });
 
 export { createPayment, handleSuccess, handleFailure };
-//for esewa payment , esewa sends response in front end we need to make a post request with this data
-//to handle success and failure 
+

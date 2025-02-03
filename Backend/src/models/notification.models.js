@@ -1,14 +1,32 @@
 import mongoose from "mongoose";
 
 const notificationSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
+    receiver: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
+        }
+    ],
     message: {
         type: String,
         required: true
+    },
+    roomId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Room'
+    },
+    paymentId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Payment'
+    },
+    roommateId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Roommate'
+    },
+    bookingId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Booking'
     }
 },{timestamps : true});
 
