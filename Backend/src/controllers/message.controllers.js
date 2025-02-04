@@ -3,6 +3,8 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import Message from "../models/message.models.js";
 import { isValidObjectId } from "mongoose";
+import User from "../models/user.models.js";
+import Notification from "../models/notification.models.js";
 const createMessage = asyncHandler(async (req, res) => {
     const { message } = req.body;
     const sender = req.user?._id;
@@ -21,6 +23,12 @@ const createMessage = asyncHandler(async (req, res) => {
     if (!newMessage) {
         throw new ApiError(500, 'Failed to create message');
     }
+    const senderUser = await User.findById(sender);
+
+    await Notification.create({
+        receiver,
+        message: `You have a new message from ${senderUser.fullName}`
+    })
 
     res
         .status(200)

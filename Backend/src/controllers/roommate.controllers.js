@@ -1,5 +1,6 @@
 import Room from "../models/room.models.js";
 import User from "../models/user.models.js";
+import Notification from "../models/notification.models.js";
 import RoommateRequest from "../models/roommateRequest.models.js";
 import RoommateAccount from "../models/roommateAccount.models.js";
 import asyncHandler from "../utils/asyncHandler.js";
@@ -291,6 +292,12 @@ const sendRoommateRequest = asyncHandler(async (req, res) => {
     if (!roommateRequest) {
         throw new ApiError(500, "Failed to send request");
     }
+    const receiver = await User.findById(req.params?.id);
+    await Notification.create({
+        receiver: req.params?.id,
+        message: `${receiver.fullName} sent you a Roommate request`,
+        roommateId: req.user?._id
+    })
 
     res
         .status(200)
@@ -325,6 +332,14 @@ const acceptRoommateRequest = asyncHandler(async (req, res) => {
     if (!acceptedRoommateRequest) {
         throw new ApiError(500, "Failed to accept request");
     }
+    const sender = await User.findById(req.user?._id);
+    await Notification.create(
+        {
+            receiver: req.params?.id,
+            message: `${sender.fullName} accepted your Roommate request`,
+            roommateId: req.user?._id
+        }
+    )
 
     res
         .status(200)
@@ -335,12 +350,14 @@ const acceptRoommateRequest = asyncHandler(async (req, res) => {
                 'Roommate request accepted successfully'
             )
         )
+
 });
+
 const rejectRoommateRequest = asyncHandler(async (req, res) => {
     const receiver = req.user?._id;
     const sender = req.params?.id;
 
-    if(!isValidObjectId(receiver) || !isValidObjectId(sender)){
+    if (!isValidObjectId(receiver) || !isValidObjectId(sender)) {
         throw new ApiError(400, 'Invalid user id');
     }
 
@@ -356,9 +373,18 @@ const rejectRoommateRequest = asyncHandler(async (req, res) => {
         }
     )
 
-    if(!rejectedRoommateRequest){
+    if (!rejectedRoommateRequest) {
         throw new ApiError(500, "Failed to reject request");
     }
+
+    const receiverUser = await User.findById(receiver);
+    await Notification.create(
+        {
+            receiver: sender,
+            message: `${receiverUser.fullName} rejected your Roommate request`,
+            roommateId: receiver
+        }
+    )
 
     res
         .status(200)
@@ -376,7 +402,7 @@ const cancelRoommateRequest = asyncHandler(async (req, res) => {
     const sender = req.user?._id;
     const receiver = req.params?.id;
 
-    if(!isValidObjectId(sender) || !isValidObjectId(receiver)){
+    if (!isValidObjectId(sender) || !isValidObjectId(receiver)) {
         throw new ApiError(400, 'Invalid user id');
     }
 
@@ -387,7 +413,7 @@ const cancelRoommateRequest = asyncHandler(async (req, res) => {
         }
     )
 
-    if(!cancelledRoommateRequest){
+    if (!cancelledRoommateRequest) {
         throw new ApiError(500, "Failed to cancel request");
     }
 

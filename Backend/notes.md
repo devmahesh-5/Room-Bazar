@@ -107,7 +107,7 @@ I use
 - **reportId:** `report._id`
 - **Message:** `report.reason`
 
-### 6. When a roommate request is made
+### 6. When a roommate request is sent
 - **Receiver:** `roommateRequest.receiver`
 - **Message:** `roommateRequest.sender` sent you a roommate request
 
@@ -118,10 +118,6 @@ I use
 ### 8. When a roommate request is rejected
 - **Receiver:** `roommateRequest.sender`
 - **Message:** `roommateRequest.receiver` rejected your roommate request
-
-### 9. When a roommate request is cancelled
-- **Receiver:** Current user
-- **Message:** You cancelled your roommate request
 
 ### 10. When a roommate is registered
 - **Receiver:** `roommate.userId`

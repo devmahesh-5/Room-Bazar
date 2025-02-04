@@ -3,6 +3,8 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import Room from "../models/room.models.js";
 import Booking from "../models/booking.models.js";
+import User from "../models/user.models.js";
+import Notification from "../models/notification.models.js";
 import { isValidObjectId } from "mongoose";
 const addBooking = asyncHandler(async (req, res) => {
     const { roomId } = req.params;
@@ -29,8 +31,28 @@ const addBooking = asyncHandler(async (req, res) => {
     room.booking = Booking._id;
     room.status = 'Reserved';
     room.save({ validateBeforeSave: false });
+    const user = await User.findById(userId);
+    if (!user) {
+        throw new ApiError(500, 'Failed to find user');
+    }
+    const notification = await Notification.create({
+        receiver : room.owner,
+        roomId : room._id,
+        message : `${user.fullName} have booked your room`,
+        bookingId : Booking._id,
+        roomId : room._id,
+     });
+     
+     if(!notification) {
+        throw new ApiError(500, 'Failed to create notification');
+     }
 
-    res.status(200).json(new ApiResponse(200, 'Booking added successfully', Booking));
+    res.
+    status(200)
+    .json(
+        new ApiResponse(200, 'Booking added successfully', Booking
+
+        ));
 });
 
 const updateBooking = asyncHandler(async (req, res) => {
@@ -57,6 +79,26 @@ const updateBooking = asyncHandler(async (req, res) => {
     if (!updatedBooking) {
         throw new ApiError(500, 'Failed to update booking');
     }
+   const room = await Room.findById(updatedBooking.roomId);
+   if (!room) {
+    throw new ApiError(500, 'Failed to find room');
+   }
+
+   const user = await User.findById(req.user?._id);
+   if (!user) {
+    throw new ApiError(500, 'Failed to find user');
+   }
+    const notification = await Notification.create({
+        receiver : room.owner,
+        roomId : updatedBooking.roomId,
+        message : `${user.fullName} have checked in your room`,
+        bookingId : updatedBooking._id,
+        roomId : updatedBooking.roomId,
+     });
+     
+     if(!notification) {
+        throw new ApiError(500, 'Failed to create notification');
+     }
 
     res
         .status(200)

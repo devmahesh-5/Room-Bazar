@@ -3,7 +3,9 @@ import Review from "../models/review.models.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-
+import Notification  from "../models/notification.models.js";
+import User from "../models/user.models.js";
+import Room from "../models/room.models.js";
 const addReview = asyncHandler(async (req, res) => {
     const { rating, comment } = req.body;
 
@@ -28,6 +30,19 @@ const addReview = asyncHandler(async (req, res) => {
     if(!review){
         throw new ApiError(500, 'Failed to add review');
     }
+    const user = await User.findById(userId);
+    const room = await Room.findById(roomId);
+    const ownerId= room.owner;
+    const notification = await Notification.create({
+        receiver : ownerId,
+        message : `${user?.fullName} has left a review for your room`,
+        reviewId : review._id,
+        roomId : review.roomId,
+     });
+     
+     if(!notification) {
+        throw new ApiError(500, 'Failed to create notification');
+     }
 
     res
     .status(200)

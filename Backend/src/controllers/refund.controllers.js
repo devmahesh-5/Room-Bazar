@@ -5,7 +5,8 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import Room from "../models/room.models.js";
 import { isValidObjectId } from "mongoose";
 import {uploadMultipleFilesOnCloudinary} from "../utils/Cloudinary.js";
-
+import User from "../models/user.models.js";
+import Notification from "../models/notification.models.js";
 const createRefund = asyncHandler(async (req, res) => {
     const { reason } = req.body;
     const roomId = req.params?.id;
@@ -35,6 +36,15 @@ const createRefund = asyncHandler(async (req, res) => {
         throw new ApiError(500, 'Failed to create refund');
     }
 
+    const user = await User.findById(userId);
+    const room = await Room.findById(roomId);
+
+    await Notification.create({
+        receiver:[user._id,room.owner],
+        message : `Room ${room.title} has been requested for Refund by ${user.fullName}`,
+        refundId : refund._id,
+        roomId : room._id
+    })
     res
         .status(200)
         .json(
@@ -48,7 +58,7 @@ const createRefund = asyncHandler(async (req, res) => {
 });
 
 const updateRefund = asyncHandler(async (req, res) => {
-    // const userId = req.params?.id;
+     const userId = req.params?.id;
     const refundId = req.params?.refundId;
     const { status } = req.body;
 
@@ -64,6 +74,15 @@ const updateRefund = asyncHandler(async (req, res) => {
 
     refund.status = status;
     refund.save({ validateBeforeSave: false });
+
+    if (status === 'Approved') {
+        await Notification.create({
+            receiver : refund.userId,
+            message : `Room refund request has been approved.you will get refund soon`,
+            refundId : refund._id,
+            roomId : refund.roomId
+        })
+    }
 
     res
         .status(200)
@@ -139,7 +158,7 @@ const ownerRejectionPhotosLocalFilesPath = req.files?.ownerRejectionPhotos?.map(
     }
 
     const refund = await Refund.findById(refundId);
-
+    const notificationReceiver = await User.findById(refund.userId);
     if (!refund) {
         throw new ApiError(500, 'Failed to get refund');
     }
@@ -149,6 +168,23 @@ const ownerRejectionPhotosLocalFilesPath = req.files?.ownerRejectionPhotos?.map(
     refund.status = status;
 
     await refund.save({ validateBeforeSave: false });
+
+    await Notification.create({
+        receiver: notificationReceiver._id,
+        message : `Room refund request has been rejected by room owner`,
+        refundId : refund._id,
+        roomId : refund.roomId
+    })
+
+    res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                refund,
+                'Refund rejected successfully'
+            )
+        )
 });
 
 const getRefundByStatus = asyncHandler(async (req, res) => {

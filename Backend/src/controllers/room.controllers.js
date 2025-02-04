@@ -1,8 +1,7 @@
 import mongoose from "mongoose";
 import Room from "../models/room.models.js";
 import User from "../models/user.models.js";
-import RoommateRequest from "../models/roommateRequest.models.js";
-import RoommateAccount from "../models/roommateAccount.models.js";
+import Notification from "../models/notification.models.js";
 import  Location  from "../models/location.models.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -60,6 +59,12 @@ const createRoom = asyncHandler(async (req, res) => {
     if(!location){
         throw new ApiError(500, 'Failed to add location');
     }
+    
+    await Notification.create({
+        receiver : room.owner,
+        message : `Room ${room.title} has been Listed`,
+        roomid : room._id
+    })
 
     res
         .status(200)

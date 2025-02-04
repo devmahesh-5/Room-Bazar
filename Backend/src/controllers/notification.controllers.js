@@ -3,20 +3,24 @@ import {ApiResponse} from "../utils/ApiResponse.js";
 import {asyncHandler} from "../utils/asyncHandler.js";
 import Notification from "../models/notification.models.js";
 
-const addNotification = asyncHandler(async (req, res) => {
+const getNotificationsByReceiver = asyncHandler(async (req, res) => {
+    const notifications = await Notification.find({receiver: req.user?._id});
     
-});
+    if(!notifications){
+        throw new ApiError(500, 'Failed to fetch notifications');
+    }
 
-const getNotifications = asyncHandler(async (req, res) => {
-
-});
-
-const getNotificationsByUser = asyncHandler(async (req, res) => {
-
+    res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            notifications,
+            'Notifications fetched successfully'
+        )
+    );
 });
 
 export {
-    addNotification,
-    getNotifications,
-    getNotificationsByUser
+    getNotificationsByReceiver
 }

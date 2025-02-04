@@ -2,7 +2,9 @@ import Report from "../models/report.models.js";
 import {asyncHandler} from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js";
 import {ApiResponse} from "../utils/ApiResponse.js";
-
+import {isValidObjectId} from "mongoose";
+import User from "../models/user.models.js";
+import Notification from "../models/notification.models.js";
 const addRoomReport = asyncHandler(async (req, res) => {
     const {reason} = req.body;
 
@@ -26,6 +28,17 @@ const addRoomReport = asyncHandler(async (req, res) => {
     if(!report){
         throw new ApiError(500, 'Failed to add report');
     }
+
+    const notification = await Notification.create({
+        receiver : [req.user?._id,'admin'],
+        message : 'Thank you for reporting this room.we will take appropriate action',
+        roomId : roomId,
+        reportId : report._id
+     });
+     
+     if(!notification) {
+        throw new ApiError(500, 'Failed to create notification');
+     }
 
     res
     .status(200)
@@ -61,6 +74,19 @@ const addOwnerReport = asyncHandler(async (req, res) => {
     if(!report){
         throw new ApiError(500, 'Failed to add report');
     }
+    const owner = await User.findById(ownerId);
+    if(!owner){
+        throw new ApiError(500, 'Owner not found');
+    }
+    const notification = await Notification.create({
+        receiver : [req.user?._id,'admin'],
+        message : `Thank you for reporting ${owner.fullName}.we will take appropriate action`,
+        reportId : report._id,
+     });
+     
+     if(!notification) {
+        throw new ApiError(500, 'Failed to create notification');
+     }
 
     res
     .status(200)

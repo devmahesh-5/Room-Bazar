@@ -7,6 +7,7 @@ import { ApiResponse } from "../utils/ApiResponse";
 import { isValidObjectId } from "mongoose";
 import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
+import Notification from "../models/notification.models.js";
 const createPayment = asyncHandler(async (req, res) => {
     const roomId = req.params?.id;
 
@@ -91,6 +92,18 @@ const handleSuccess = asyncHandler(async (req, res) => {
     payment.status = 'Success';
     await payment.save({ validateBeforeSave: false });
     const updatedPayment = await Payment.findById(payment._id);
+
+    const Notification = await Notification.create({
+       receiver : payment.userId,
+       message : 'Payment success',
+       paymentId : payment._id,
+       roomId : payment.roomId,
+    });
+
+    if(!Notification) {
+        throw new ApiError(500, 'Failed to create notification');
+    }
+
     res
         .status(200)
         .json(
@@ -117,6 +130,18 @@ const handleFailure = asyncHandler(async (req, res) => {
     payment.status = 'Failed';
     await payment.save({ validateBeforeSave: false });
     const updatedPayment = await Payment.findById(payment._id);
+
+    const Notification = await Notification.create({
+        receiver : payment.userId,
+        message : 'Payment failed',
+        paymentId : payment._id,
+        roomId : payment.roomId,
+     });
+     
+     if(!Notification) {
+        throw new ApiError(500, 'Failed to create notification');
+     }
+
     res
         .status(200)
         .json(

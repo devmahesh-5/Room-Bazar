@@ -2,7 +2,9 @@ import Favourite from "../models/favourite.models.js";
 import {asyncHandler} from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-
+import { Notification } from "../models/notification.models.js";
+import { isValidObjectId } from "mongoose";
+import Room from "../models/room.models.js";
 const addFavourite = asyncHandler(async (req, res) => {
     const userId = req.user?._id;
     const roomId = req.params?.id;
@@ -19,6 +21,17 @@ const addFavourite = asyncHandler(async (req, res) => {
     if(!favourite){
         throw new ApiError(500, 'Failed to add favourite');
     }
+    
+    const room = await Room.findById(roomId);
+    if(!room){
+        throw new ApiError(500, 'Room not found');
+    }
+
+    await Notification.create({
+        receiver : req.user?._id,
+        message : `Room ${room.title} has been added to your favourites`,
+        roomId : room._id
+    })
 
     res
     .status(200)
