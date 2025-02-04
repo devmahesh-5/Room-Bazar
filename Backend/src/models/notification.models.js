@@ -27,6 +27,14 @@ const notificationSchema = new mongoose.Schema({
     bookingId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Booking'
+    },
+    reportId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Report'
+    },
+    isRead: {
+        type: Boolean,
+        default: false
     }
 },{timestamps : true});
 

@@ -62,14 +62,14 @@ I use
 
 ### Payment Modle
 
-- When user clicks book in room then room status change to reserved.
+- When user clicks book in room booking creates then room status change to reserved.
 - this creates payment model.(where the data needed for esewa payment is sent as response)
 - these data is used in frontEnd to make a payment request.
 - Redirects to Esewa payment page.
 - remember i may need to send html response for esewa payment page when user clicks book.
 - User makes payment.
 - Esewa sends Response,if Sucess,it is redirected to success page where i make a patch request with transaction uuid [it is set in backend as query parameter in sucess_url] of the payment to handleSucess where status is modified to success.
-- then,if the the status is modified,change the status of the room to booked f status of payment is sucess.(get roomid from payment model).
+- then,if the the status is modified,change the status of the room to booked & status of payment is sucess.(get roomid from payment model).
 - else room status change to available.
 
   
@@ -154,3 +154,5 @@ I use
 ### 17. When a favorite is added
 - **Receiver:** `favorite.userId`
 - **Message:** `favorite.status`   
+
+# In react in frontEnd, i use the useEffect with sending get request for fetching count and display at notifications menu and when notification is clicked,make get request first and then patch req to update isread?

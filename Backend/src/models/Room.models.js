@@ -49,7 +49,11 @@ const roomSchema = new mongoose.Schema({
         type: String,
         enum: ['Available', 'Booked', 'Reserved'],
         default: 'Available',
-      }
+      },
+    booking :{
+        type : mongoose.Schema.Types.ObjectId,
+        ref : "Booking"
+    }
     
 }, { timestamps: true });  
 

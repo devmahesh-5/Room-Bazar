@@ -34,7 +34,12 @@ paymentSchema.pre('save', async function (next) {
      if (!this.isModified('status')) next();
      const room = await Room.findById(this.roomId);
      if(!room) throw new ApiError(500, 'Room not found');
+     
+     const Booking = await Booking.findOne({ roomId: room._id });
+     if(!Booking) throw new ApiError(500, 'Booking not found');
 
+     Booking.Payment = this._id;
+     await Booking.save({ validateBeforeSave: false });
      if (this.status === 'Success') {
          room.status = 'Booked';
          await room.save({ validateBeforeSave: false });

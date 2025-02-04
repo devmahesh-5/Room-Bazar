@@ -17,8 +17,8 @@ const bookingSchema = new mongoose.Schema({
         required : true
     },
     checksIn :{
-        type : Date,
-        required : true
+        type : Boolean,
+        default: false
     }
 },{timestamps : true});
 
