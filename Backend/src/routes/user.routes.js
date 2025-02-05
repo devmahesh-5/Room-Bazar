@@ -9,7 +9,7 @@ import {
     updateUserProfile,
     deleteUser,
     refreshAccessToken
-} from '../controllers/report.controllers.js';
+} from '../controllers/user.controllers.js';
 
 import {getLocationByUser} from '../controllers/location.controllers.js';
 

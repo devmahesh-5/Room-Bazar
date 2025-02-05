@@ -1,10 +1,10 @@
 import mongoose, { isValidObjectId } from "mongoose";
-import asyncHandler from "../utils/asyncHandler.js";
+import {asyncHandler} from "../utils/asyncHandler.js";
 import User from "../models/user.models.js";
-import Apiresponse from "../utils/ApiResponse.js";
+import {ApiResponse} from "../utils/ApiResponse.js";
 import uploadOnCloudinary, { deleteImageFromCloudinary } from "../utils/Cloudinary.js";
-import ApiError from "../utils/ApiError.js";
-import options from '../constants.js';
+import {ApiError} from "../utils/ApiError.js";
+import {options} from '../constants.js';
 
 const generateAccessAndRefreshTokens = async (userId) => {
    const user = await User.findById(userId);
@@ -61,7 +61,7 @@ const registerUser = asyncHandler(async (req, res) => {
    res
       .status(201)
       .json(
-         new Apiresponse(
+         new ApiResponse(
             201,
             createdUser,
             'User created successfully'
@@ -105,7 +105,7 @@ const loginUser = asyncHandler(async (req, res) => {
       .cookie('accessToken', accessToken, options)
       .cookie('refreshToken', refreshToken, options)
       .json(
-         new Apiresponse(
+         new ApiResponse(
             200,
             loggedInUser,
             'User logged in successfully'
@@ -131,7 +131,7 @@ const logoutUser = asyncHandler(async (req, res) => {
       .clearCookie('accessToken')
       .clearCookie('refreshToken')
       .json(
-         new Apiresponse(
+         new ApiResponse(
             200,
             null,
             'User logged out successfully'
@@ -151,7 +151,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
    res
       .status(200)
       .json(
-         new Apiresponse(
+         new ApiResponse(
             200,
             user,
             'User profile fetched successfully'
@@ -184,7 +184,7 @@ const updateUserPassword = asyncHandler(async (req, res) => {
    res
       .status(200)
       .json(
-         new Apiresponse(
+         new ApiResponse(
             200,
             null,
             'User password updated successfully'
@@ -216,7 +216,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
    res
       .status(200)
       .json(
-         new Apiresponse(
+         new ApiResponse(
             200,
             updatedUser,
             'User profile updated successfully'
@@ -231,7 +231,7 @@ const deleteUser = asyncHandler(async (req, res) => {
       .clearCookie('accessToken')
       .clearCookie('refreshToken')
       .json(
-         new Apiresponse(
+         new ApiResponse(
             200,
             null,
             'User deleted successfully'
@@ -261,15 +261,13 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       .cookie('accessToken', accessToken, options)
       .cookie('refreshToken', newRefreshToken, options)
       .json(
-         new Apiresponse(
+         new ApiResponse(
             200,
             null,
             'Access token refreshed successfully'
          )
       )
 });
-
-
 
 export {
    registerUser,

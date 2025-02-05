@@ -38,7 +38,7 @@ router.route('/add').post(
             maxCount: 1
         },
         {
-            name: roomPhotos,
+            name: 'roomPhotos',
             maxCount: 5
         }
     ]),
@@ -51,7 +51,7 @@ router.route('/update/:roomId').patch(
             maxCount: 1
         },
         {
-            name: roomPhotos,
+            name: 'roomPhotos',
             maxCount: 5
         }
     ]),

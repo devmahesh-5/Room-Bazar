@@ -12,7 +12,7 @@ import {
     acceptRoommateRequest,
     rejectRoommateRequest,
     cancelRoommateRequest
-} from '../controllers/report.controllers.js';
+} from '../controllers/roommate.controllers.js';
 
 import {verifyAuth} from '../middlewares/auth.middlewares.js';
 const router = Router();

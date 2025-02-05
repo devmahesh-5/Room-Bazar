@@ -1,3 +1,5 @@
+import crypto from "crypto";
+
 export const DB_NAME="Room-Bazar";
 
 export const options ={

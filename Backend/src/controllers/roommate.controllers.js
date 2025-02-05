@@ -3,7 +3,7 @@ import User from "../models/user.models.js";
 import Notification from "../models/notification.models.js";
 import RoommateRequest from "../models/roommateRequest.models.js";
 import RoommateAccount from "../models/roommateAccount.models.js";
-import asyncHandler from "../utils/asyncHandler.js";
+import {asyncHandler} from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { isValidObjectId } from "mongoose";
