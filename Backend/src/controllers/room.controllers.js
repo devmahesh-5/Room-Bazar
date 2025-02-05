@@ -9,9 +9,9 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import uploadOnCloudinary,{ uploadMultipleFilesOnCloudinary, deleteImageFromCloudinary } from "../utils/Cloudinary.js";
 
 const createRoom = asyncHandler(async (req, res) => {
-    const { title, description, capacity, price, category, status, totalRooms } = req.body;
+    const { title, description, capacity, price, category, status, totalRooms,esewaId } = req.body;
 
-    if ([title, description, capacity, price, category, status, totalRooms].some((field) => !field || field.trim() === '')) {
+    if ([title, description, capacity, price, category, status, totalRooms,esewaId].some((field) => !field || field.trim() === '')) {
         throw new ApiError(400, 'All fields are required');
     }
     const thumbnailLocalPath = req.file?.path;
@@ -42,7 +42,9 @@ const createRoom = asyncHandler(async (req, res) => {
         status,
         totalRooms,
         roomPhotos: roomPhotosCloudinaryPath,
-        thumbnail: thumbnailCloudinaryPath.url
+        thumbnail: thumbnailCloudinaryPath.url,
+        esewaId,
+        owner : req.user._id,
     })
 
     if (!room) {

@@ -8,6 +8,13 @@ import { isValidObjectId } from "mongoose";
 import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
 import Notification from "../models/notification.models.js";
+    
+const generateSignature = (dataToSign) => {
+    const signature = crypto.createHmac('sha512', process.env.ESEWA_SECRET_KEY).update(dataToSign)
+        .digest('base64');
+    return signature;
+};
+
 const createPayment = asyncHandler(async (req, res) => {
     const roomId = req.params?.id;
 
@@ -19,6 +26,7 @@ const createPayment = asyncHandler(async (req, res) => {
     if (!room) {
         throw new ApiError(404, 'Room not found');
     }
+    
     const total_amount = room.price;
     const amount = total_amount - total_amount * 0.1;
     const transaction_uuid = uuidv4();
@@ -28,10 +36,8 @@ const createPayment = asyncHandler(async (req, res) => {
     const failure_url = `${process.env.BASE_URL}/payment/failure/${transaction_uuid}`;
     const signed_field_names = 'total_amount,transaction_uuid,product_code';
     const dataToSign = `${total_amount},${transaction_uuid},${product_code}`;
-    const signature = crypto.createHmac('sha512', process.env.ESEWA_SECRET_KEY).update(dataToSign)
-        .digest('base64');
-
-
+    
+    const signature = generateSignature(dataToSign);
         const htmlForm = `
         <html>
             <body>
@@ -78,8 +84,17 @@ const createPayment = asyncHandler(async (req, res) => {
 });
 
 const handleSuccess = asyncHandler(async (req, res) => {
-    const transaction_uuid = req.query.transaction_uuid;
-    
+    const esewaData = req.query.data;//decode the data and store in paymentGatewayDetail
+    const decodedData = Buffer.from(esewaData, 'base64').toString('utf-8');
+    const paymentGatewayDetail = JSON.parse(decodedData);
+    const dataToSign = `${paymentGatewayDetail.total_amount},${paymentGatewayDetail.transaction_uuid},${paymentGatewayDetail.product_code}`;
+
+    const signature = generateSignature(dataToSign);
+
+    if (signature !== paymentGatewayDetail.signature) {
+        throw new ApiError(400, 'Invalid signature');
+    }
+    const transaction_uuid = paymentGatewayDetail.transaction_uuid;
     if (!transaction_uuid) {
         throw new ApiError(400, 'Invalid transaction uuid');
     }
@@ -90,17 +105,20 @@ const handleSuccess = asyncHandler(async (req, res) => {
     }
 
     payment.status = 'Success';
+    payment.paymentGateway = paymentGatewayDetail;
+    // payment.paymentGateway = //get payment gateway response from esewa
+
     await payment.save({ validateBeforeSave: false });
     const updatedPayment = await Payment.findById(payment._id);
 
-    const Notification = await Notification.create({
+    const notification = await Notification.create({
        receiver : payment.userId,
        message : 'Payment success',
        paymentId : payment._id,
        roomId : payment.roomId,
     });
 
-    if(!Notification) {
+    if(!notification) {
         throw new ApiError(500, 'Failed to create notification');
     }
 

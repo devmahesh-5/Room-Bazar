@@ -31,7 +31,11 @@ const refundSchema = new mongoose.Schema({
         {
             type : String
         }
-    ]
+    ],
+    payment :{
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'Payment',
+    }
     
 },{timestamps : true});
 

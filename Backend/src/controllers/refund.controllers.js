@@ -1,3 +1,5 @@
+//check the api endpoint for refund
+
 import Refund from "../models/refund.models.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -7,6 +9,8 @@ import { isValidObjectId } from "mongoose";
 import {uploadMultipleFilesOnCloudinary} from "../utils/Cloudinary.js";
 import User from "../models/user.models.js";
 import Notification from "../models/notification.models.js";
+import Payment from '../models/payment.models.js';
+
 const createRefund = asyncHandler(async (req, res) => {
     const { reason } = req.body;
     const roomId = req.params?.id;
@@ -24,18 +28,28 @@ const createRefund = asyncHandler(async (req, res) => {
     if (!amount) {
         throw new ApiError(500, 'Failed to get room price');
     }
+    const payment = await Payment.findone(
+        {
+            roomId,
+            userId
+        }
+    )
+    if (!payment) {
+        throw new ApiError(500, 'Payment not found');
+    }
     const refund = await Refund.create({
         userId,
         roomId,
         status: 'Pending',
         reason,
-        amount
+        amount,
+        payment : payment._id
     })
 
     if (!refund) {
         throw new ApiError(500, 'Failed to create refund');
     }
-
+    
     const user = await User.findById(userId);
     const room = await Room.findById(roomId);
 
@@ -74,14 +88,52 @@ const updateRefund = asyncHandler(async (req, res) => {
 
     refund.status = status;
     refund.save({ validateBeforeSave: false });
-
-    if (status === 'Approved') {
+    const updatedRefund = await Refund.findById(refundId);
+    const room = await Room.findById(refund.roomId);
+    if (updatedRefund.status === 'Approved') {
         await Notification.create({
-            receiver : refund.userId,
+            receiver : [refund.userId,room.owner,'admin'],
             message : `Room refund request has been approved.you will get refund soon`,
             refundId : refund._id,
             roomId : refund.roomId
         })
+
+        //here send the refund request to esewa with apiEndpoint
+
+        const payment = await Payment.findOne({ _id: refund.payment });
+
+        if (!payment) {
+            throw new ApiError(500, 'Failed to get payment');
+        }
+
+        const total_amount = payment.amount*0.9;
+        const transaction_uuid = payment.transaction_uuid;
+        const product_code = payment.paymentGateway.product_code;
+
+        const response = await fetch('https://uat.esewa.com.np/epay/main', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                transaction_uuid,
+                total_amount,
+                product_code
+            }),
+        });
+
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            await Payment.updateOne(
+                { _id: payment._id },
+                {
+                    $set: {
+                        refund : refund._id
+                    },
+                }
+            );
+        }
     }
 
     res

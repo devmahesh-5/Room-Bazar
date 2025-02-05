@@ -26,6 +26,10 @@ const paymentSchema = new mongoose.Schema({
     },
     transaction_uuid: {
         type: String
+    },
+    refund :{
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'Refund'
     }
 }, { timestamps: true });
 
@@ -43,6 +47,7 @@ paymentSchema.pre('save', async function (next) {
      if (this.status === 'Success') {
          room.status = 'Booked';
          await room.save({ validateBeforeSave: false });
+
          next();
      } else if (this.status === 'Failed') {
          room.status = 'Available';

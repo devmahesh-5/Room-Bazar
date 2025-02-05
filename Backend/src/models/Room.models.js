@@ -53,6 +53,10 @@ const roomSchema = new mongoose.Schema({
     booking :{
         type : mongoose.Schema.Types.ObjectId,
         ref : "Booking"
+    },
+    esewaId :{
+        type : Number,
+        required : true
     }
     
 }, { timestamps: true });  
