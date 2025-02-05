@@ -11,6 +11,10 @@ import {
     refreshAccessToken
 } from '../controllers/report.controllers.js';
 
+import {getLocationByUser} from '../controllers/location.controllers.js';
+
+import { addOwnerReport,getOwnerReport } from "../controllers/report.controllers.js";
+
 import { verifyAuth } from '../middlewares/auth.middlewares.js';
 import { upload } from "../middlewares/multer.middlewares.js";
 const router = Router();
@@ -27,6 +31,7 @@ router.route('/register').post(//first thing controllers runs after user set dat
     ]),
     registerUser
 )
+
 router.route('/login').post(loginUser)
 
 //secured routes
@@ -67,6 +72,20 @@ router.route('/updateprofile').patch(
 router.route('/delete-account').delete(
     verifyAuth,
     deleteUser
+)
+
+router.route('/mylocation').get(
+    verifyAuth,
+    getLocationByUser
+)
+
+router.route('/addreport/:ownerId').post(
+    verifyAuth,
+    addOwnerReport
+)
+router.route('/getreports/:ownerId').get(
+    verifyAuth,
+    getOwnerReport
 )
 
 export default router

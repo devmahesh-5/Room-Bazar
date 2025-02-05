@@ -18,4 +18,5 @@ const roommateRequestSchema = new mongoose.Schema({
     }
 },{timestamps : true});
 
-export const RoommateRequest = mongoose.model('RoommateRequest', roommateRequestSchema);
+const RoommateRequest = mongoose.model('RoommateRequest', roommateRequestSchema);
+export default RoommateRequest

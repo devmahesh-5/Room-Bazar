@@ -1,7 +1,7 @@
 import {Router} from "express";
 
 import {
-    createPayment,
+   
     handleSuccess,
     handleFailure
 } from '../controllers/payment.controllers.js';

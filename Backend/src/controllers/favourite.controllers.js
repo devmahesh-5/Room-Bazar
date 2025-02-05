@@ -2,9 +2,10 @@ import Favourite from "../models/favourite.models.js";
 import {asyncHandler} from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { Notification } from "../models/notification.models.js";
-import { isValidObjectId } from "mongoose";
+import Notification from "../models/notification.models.js";
+import {isValidObjectId} from "mongoose";
 import Room from "../models/room.models.js";
+
 const addFavourite = asyncHandler(async (req, res) => {
     const userId = req.user?._id;
     const roomId = req.params?.id;

@@ -33,6 +33,6 @@ const roommateSchema = new mongoose.Schema({
 
 },{timestamps : true});
 
-export const RoommateAccount = mongoose.model('RoommateAccount', roommateSchema);
+const RoommateAccount = mongoose.model('RoommateAccount', roommateSchema);
 
-
+export default RoommateAccount

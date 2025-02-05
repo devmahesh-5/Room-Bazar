@@ -14,6 +14,5 @@ const router = Router();
 
 router.use(verifyAuth);
 
-//all report from room or user
 
 export default router

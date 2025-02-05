@@ -2,19 +2,19 @@ import mongoose from "mongoose";
 import Room from "../models/room.models.js";
 import User from "../models/user.models.js";
 import Notification from "../models/notification.models.js";
-import  Location  from "../models/location.models.js";
+import Location from "../models/location.models.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import uploadOnCloudinary,{ uploadMultipleFilesOnCloudinary, deleteImageFromCloudinary } from "../utils/Cloudinary.js";
+import uploadOnCloudinary, { uploadMultipleFilesOnCloudinary, deleteImageFromCloudinary } from "../utils/Cloudinary.js";
 
 const createRoom = asyncHandler(async (req, res) => {
-    const { title, description, capacity, price, category, status, totalRooms,esewaId } = req.body;
+    const { title, description, capacity, price, category, status, totalRooms, esewaId } = req.body;
 
-    if ([title, description, capacity, price, category, status, totalRooms,esewaId].some((field) => !field || field.trim() === '')) {
+    if ([title, description, capacity, price, category, status, totalRooms, esewaId].some((field) => !field || field.trim() === '')) {
         throw new ApiError(400, 'All fields are required');
     }
-    const thumbnailLocalPath = req.file?.path;
+    const thumbnailLocalPath = req.files?.thumbnail[0]?.path;
     if (!thumbnailLocalPath) {
         throw new ApiError(400, 'Room thumbnail is required');
     }
@@ -44,7 +44,7 @@ const createRoom = asyncHandler(async (req, res) => {
         roomPhotos: roomPhotosCloudinaryPath,
         thumbnail: thumbnailCloudinaryPath.url,
         esewaId,
-        owner : req.user._id,
+        owner: req.user._id,
     })
 
     if (!room) {
@@ -55,17 +55,17 @@ const createRoom = asyncHandler(async (req, res) => {
         latitude: req.body.latitude,
         longitude: req.body.longitude,
         address: req.body.address,
-        roomid : room._id
+        roomid: room._id
     })
-    
-    if(!location){
+
+    if (!location) {
         throw new ApiError(500, 'Failed to add location');
     }
-    
+
     await Notification.create({
-        receiver : room.owner,
-        message : `Room ${room.title} has been Listed`,
-        roomid : room._id
+        receiver: room.owner,
+        message: `Room ${room.title} has been Listed`,
+        roomid: room._id
     })
 
     res
@@ -93,26 +93,26 @@ const updateRoom = asyncHandler(async (req, res) => {
     }
     const oldRoom = await Room.findById(req.params?.id);
 
-    
+
     const thumbnailCloudinaryPath = await uploadOnCloudinary(thumbnailLocalPath);
 
-    if(oldRoom){
+    if (oldRoom) {
         const oldRoomThumbnail = oldRoom.thumbnail;
-        if(oldRoomThumbnail){
+        if (oldRoomThumbnail) {
             const oldRoomThumbnailPublicId = oldRoomThumbnail.split('/').pop().split('.')[0];
             await deleteImageFromCloudinary(oldRoomThumbnailPublicId);
         }
-    }else{
+    } else {
         console.warn("Could not delete old room thumbnail");
     }
     if (!thumbnailCloudinaryPath) {
         throw new ApiError(500, 'Failed to upload image');
     }
 
-    
+
 
     const updatedRoom = await Room.findByIdAndUpdate(req.params?.id, {
-        $set: {...roomDetails, thumbnail: thumbnailCloudinaryPath.url}
+        $set: { ...roomDetails, thumbnail: thumbnailCloudinaryPath.url }
     }, { new: true })
 
     if (!updatedRoom) {
@@ -167,7 +167,54 @@ const getRoomById = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'Invalid room id');
     }
 
-    const room = await Room.findById(roomId);
+    const room = await Room.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(roomId)
+            }
+        },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'owner',
+                foreignField: '_id',
+                as: 'owner'
+            }
+        },
+        {
+            $lookup: {
+                from: 'locations',
+                localField: '_id',
+                foreignField: 'roomid',
+                as: 'location'
+            }
+        },
+        {
+            $addFields: {
+                owner: { $arrayElemAt: ['$owner', 0], },
+                location: { $arrayElemAt: ['$location', 0] }
+
+            }
+        },
+        {
+            $project: {
+                owner: 1,
+                location: 1,
+                title: 1,
+                description: 1,
+                capacity: 1,
+                price: 1,
+                category: 1,
+                status: 1,
+                totalRooms: 1,
+                roomPhotos: 1,
+                thumbnail: 1,
+                esewaId: 1,
+                createdAt: 1,
+                updatedAt: 1
+            }
+        }
+    ]);
 
     if (!room) {
         throw new ApiError(404, 'Room not found');
@@ -185,7 +232,48 @@ const getRoomById = asyncHandler(async (req, res) => {
 });
 
 const getAllRooms = asyncHandler(async (req, res) => {
-    const rooms = await Room.find();
+    const rooms = await Room.aggregate([
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'owner',
+                foreignField: '_id',
+                as: 'owner'
+            }
+        },
+        {
+            $lookup: {
+                from: 'locations',
+                localField: '_id',
+                foreignField: 'roomid',
+                as: 'location'
+            }
+        },
+        {
+            $addFields: {
+                owner: { $arrayElemAt: ['$owner', 0], },
+                location: { $arrayElemAt: ['$location', 0] }
+            }
+        },
+        {
+            $project: {
+                owner: 1,
+                location: 1,
+                title: 1,
+                description: 1,
+                capacity: 1,
+                price: 1,
+                category: 1,
+                status: 1,
+                totalRooms: 1,
+                roomPhotos: 1,
+                thumbnail: 1,
+                esewaId: 1,
+                createdAt: 1,
+                updatedAt: 1
+            }
+        }
+    ]);
 
     if (!rooms) {
         throw new ApiError(404, 'Rooms not found');
@@ -219,11 +307,11 @@ const searchRooms = asyncHandler(async (req, res) => {
                 $match: searchQuery
             },
             {
-                $lookup:{
-                    from:'users',
-                    localField:'owner',
-                    foreignField:'_id',
-                    as:'owner',
+                $lookup: {
+                    from: 'users',
+                    localField: 'owner',
+                    foreignField: '_id',
+                    as: 'owner',
                     pipeline: [
                         {
                             $project: {
@@ -238,12 +326,21 @@ const searchRooms = asyncHandler(async (req, res) => {
                 }
             },
             {
-                $addFields: {
-                    owner: { $arrayElemAt: ['$owner', 0] }
+                $lookup: {
+                    from: 'locations',
+                    localField: '_id',
+                    foreignField: 'roomid',
+                    as: 'location'
                 }
             },
             {
-               $skip: (page - 1) * limit     
+                $addFields: {
+                    owner: { $arrayElemAt: ['$owner', 0] },
+                    location: { $arrayElemAt: ['$location', 0] }
+                }
+            },
+            {
+                $skip: (page - 1) * limit
             },
             {
                 $limit: limit
@@ -281,7 +378,7 @@ const searchRooms = asyncHandler(async (req, res) => {
 
 const getRoomsByCategory = asyncHandler(async (req, res) => {
     const category = req.params?.category;
-    if(!category){
+    if (!category) {
         throw new ApiError(400, 'Category is required');
     }
 
@@ -351,15 +448,37 @@ const getRoomsByCategory = asyncHandler(async (req, res) => {
 
 const getRoomsByLocation = asyncHandler(async (req, res) => {
     const location = req.params?.location;
-    if(!location){
+    if (!location) {
         throw new ApiError(400, 'Location is required');
     }
 
     const rooms = await Room.aggregate(
         [
             {
+                $lookup: {
+                    from: 'locations',
+                    localField: '_id',
+                    foreignField: 'roomid',
+                    as: 'location',
+                    pipeline: [
+                        {
+                            $project: {
+                                latitude: 1,
+                                longitude: 1,
+                                address: 1
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                $addFields: {
+                    location: { $arrayElemAt: ['$location', 0] }
+                }
+            },
+            {
                 $match: {
-                    location: location
+                    'location.address': location
                 }
             },
             {
@@ -403,7 +522,7 @@ const getRoomsByLocation = asyncHandler(async (req, res) => {
         ]
     )
 
-    if (!rooms) {    
+    if (!rooms) {
         throw new ApiError(404, 'Rooms not found');
     }
 
@@ -414,7 +533,7 @@ const getRoomsByLocation = asyncHandler(async (req, res) => {
                 message: 'Rooms fetched successfully',
                 data: rooms
             })
-    )
+        )
 });
 
 export {

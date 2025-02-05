@@ -1,87 +1,40 @@
-import { v4 as uuidv4 } from 'uuid';
-import { ApiError } from "../utils/ApiError";
-import { asyncHandler } from "../utils/asyncHandler";
+
+import {ApiError} from "../utils/ApiError.js";
+import {asyncHandler} from "../utils/asyncHandler.js";
 import Room from "../models/room.models.js";
 import Payment from "../models/payment.models.js";
-import { ApiResponse } from "../utils/ApiResponse";
-import { isValidObjectId } from "mongoose";
-import { v4 as uuidv4 } from 'uuid';
+import {ApiResponse} from "../utils/ApiResponse.js";
+import {isValidObjectId} from "mongoose";
+import {v4 as uuidv4} from 'uuid';
 import crypto from 'crypto';
 import Notification from "../models/notification.models.js";
     
-const generateSignature = (dataToSign) => {
-    const signature = crypto.createHmac('sha512', process.env.ESEWA_SECRET_KEY).update(dataToSign)
-        .digest('base64');
-    return signature;
-};
+import { generateSignature } from "../constants.js";    
 
-const createPayment = asyncHandler(async (req, res) => {
-    const roomId = req.params?.id;
+// const createPayment = asyncHandler(async (req, res) => {
+//     // const roomId = req.params?.roomId;
 
-    if (!isValidObjectId(roomId)) {
-        throw new ApiError(400, 'Invalid room id');
-    }
-    const room = await Room.findById(roomId);
+//     // if (!isValidObjectId(roomId)) {
+//     //     throw new ApiError(400, 'Invalid room id');
+//     // }
+//     // const room = await Room.findById(roomId);
 
-    if (!room) {
-        throw new ApiError(404, 'Room not found');
-    }
+//     // if (!room) {
+//     //     throw new ApiError(404, 'Room not found');
+//     // }
     
-    const total_amount = room.price;
-    const amount = total_amount - total_amount * 0.1;
-    const transaction_uuid = uuidv4();
-    const product_code = process.env.PRODUCT_CODE;
-    const product_service_charge = total_amount * 0.1;
-    const success_url = `${process.env.BASE_URL}/payment/success/${transaction_uuid}`;
-    const failure_url = `${process.env.BASE_URL}/payment/failure/${transaction_uuid}`;
-    const signed_field_names = 'total_amount,transaction_uuid,product_code';
-    const dataToSign = `${total_amount},${transaction_uuid},${product_code}`;
     
-    const signature = generateSignature(dataToSign);
-        const htmlForm = `
-        <html>
-            <body>
-                <form action="https://rc-epay.esewa.com.np/api/epay/main/v2/form" method="POST">
-                    <input type="hidden" name="amount" value="${amount}">
-                    <input type="hidden" name="tax_amount" value="0">
-                    <input type="hidden" name="total_amount" value="${total_amount}">
-                    <input type="hidden" name="transaction_uuid" value="${transaction_uuid}">
-                    <input type="hidden" name="product_code" value="${product_code}">
-                    <input type="hidden" name="product_service_charge" value="${product_service_charge}"}>
-                    <input type="hidden" name="product_delivery_charge" value="0">
-                    <input type="hidden" name="success_url" value="${success_url}">
-                    <input type="hidden" name="failure_url" value="${failure_url}">
-                    <input type="hidden" name="signed_field_names" value="${signed_field_names}">
-                    <input type="hidden" name="signature" value="${signature}">
-                    <input type="submit" value = "Pay Now"></input>
-                </form>
-                
-            </body>
-        </html>
-    `;
+//     // res
+//     //     .status(200)
+//     //     .json(
+//     //         new ApiResponse(
+//     //             200,
+//     //             htmlForm,
+//     //             'Payment initiated successfully'
+//     //         )
+//     //     );
 
-    const payment = await Payment.create({
-        userId: req.user?._id,
-        roomId,
-        amount: total_amount,
-        status : 'Pending',
-        paymentGateway: 'Esewa',
-        transaction_uuid
-      })
-    if (!payment) {
-        throw new ApiError(500, 'Failed to create payment');
-    }
-    res
-        .status(200)
-        .json(
-            new ApiResponse(
-                200,
-                htmlForm,
-                'Payment initiated successfully'
-            )
-        );
-
-});
+// });
 
 const handleSuccess = asyncHandler(async (req, res) => {
     const esewaData = req.query.data;//decode the data and store in paymentGatewayDetail

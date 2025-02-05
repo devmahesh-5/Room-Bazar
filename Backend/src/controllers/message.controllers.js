@@ -5,10 +5,11 @@ import Message from "../models/message.models.js";
 import { isValidObjectId } from "mongoose";
 import User from "../models/user.models.js";
 import Notification from "../models/notification.models.js";
+
 const createMessage = asyncHandler(async (req, res) => {
     const { message } = req.body;
     const sender = req.user?._id;
-    const receiver = req.params?.id;
+    const receiver = req.params?.userId;
 
     if (!isValidObjectId(sender) || !isValidObjectId(receiver)) {
         throw new ApiError(400, 'Invalid user id');
@@ -45,7 +46,7 @@ const getUserMessages = asyncHandler(async (req, res) => {
     //By sender or receiver id
 
     const sender = req.user?._id;
-    const receiver = req.params?.id;
+    const receiver = req.params?.userId;
 
     if (!isValidObjectId(sender) || !isValidObjectId(receiver)) {
         throw new ApiError(400, 'Invalid user id');
@@ -131,7 +132,7 @@ const getUserMessages = asyncHandler(async (req, res) => {
 })
 
 const deleteMessage = asyncHandler(async (req, res) => {
-    const messageId = req.params?.id;
+    const messageId = req.params?.messageId;
 
     if (!isValidObjectId(messageId)) {
         throw new ApiError(400, 'Invalid message id');

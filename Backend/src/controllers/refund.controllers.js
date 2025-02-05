@@ -6,7 +6,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import Room from "../models/room.models.js";
 import { isValidObjectId } from "mongoose";
-import {uploadMultipleFilesOnCloudinary} from "../utils/Cloudinary.js";
+import { uploadMultipleFilesOnCloudinary } from "../utils/Cloudinary.js";
 import User from "../models/user.models.js";
 import Notification from "../models/notification.models.js";
 import Payment from '../models/payment.models.js';
@@ -24,7 +24,7 @@ const createRefund = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'Reason is required');
     }
 
-    const amount = (await Room.findById(roomId)?.price)*0.9;
+    const amount = (await Room.findById(roomId)?.price) * 0.9;
     if (!amount) {
         throw new ApiError(500, 'Failed to get room price');
     }
@@ -43,21 +43,21 @@ const createRefund = asyncHandler(async (req, res) => {
         status: 'Pending',
         reason,
         amount,
-        payment : payment._id
+        payment: payment._id
     })
 
     if (!refund) {
         throw new ApiError(500, 'Failed to create refund');
     }
-    
+
     const user = await User.findById(userId);
     const room = await Room.findById(roomId);
 
     await Notification.create({
-        receiver:[user._id,room.owner],
-        message : `Room ${room.title} has been requested for Refund by ${user.fullName}`,
-        refundId : refund._id,
-        roomId : room._id
+        receiver: [user._id, room.owner],
+        message: `Room ${room.title} has been requested for Refund by ${user.fullName}`,
+        refundId: refund._id,
+        roomId: room._id
     })
     res
         .status(200)
@@ -72,14 +72,8 @@ const createRefund = asyncHandler(async (req, res) => {
 });
 
 const updateRefund = asyncHandler(async (req, res) => {
-     const userId = req.params?.id;
     const refundId = req.params?.refundId;
     const { status } = req.body;
-
-    if (!isValidObjectId(userId)) {
-        throw new ApiError(400, 'Invalid room id');
-    }
-
     const refund = await Refund.findOne({ _id: refundId });
 
     if (!refund) {
@@ -92,10 +86,10 @@ const updateRefund = asyncHandler(async (req, res) => {
     const room = await Room.findById(refund.roomId);
     if (updatedRefund.status === 'Approved') {
         await Notification.create({
-            receiver : [refund.userId,room.owner,'admin'],
-            message : `Room refund request has been approved.you will get refund soon`,
-            refundId : refund._id,
-            roomId : refund.roomId
+            receiver: [refund.userId, room.owner, 'admin'],
+            message: `Room refund request has been approved.you will get refund soon`,
+            refundId: refund._id,
+            roomId: refund.roomId
         })
 
         //here send the refund request to esewa with apiEndpoint
@@ -106,7 +100,7 @@ const updateRefund = asyncHandler(async (req, res) => {
             throw new ApiError(500, 'Failed to get payment');
         }
 
-        const total_amount = payment.amount*0.9;
+        const total_amount = payment.amount * 0.9;
         const transaction_uuid = payment.transaction_uuid;
         const product_code = payment.paymentGateway.product_code;
 
@@ -129,7 +123,7 @@ const updateRefund = asyncHandler(async (req, res) => {
                 { _id: payment._id },
                 {
                     $set: {
-                        refund : refund._id
+                        refund: refund._id
                     },
                 }
             );
@@ -148,7 +142,7 @@ const updateRefund = asyncHandler(async (req, res) => {
 });
 
 const getRefundByUser = asyncHandler(async (req, res) => {
-    const userId = req.params?.id;
+    const userId = req.user?._id;
 
     if (!isValidObjectId(userId)) {
         throw new ApiError(400, 'Invalid room id');
@@ -190,14 +184,14 @@ const getAllRefunds = asyncHandler(async (req, res) => {
 });
 
 const rejectRefund = asyncHandler(async (req, res) => {
-    const { ownerRejectReason,status } = req.body;
-    const refundId = req.params?.id;
+    const { ownerRejectReason, status } = req.body;
+    const refundId = req.params?.refundId;
 
     if (!isValidObjectId(refundId)) {
         throw new ApiError(400, 'Invalid refund id');
     }
 
-const ownerRejectionPhotosLocalFilesPath = req.files?.ownerRejectionPhotos?.map(file => file.path);
+    const ownerRejectionPhotosLocalFilesPath = req.files?.ownerRejectionPhotos?.map(file => file.path);
 
     if (!ownerRejectionPhotosLocalFilesPath || ownerRejectionPhotosLocalFilesPath.length === 0) {
         throw new ApiError(400, 'Owner rejection photos are required');
@@ -223,9 +217,9 @@ const ownerRejectionPhotosLocalFilesPath = req.files?.ownerRejectionPhotos?.map(
 
     await Notification.create({
         receiver: notificationReceiver._id,
-        message : `Room refund request has been rejected by room owner`,
-        refundId : refund._id,
-        roomId : refund.roomId
+        message: `Room refund request has been rejected by room owner`,
+        refundId: refund._id,
+        roomId: refund.roomId
     })
 
     res
@@ -240,7 +234,7 @@ const ownerRejectionPhotosLocalFilesPath = req.files?.ownerRejectionPhotos?.map(
 });
 
 const getRefundByStatus = asyncHandler(async (req, res) => {
-    const status = req.body?.status;
+    const status = req.params?.status;
 
     if (!status) {
         throw new ApiError(400, 'Status is required');
@@ -263,5 +257,12 @@ const getRefundByStatus = asyncHandler(async (req, res) => {
         )
 })
 
-export { createRefund, updateRefund, getRefundByUser, getAllRefunds, rejectRefund, getRefundByStatus };
+export {
+    createRefund,
+    updateRefund,
+    getRefundByUser,
+    getAllRefunds,
+    rejectRefund,
+    getRefundByStatus
+};
 

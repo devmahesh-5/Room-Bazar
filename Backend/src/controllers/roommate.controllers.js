@@ -6,7 +6,6 @@ import RoommateAccount from "../models/roommateAccount.models.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import uploadOnCloudinary from "../utils/Cloudinary.js";
 import { isValidObjectId } from "mongoose";
 import { uploadMultipleFilesOnCloudinary } from "../utils/Cloudinary.js";
 
@@ -57,8 +56,9 @@ const registerRoommate = asyncHandler(async (req, res) => {
             )
         )
 });
+
 const updateRoommate = asyncHandler(async (req, res) => {
-    const roommateId = req.params?.id;
+    const roommateId = req.params?.roommateId;
 
     if (!isValidObjectId(roommateId)) {
         throw new ApiError(400, 'Invalid room id');
@@ -274,8 +274,8 @@ const sendRoommateRequest = asyncHandler(async (req, res) => {
 
     const existingRequest = await RoommateRequest.findOne({
         $or: [
-            { sender: req.user?._id, receiver: req.params?.id },
-            { sender: req.params?.id, receiver: req.user?._id }
+            { sender: req.user?._id, receiver: req.params?.roommateId },
+            { sender: req.params?.roommateId, receiver: req.user?._id }
         ]
     })
 
@@ -285,16 +285,16 @@ const sendRoommateRequest = asyncHandler(async (req, res) => {
 
     const roommateRequest = await RoommateRequest.create({
         sender: req.user?._id,
-        receiver: req.params?.id,
+        receiver: req.params?.roommateId,
         status: 'Pending'
     })
 
     if (!roommateRequest) {
         throw new ApiError(500, "Failed to send request");
     }
-    const receiver = await User.findById(req.params?.id);
+    const receiver = await User.findById(req.params?.roommateId);
     await Notification.create({
-        receiver: req.params?.id,
+        receiver: req.params?.roommateId,
         message: `${receiver.fullName} sent you a Roommate request`,
         roommateId: req.user?._id
     })
@@ -319,7 +319,7 @@ const acceptRoommateRequest = asyncHandler(async (req, res) => {
     const acceptedRoommateRequest = await RoommateRequest.findOneAndUpdate(
         {
             receiver: req.user?._id,
-            sender: req.params?.id
+            sender: req.params?.roommateId
         },
         {
             $set: {
@@ -335,7 +335,7 @@ const acceptRoommateRequest = asyncHandler(async (req, res) => {
     const sender = await User.findById(req.user?._id);
     await Notification.create(
         {
-            receiver: req.params?.id,
+            receiver: req.params?.roommateId,
             message: `${sender.fullName} accepted your Roommate request`,
             roommateId: req.user?._id
         }
@@ -355,7 +355,7 @@ const acceptRoommateRequest = asyncHandler(async (req, res) => {
 
 const rejectRoommateRequest = asyncHandler(async (req, res) => {
     const receiver = req.user?._id;
-    const sender = req.params?.id;
+    const sender = req.params?.roommateId;
 
     if (!isValidObjectId(receiver) || !isValidObjectId(sender)) {
         throw new ApiError(400, 'Invalid user id');
@@ -400,7 +400,7 @@ const rejectRoommateRequest = asyncHandler(async (req, res) => {
 
 const cancelRoommateRequest = asyncHandler(async (req, res) => {
     const sender = req.user?._id;
-    const receiver = req.params?.id;
+    const receiver = req.params?.roommateId;
 
     if (!isValidObjectId(sender) || !isValidObjectId(receiver)) {
         throw new ApiError(400, 'Invalid user id');
