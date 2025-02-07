@@ -29,6 +29,16 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    gender : {
+        type: String,
+        required: true
+    },
+    latitude : {
+        type: Number
+    },
+    longitude : {
+        type: Number
+    },
     avatar : {
         type: String,
         required: true
@@ -36,31 +46,18 @@ const userSchema = new mongoose.Schema({
     coverImage : {
         type: String,
     },
-    transactionHistory : [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Payment'
-        }
-    ],
-    roomHistory : [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Room'
-        }
-    ],
-    bookingHistory : [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Booking'
-        }
-    ],
-    chatHistory : [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Message'
-        }
-    ]
-   
+    refreshToken : {
+        type : String
+    },
+    role : {
+        type : String,
+        enum : ['User', 'Admin'],
+        default : 'User'
+    },
+   location : {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'Location'
+    }
 
 },
     {
@@ -80,13 +77,13 @@ userSchema.methods.isPasswordCorrect = async function (password) {
 
 userSchema.methods.generateAccessToken =  function () {
     return jwt.sign({ id: this._id },
-        ACCESS_TOKEN_SECRET, 
+        process.env.ACCESS_TOKEN_SECRET, 
         { expiresIn: process.env.ACCESS_TOKEN_EXPIRY });
 }
 
 userSchema.methods.generateRefreshToken = function () {
     return jwt.sign({ id: this._id },
-        REFRESH_TOKEN_SECRET, 
+        process.env.REFRESH_TOKEN_SECRET, 
         { expiresIn: process.env.REFRESH_TOKEN_EXPIRY });
 }
 const User = mongoose.model('User', userSchema);

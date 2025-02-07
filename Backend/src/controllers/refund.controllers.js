@@ -13,7 +13,7 @@ import Payment from '../models/payment.models.js';
 
 const createRefund = asyncHandler(async (req, res) => {
     const { reason } = req.body;
-    const roomId = req.params?.id;
+    const roomId = req.params?.roomId;
     const userId = req.user?._id;
 
     if (!isValidObjectId(userId) || !isValidObjectId(roomId)) {
@@ -23,12 +23,15 @@ const createRefund = asyncHandler(async (req, res) => {
     if (!reason || reason.trim() === '') {
         throw new ApiError(400, 'Reason is required');
     }
-
-    const amount = (await Room.findById(roomId)?.price) * 0.9;
+    const room = await Room.findById(roomId);
+    if (!room) {
+        throw new ApiError(404, 'Room not found');
+    }
+    const amount = (room.price) * 0.9;
     if (!amount) {
         throw new ApiError(500, 'Failed to get room price');
     }
-    const payment = await Payment.findone(
+    const payment = await Payment.findOne(
         {
             roomId,
             userId
@@ -51,7 +54,6 @@ const createRefund = asyncHandler(async (req, res) => {
     }
 
     const user = await User.findById(userId);
-    const room = await Room.findById(roomId);
 
     await Notification.create({
         receiver: [user._id, room.owner],

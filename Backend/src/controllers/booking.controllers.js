@@ -11,31 +11,35 @@ import Payment from "../models/payment.models.js";
 import { generateSignature } from "../constants.js";
 
 const addBooking = asyncHandler(async (req, res) => {
-    const { roomId } = req.params;
+    const roomId  = req.params?.roomId;
     const userId = req.user?._id;
-
+    
     if (!isValidObjectId(roomId) || !isValidObjectId(userId)) {
         throw new ApiError(400, 'Invalid room id or user id');
     }
 
-    const Booking = await Booking.create({
+    const booking = await Booking.create({
         roomId,
         userId,
-    })
-
-    if (!Booking) {
+    });
+    if (!booking) {
         throw new ApiError(500, 'Failed to add booking');
     }
 
-    const room = await Room.findById(roomId);
+    const foundRoom = await Room.findById(roomId);
 
-    if (!room) {
+    if (!foundRoom) {
         throw new ApiError(500, 'Failed to find room');
     }
-    room.booking = Booking._id;
-    room.status = 'Reserved';
-    room.save({ validateBeforeSave: false });
-
+    
+   const room = await Room.findByIdAndUpdate(roomId, {
+        $set: {
+            booking: booking._id,
+            status: 'Reserved'
+        }
+    },
+    { new: true }
+);
 
 
     const total_amount = room.price;

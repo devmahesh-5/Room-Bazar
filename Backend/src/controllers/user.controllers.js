@@ -5,7 +5,8 @@ import {ApiResponse} from "../utils/ApiResponse.js";
 import uploadOnCloudinary, { deleteImageFromCloudinary } from "../utils/Cloudinary.js";
 import {ApiError} from "../utils/ApiError.js";
 import {options} from '../constants.js';
-
+import Location from "../models/location.models.js";
+import Favourite from "../models/favourite.models.js";
 const generateAccessAndRefreshTokens = async (userId) => {
    const user = await User.findById(userId);
    const accessToken = user.generateAccessToken();
@@ -16,11 +17,11 @@ const generateAccessAndRefreshTokens = async (userId) => {
 }
 
 const registerUser = asyncHandler(async (req, res) => {
-   const { fullName, email, password, username, phone, address } = req.body;
-   if ([fullName, email, password, username, phone, address].some((field) => !field || field.trim() === '')) {
+   const { fullName, email, password, username, phone, address, gender,latitude,longitude } = req.body;
+   if ([fullName, email, password, username, phone, address, gender].some((field) => !field || field.trim() === '')) {
       throw new ApiError(400, 'All fields are required');
    }
-
+   
    const existingUser = await User.findOne({
       $or: [
          { email },
@@ -34,7 +35,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
    const avatarLocalPath = req.files?.avatar[0]?.path;
    const coverImagePath = req.files?.coverImage[0]?.path;
-
+   
    const avatarCloudinaryPath = await uploadOnCloudinary(avatarLocalPath);
    const coverImageCloudinaryPath = await uploadOnCloudinary(coverImagePath);
 
@@ -50,9 +51,32 @@ const registerUser = asyncHandler(async (req, res) => {
          phone,
          address,
          avatar: avatarCloudinaryPath?.url,
-         coverImage: coverImageCloudinaryPath?.url
+         coverImage: coverImageCloudinaryPath?.url,
+         gender
       }
    );
+   const location = await Location.create({
+      latitude,
+      longitude,
+      address,
+      user: user._id
+   })
+
+   if (!location) {
+      throw new ApiError(500, 'Failed to add location');
+   }
+
+   await User.findByIdAndUpdate(
+      user._id,
+      {
+         $set: {
+            location: location._id
+         }
+      },
+      {
+         new: true
+      }
+   )
 
    if (!user) {
       throw new ApiError(500, 'Failed to create user');
@@ -144,7 +168,46 @@ const getUserProfile = asyncHandler(async (req, res) => {
    if (!isValidObjectId(userId)) {
       throw new ApiError(400, 'Invalid user id');
    }
-   const user = await User.findById(userId).select('-password -refreshToken');
+   const user = await User.aggregate([
+      {
+         $match: {
+            _id: new mongoose.Types.ObjectId(userId)
+         }
+      },
+      {
+         $lookup: {
+            from: 'locations',
+            localField: 'location',
+            foreignField: '_id',
+            as: 'location',
+            pipeline: [
+               {
+                  $project: {
+                     user: 0
+                  }
+               },
+            ]
+         }
+      },
+      {
+         $addFields: {
+            location: { $arrayElemAt: ['$location', 0] }
+         }
+      },
+      {
+         $project: {
+            _id: 1,
+            fullName: 1,
+            email: 1,
+            phone: 1,
+            address: 1,
+            avatar: 1,
+            coverImage: 1,
+            gender: 1,
+            location: 1
+         }
+      }
+   ]);
    if (!user) {
       throw new ApiError(404, 'User not found');
    }
@@ -240,7 +303,9 @@ const deleteUser = asyncHandler(async (req, res) => {
 });
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
-   const refreshToken = req.cookies.refreshToken;
+   const refreshToken = req.cookies.refreshToken || req.headers.authorization.replace("Bearer ", "");
+   // console.log(refreshToken);
+   
    if (!refreshToken) {
       throw new ApiError(401, 'User not authenticated');
    }
@@ -269,6 +334,197 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       )
 });
 
+const updateProfilePicture = asyncHandler(async (req, res) => {
+   const userId = req.user?._id;
+   if (!isValidObjectId(userId)) {
+      throw new ApiError(400, 'Invalid user id');
+   }
+   const user = await User.findById(userId);
+   if (!user) {
+      throw new ApiError(404, 'User not found');
+   }
+   const profileLocalPath = req.file?.path;
+
+   if (!profileLocalPath) {
+      throw new ApiError(400, 'Profile picture is required');
+   }
+
+   const profileCloudinaryPath = await uploadOnCloudinary(profileLocalPath);
+  
+   
+   const oldAvatarPublicId = user.avatar.split('/').pop().split('.')[0];
+   
+   
+   if (!profileCloudinaryPath) {
+      throw new ApiError(500, 'Error uploading profile picture');
+   }
+
+   
+   
+   const updatedUser = await User.findByIdAndUpdate(userId,
+      {
+         $set: {
+            avatar: profileCloudinaryPath?.url
+         }
+      },
+      { new: true }
+   )
+   if (!updatedUser) {
+      throw new ApiError(500, 'Error updating profile picture');
+   }
+
+   await deleteImageFromCloudinary(oldAvatarPublicId);
+
+   res
+      .status(200)
+      .json(
+         new ApiResponse(
+            200,
+            user,
+            'Profile picture updated successfully'
+         )
+      )
+  
+});
+
+const updateCoverPicture = asyncHandler(async (req, res) => {
+   const userId = req.user?._id;
+   if (!isValidObjectId(userId)) {
+      throw new ApiError(400, 'Invalid user id');
+   }
+   const user = await User.findById(userId);
+   if (!user) {
+      throw new ApiError(404, 'User not found');
+   }
+   const coverLocalPath = req.file?.path;
+
+   if (!coverLocalPath) {
+      throw new ApiError(400, 'Cover picture is required');
+   }
+
+   const coverCloudinaryPath = await uploadOnCloudinary(coverLocalPath);   
+   const oldCoverPublicId = user.coverImage.split('/').pop().split('.')[0];
+
+   if (!coverCloudinaryPath) {
+      throw new ApiError(500, 'Error uploading cover picture');
+   }
+
+  
+
+   const updatedUser = await User.findByIdAndUpdate(userId,
+      {
+         $set: {
+            coverImage: coverCloudinaryPath?.url
+         }
+      },
+      { new: true }
+   )
+   if (!updatedUser) {
+      throw new ApiError(500, 'Error updating cover picture');
+   }
+    await deleteImageFromCloudinary(oldCoverPublicId);
+   res
+      .status(200)
+      .json(
+         new ApiResponse(
+            200,
+            user,
+            'Cover picture updated successfully'
+         )
+      )
+  
+});
+
+const getUserFavourites = asyncHandler(async (req, res) => {
+   const userId = req.user?._id;
+   if (!isValidObjectId(userId)) {
+      throw new ApiError(400, 'Invalid user id');
+   }
+   const favourites = await Favourite.aggregate(
+      [
+         {
+            $match: {
+               userId
+            }
+         },
+         {
+            $lookup: {
+               from: 'rooms',
+               localField: 'roomId',
+               foreignField: '_id',
+               as: 'room',
+               pipeline: [
+                  {
+                     $project: {
+                        _id: 1,
+                        name: 1,
+                        description: 1,
+                        category: 1,
+                        location: 1,
+                        owner: 1,
+                        price: 1,
+                        rating: 1,
+                        thumbnail: 1,
+
+                     }
+                  }
+               ]
+            }
+         },
+         {
+            $project: {
+               room: { $arrayElemAt: ["$room", 0] }
+            }
+         }
+      ]
+   )
+   if (!favourites) {
+      throw new ApiError(404, 'User favourites not found');
+   }
+   res
+      .status(200)
+      .json(
+         new ApiResponse(
+            200,
+            favourites,
+            'User favourites fetched successfully'
+         )
+      )
+});
+
+const getDashboard = asyncHandler(async (req, res) => {
+   const userId = req.user?._id;
+   if (!isValidObjectId(userId)) {
+      throw new ApiError(400, 'Invalid user id');
+   }
+
+   const dashboard = await User.aggregate([
+      {
+         $match: {
+            _id: userId
+         }
+      },
+      {
+         facet :{
+            
+         }
+      }
+   ])
+   if (!dashboard) {
+      throw new ApiError(404, 'Dashboard not found');
+   }
+
+   res
+      .status(200)
+      .json(
+         new ApiResponse(
+            200,
+            dashboard,
+            'Dashboard fetched successfully'
+         )
+      )
+})
+
 export {
    registerUser,
    loginUser,
@@ -277,5 +533,9 @@ export {
    updateUserPassword,
    updateUserProfile,
    deleteUser,
-   refreshAccessToken
+   refreshAccessToken,
+   updateProfilePicture,
+   updateCoverPicture,
+   getUserFavourites,
+   getDashboard
 };

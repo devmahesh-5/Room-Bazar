@@ -8,10 +8,18 @@ import Room from "../models/room.models.js";
 
 const addFavourite = asyncHandler(async (req, res) => {
     const userId = req.user?._id;
-    const roomId = req.params?.id;
+    const roomId = req.params?.roomId;
 
     if(!isValidObjectId(userId) || !isValidObjectId(roomId)){
         throw new ApiError(400, 'Invalid user id or room id');
+    }
+    const existingFavourite = await Favourite.findOne({
+        userId,
+        roomId
+    })
+
+    if(existingFavourite){
+        throw new ApiError(400, 'Room already added to favourites');
     }
 
     const favourite = await Favourite.create({
@@ -40,22 +48,22 @@ const addFavourite = asyncHandler(async (req, res) => {
         new ApiResponse(
             200,
             favourite,
-            'Favourite added successfully'
+            'Room added to favourites successfully'
         )
     )
 });
 
 //when user clicks delete button send delete request with favourite id in params 
-const deleteFavourite = asyncHandler(async (req, res) => {
-    const favouriteId = req.params?.id;
+const removeFromFavourites = asyncHandler(async (req, res) => {
+    const roomId = req.params?.roomId;
 
-    if(!isValidObjectId(favouriteId)){
+    if(!isValidObjectId(roomId)){
         throw new ApiError(400, 'Invalid favourite id');
     }
 
     const deletedFavourite = await Favourite.findOneAndDelete({
-        _id: favouriteId,
-        userId: req.user?._id
+        roomId,
+        userId : req.user?._id
     })
 
     if(!deletedFavourite){
@@ -101,6 +109,6 @@ const getUserFavourites = asyncHandler(async (req, res) => {
 
 export {
     addFavourite,
-    deleteFavourite,
+    removeFromFavourites,
     getUserFavourites
 }

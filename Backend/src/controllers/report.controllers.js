@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Report from "../models/report.models.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
@@ -5,6 +6,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { isValidObjectId } from "mongoose";
 import User from "../models/user.models.js";
 import Notification from "../models/notification.models.js";
+
 const addRoomReport = asyncHandler(async (req, res) => {
     const { reason } = req.body;
 
@@ -13,7 +15,7 @@ const addRoomReport = asyncHandler(async (req, res) => {
     }
 
     const userId = req.user?._id;
-    const roomId = req.params?.id;
+    const roomId = req.params?.roomId;
 
     if (!isValidObjectId(userId) || !isValidObjectId(roomId)) {
         throw new ApiError(400, 'Invalid user id or room id');
@@ -30,7 +32,7 @@ const addRoomReport = asyncHandler(async (req, res) => {
     }
 
     const notification = await Notification.create({
-        receiver: [req.user?._id, 'admin'],
+        receiver: [req.user?._id],
         message: 'Thank you for reporting this room.we will take appropriate action',
         roomId: roomId,
         reportId: report._id
@@ -79,7 +81,7 @@ const addOwnerReport = asyncHandler(async (req, res) => {
         throw new ApiError(500, 'Owner not found');
     }
     const notification = await Notification.create({
-        receiver: [req.user?._id, 'admin'],
+        receiver: req.user?._id,
         message: `Thank you for reporting ${owner.fullName}.we will take appropriate action`,
         reportId: report._id,
     });
@@ -119,15 +121,43 @@ const getAllReports = asyncHandler(async (req, res) => {
 });
 
 const getRoomReport = asyncHandler(async (req, res) => {
-    const roomId = req.params?.id;
+    const roomId = req.params?.roomId;
 
     if (!isValidObjectId(roomId)) {
         throw new ApiError(400, 'Invalid room id');
     }
 
-    const reports = await Report.find({
-        roomId
-    })
+    const reports = await Report.aggregate([
+            {
+                $match: {
+                    roomId: new mongoose.Types.ObjectId(roomId)
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'reporter',
+                    foreignField: '_id',
+                    as: 'reporter',
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                fullName: 1,
+                                email: 1,
+                                phone: 1,
+                                address: 1
+                            }
+                        },
+                    ]
+                }
+            },
+            {
+                $addFields: {
+                    reporter: { $arrayElemAt: ['$reporter', 0] }
+                }
+            }
+    ])
 
     if (!reports) {
         throw new ApiError(500, 'Failed to get reports');
@@ -145,7 +175,7 @@ const getRoomReport = asyncHandler(async (req, res) => {
 });
 
 const getOwnerReport = asyncHandler(async (req, res) => {
-    const ownerId = req.params?.id;
+    const ownerId = req.params?.ownerId;
 
     if (!isValidObjectId(ownerId)) {
         throw new ApiError(400, 'Invalid owner id');

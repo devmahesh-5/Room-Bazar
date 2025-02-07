@@ -1,10 +1,8 @@
 import { Router } from "express";
 
 import {
-    adduserLocation,
-    getLocationByRoom,
-    getLocationByUser,
-    updateLocation
+    adduserLocation
+    
 } from '../controllers/location.controllers.js';
 
 import {verifyAuth} from '../middlewares/auth.middlewares.js';

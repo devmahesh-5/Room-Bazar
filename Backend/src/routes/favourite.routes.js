@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 import {
-    deleteFavourite,
+    removeFromFavourites,
     getUserFavourites
 } from '../controllers/favourite.controllers.js';
 
@@ -12,6 +12,6 @@ const router = Router();
 router.use(verifyAuth);
 
 router.route('/myfavourites').get(getUserFavourites);
-router.route('/myfavourites/:favouriteId').delete(deleteFavourite);
+router.route('/myfavourites/:roomId').delete(removeFromFavourites);
 
 export default router

@@ -1,5 +1,4 @@
 import { Router } from "express";
-
 import {
     createRoom,
     getRoomById,
@@ -11,8 +10,8 @@ import {
     getRoomsByLocation
 } from '../controllers/room.controllers.js';
 
-import { addFavourite } from '../controllers/favourite.controllers.js';
-import { getLocationByRoom, updateLocation } from "../controllers/location.controllers.js";
+import { addFavourite, removeFromFavourites } from '../controllers/favourite.controllers.js';
+import { updateRoomLocation } from "../controllers/location.controllers.js";
 import { addBooking } from "../controllers/booking.controllers.js";
 import { createRefund } from "../controllers/refund.controllers.js";
 
@@ -40,6 +39,11 @@ router.route('/add').post(
         {
             name: 'roomPhotos',
             maxCount: 5
+        },
+        {
+            name: 'video',
+            maxCount: 1,
+            type: 'video/mp4'
         }
     ]),
     createRoom
@@ -62,11 +66,11 @@ router.route('/allrooms').get(getAllRooms);
 router.route('/search').get(searchRooms);
 router.route('/category/:category').get(getRoomsByCategory);
 router.route('/location/:location').get(getRoomsByLocation);
-router.route('/:roomId').get(getRoomById).post(addFavourite);
+router.route('/:roomId').get(getRoomById).post(addFavourite).delete(removeFromFavourites);
 
 //location route
 
-router.route('/location/:roomId').get(getLocationByRoom).patch(updateLocation);
+router.route('/location/:roomId').patch(updateRoomLocation);
 
 
 //Booking route
@@ -77,12 +81,14 @@ router.route('/refund/:roomId').post(createRefund);
 
 //report route
 router.route('/addreport/:roomId').post(addRoomReport);
-router.route('/getreports/:roomId').get(getRoomReport);
+router.route('/reports/:roomId').get(getRoomReport);
 
 //review route
-router.route('/reviews/:roomId').post(addReview).
-    delete(deleteReview).
-    get(getReviews).
-    patch(updateReview);
+router.route('/reviews/:roomId')
+    .post(addReview)
+    .get(getReviews);
 
+router.route('/reviews/:roomId/:reviewId')
+    .delete(deleteReview)
+    .patch(updateReview);
 export default router

@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Room from "./room.models.js";
 import {ApiError} from "../utils/ApiError.js";
+import Booking from "./booking.models.js";
 const paymentSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -39,11 +40,11 @@ paymentSchema.pre('save', async function (next) {
      const room = await Room.findById(this.roomId);
      if(!room) throw new ApiError(500, 'Room not found');
      
-     const Booking = await Booking.findOne({ roomId: room._id });
-     if(!Booking) throw new ApiError(500, 'Booking not found');
+     const booking = await Booking.findOne({ roomId: room._id });
+     if(!booking) throw new ApiError(500, 'Booking not found');
 
-     Booking.Payment = this._id;
-     await Booking.save({ validateBeforeSave: false });
+     booking.payment = this._id;
+     await booking.save({ validateBeforeSave: false });
      if (this.status === 'Success') {
          room.status = 'Booked';
          await room.save({ validateBeforeSave: false });

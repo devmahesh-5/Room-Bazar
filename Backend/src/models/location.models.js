@@ -18,6 +18,10 @@ const locationSchema = new mongoose.Schema({
     roomid : {
         type : mongoose.Schema.Types.ObjectId,
         ref : 'Room',
+    },
+    roomOwner : {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'User',
     }
 },{timestamps : true});
 

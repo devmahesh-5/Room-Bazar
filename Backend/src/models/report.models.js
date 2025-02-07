@@ -8,8 +8,7 @@ const reportSchema = new mongoose.Schema({
     },
     roomId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Room',
-        required: true
+        ref: 'Room'
     },
     reason: {
         type: String,
@@ -17,8 +16,7 @@ const reportSchema = new mongoose.Schema({
     },
     roomOwner: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+        ref: 'User'
     }
 },{timestamps : true});
 

@@ -9,6 +9,10 @@ const roomSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    rentPerMonth: {
+        type: Number,
+        required: true
+    },
     price: {
         type: Number,
         required: true
@@ -21,7 +25,7 @@ const roomSchema = new mongoose.Schema({
         type : Number,
         required: true
     },
-    photos: [
+    roomPhotos: [
         {
             type: String
         }

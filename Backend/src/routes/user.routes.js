@@ -8,17 +8,24 @@ import {
     updateUserPassword,
     updateUserProfile,
     deleteUser,
-    refreshAccessToken
+    refreshAccessToken,
+    updateProfilePicture,
+    updateCoverPicture,
+    getUserFavourites,
+    getDashboard
 } from '../controllers/user.controllers.js';
 
-import {getLocationByUser} from '../controllers/location.controllers.js';
+import { getLocationByUser,updateUserLocation } from '../controllers/location.controllers.js';
 
-import { addOwnerReport,getOwnerReport } from "../controllers/report.controllers.js";
+import { addOwnerReport, getOwnerReport } from "../controllers/report.controllers.js";
 
 import { verifyAuth } from '../middlewares/auth.middlewares.js';
 import { upload } from "../middlewares/multer.middlewares.js";
 const router = Router();
-router.route('/register').post(//first thing controllers runs after user set data and click submit but using middleware, middleware runs (here files upload) and then only other data is got from user in controller
+
+
+
+router.route('/register').post(
     upload.fields([
         {
             name: 'avatar',
@@ -40,11 +47,16 @@ router.route('/logout').post(
     logoutUser
 )
 
+router.route('/dashboard').get(
+    verifyAuth,
+    getDashboard
+)
+
 router.route('/refresh-token').post(
     refreshAccessToken
 )
 
-router.route('/change-password').post(
+router.route('/change-password').patch(
     verifyAuth,
     updateUserPassword
 )
@@ -54,24 +66,31 @@ router.route('/myprofile').get(
     getUserProfile
 )
 
+router.route('/myfavourites').get(  
+    verifyAuth,
+    getUserFavourites
+)
+
 router.route('/updateprofile').patch(
     verifyAuth,
-    upload.fields([
-        {
-            name: 'avatar',
-            maxCount: 1
-        },
-        {
-            name: 'coverImage',
-            maxCount: 1
-        }
-    ]),
     updateUserProfile
 )
 
 router.route('/delete-account').delete(
     verifyAuth,
     deleteUser
+)
+
+router.route('/updateprofilepicture').patch(
+    verifyAuth,
+    upload.single('avatar'),
+    updateProfilePicture
+)
+
+router.route('/updatecoverpicture').patch(
+    verifyAuth,
+    upload.single('coverImage'),
+    updateCoverPicture
 )
 
 router.route('/mylocation').get(
@@ -83,9 +102,16 @@ router.route('/addreport/:ownerId').post(
     verifyAuth,
     addOwnerReport
 )
-router.route('/getreports/:ownerId').get(
+
+router.route('/reports/:ownerId').get(
     verifyAuth,
     getOwnerReport
+)
+
+//location
+router.route('/updatelocation').patch(
+    verifyAuth,
+    updateUserLocation
 )
 
 export default router

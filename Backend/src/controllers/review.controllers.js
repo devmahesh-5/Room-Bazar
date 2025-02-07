@@ -6,17 +6,16 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import Notification from "../models/notification.models.js";
 import User from "../models/user.models.js";
 import Room from "../models/room.models.js";
-
+import { isValidObjectId } from "mongoose";
 const addReview = asyncHandler(async (req, res) => {
     const { rating, comment } = req.body;
-    
     const userId = req.user?._id;
-    const roomId = req.params?.id;
+    const roomId = req.params?.roomId;
 
     if ([rating, comment].some((field) => !field || field.trim() === '')) {
         throw new ApiError(400, 'All fields are required');
     }
-
+    const trimmedComment = comment.trim();
     if (!isValidObjectId(userId) || !isValidObjectId(roomId)) {
         throw new ApiError(400, 'Invalid user id or room id');
     }
@@ -25,7 +24,7 @@ const addReview = asyncHandler(async (req, res) => {
         userId,
         roomId,
         rating,
-        comment
+        comment: trimmedComment
     })
 
     if (!review) {
@@ -58,7 +57,8 @@ const addReview = asyncHandler(async (req, res) => {
 });
 
 const deleteReview = asyncHandler(async (req, res) => {
-    const reviewId = req.params?.id;
+    const roomId = req.params?.roomId;
+    const reviewId = req.params?.reviewId;
 
     if (!isValidObjectId(reviewId)) {
         throw new ApiError(400, 'Invalid review id');
@@ -66,6 +66,7 @@ const deleteReview = asyncHandler(async (req, res) => {
 
     const deletedReview = await Review.findOneAndDelete({
         _id: reviewId,
+        roomId,
         userId: req.user?._id
     })
 
@@ -86,15 +87,49 @@ const deleteReview = asyncHandler(async (req, res) => {
 });
 
 const getReviews = asyncHandler(async (req, res) => {
-    const roomId = req.params?.id;
+    const roomId = req.params?.roomId;
 
     if (!isValidObjectId(roomId)) {
         throw new ApiError(400, 'Invalid room id');
     }
 
-    const reviews = await Review.find({
-        roomId
-    })
+    const reviews = await Review.aggregate([
+        {
+            $match: {
+                roomId: new mongoose.Types.ObjectId(roomId)
+            }
+        },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'userId',
+                foreignField: '_id',
+                as: 'user',
+                pipeline: [
+                    {
+                        $project: {
+                            fullName: 1,
+                            avatar: 1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $addFields: {
+                user: { $arrayElemAt: ['$user', 0] }
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                rating: 1,
+                comment: 1,
+                createdAt: 1,
+                user: 1,
+            }
+        }
+    ])
 
     if (!reviews) {
         throw new ApiError(404, 'Reviews not found');
@@ -112,22 +147,29 @@ const getReviews = asyncHandler(async (req, res) => {
 });
 
 const updateReview = asyncHandler(async (req, res) => {
-    const reviewId = req.params?.id;
-    const { rating, comment } = req.body;
+    const roomId = req.params?.roomId;
+    const reviewId = req.params?.reviewId;
+    const updatedParameters = req.body;
+
+    Object.keys(updatedParameters).forEach((key) => {
+        if (!updatedParameters[key]) {
+            delete updatedParameters[key];
+        }else{
+        updatedParameters[key] = updatedParameters[key].trim();
+    }
+    });
     if (!isValidObjectId(reviewId)) {
         throw new ApiError(400, 'Invalid review id');
     }
 
     const updatedReview = await Review.findOneAndUpdate(
-        {
+        {        
+            roomId,
             _id: reviewId,
             userId: req.user?._id
         },
         {
-            $set: {
-                rating,
-                comment
-            }
+            $set: updatedParameters
         },
         {
             new: true

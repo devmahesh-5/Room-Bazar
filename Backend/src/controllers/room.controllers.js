@@ -7,13 +7,17 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import uploadOnCloudinary, { uploadMultipleFilesOnCloudinary, deleteImageFromCloudinary } from "../utils/Cloudinary.js";
-
+import { isValidObjectId } from "mongoose";
 const createRoom = asyncHandler(async (req, res) => {
-    const { title, description, capacity, price, category, status, totalRooms, esewaId } = req.body;
+    const { title, description, capacity, price, category, status, totalRooms, esewaId,rentPerMonth } = req.body;
 
-    if ([title, description, capacity, price, category, status, totalRooms, esewaId].some((field) => !field || field.trim() === '')) {
+    if ([title, description, capacity, price, category, status, totalRooms, esewaId,rentPerMonth].some((field) => !field || field.trim() === '')) {
         throw new ApiError(400, 'All fields are required');
     }
+    
+    
+    
+    
     const thumbnailLocalPath = req.files?.thumbnail[0]?.path;
     if (!thumbnailLocalPath) {
         throw new ApiError(400, 'Room thumbnail is required');
@@ -21,14 +25,27 @@ const createRoom = asyncHandler(async (req, res) => {
     const thumbnailCloudinaryPath = await uploadOnCloudinary(thumbnailLocalPath);
 
     const roomPhotosLocalPath = req.files?.roomPhotos?.map((file) => file.path);
-
+    // console.log(roomPhotosLocalPath);
+    
     if (!roomPhotosLocalPath || roomPhotosLocalPath.length === 0) {
         throw new ApiError(400, 'Room photos are required');
     }
-
-    let roomPhotosCloudinaryPath = await uploadMultipleFilesOnCloudinary(roomPhotosLocalPath);
-
+    
+    
+    let roomPhotosCloudinaryPath = await uploadMultipleFilesOnCloudinary(...roomPhotosLocalPath);
+    
     // roomPhotosCloudinaryPath = roomPhotosCloudinaryPath.map((photo) => photo.url);
+
+    const videoLocalPath = req.files?.video[0]?.path;
+    
+    if(!videoLocalPath){
+        throw new ApiError(400, 'Room video is required');
+    }
+
+    const videoCloudinaryPath = await uploadOnCloudinary(videoLocalPath);
+    if(!videoCloudinaryPath){
+        throw new ApiError(500, 'Room video upload failed');
+    }
 
     if (!roomPhotosCloudinaryPath || roomPhotosCloudinaryPath.length === 0) {
         throw new ApiError(500, 'Failed to upload image');
@@ -45,6 +62,8 @@ const createRoom = asyncHandler(async (req, res) => {
         thumbnail: thumbnailCloudinaryPath.url,
         esewaId,
         owner: req.user._id,
+        rentPerMonth,
+        video: videoCloudinaryPath.url
     })
 
     if (!room) {
@@ -55,13 +74,21 @@ const createRoom = asyncHandler(async (req, res) => {
         latitude: req.body.latitude,
         longitude: req.body.longitude,
         address: req.body.address,
-        roomid: room._id
+        roomid: room._id,
+        roomOwner: room.owner
     })
 
     if (!location) {
         throw new ApiError(500, 'Failed to add location');
     }
 
+   await Room.findByIdAndUpdate(room._id, {
+        $set: {
+            location: location._id
+        }
+    }, { new: true })
+
+    
     await Notification.create({
         receiver: room.owner,
         message: `Room ${room.title} has been Listed`,
@@ -87,36 +114,65 @@ const updateRoom = asyncHandler(async (req, res) => {
             delete roomDetails[key];
         }
     })
-    const thumbnailLocalPath = req.file?.path;
+    const thumbnailLocalPath = req.files?.thumbnail[0]?.path;
+    
+    const roomPhotosLocalPath = req.files?.roomPhotos?.map((file) => file.path);
+    if (!roomPhotosLocalPath || roomPhotosLocalPath.length === 0) {
+        throw new ApiError(400, 'Room photos are required');
+    }
+
+    const roomPhotosCloudinaryPath = await uploadMultipleFilesOnCloudinary(...roomPhotosLocalPath);
+
+    if (!roomPhotosCloudinaryPath || roomPhotosCloudinaryPath.length === 0) {
+        throw new ApiError(500, 'Failed to upload image');
+    }
+    
     if (!thumbnailLocalPath) {
         throw new ApiError(400, 'Room thumbnail is required');
     }
-    const oldRoom = await Room.findById(req.params?.id);
+
+    const oldRoom = await Room.findById(req.params?.roomId);
 
 
     const thumbnailCloudinaryPath = await uploadOnCloudinary(thumbnailLocalPath);
 
-    if (oldRoom) {
-        const oldRoomThumbnail = oldRoom.thumbnail;
-        if (oldRoomThumbnail) {
-            const oldRoomThumbnailPublicId = oldRoomThumbnail.split('/').pop().split('.')[0];
-            await deleteImageFromCloudinary(oldRoomThumbnailPublicId);
-        }
-    } else {
-        console.warn("Could not delete old room thumbnail");
-    }
+   
     if (!thumbnailCloudinaryPath) {
         throw new ApiError(500, 'Failed to upload image');
     }
 
 
 
-    const updatedRoom = await Room.findByIdAndUpdate(req.params?.id, {
-        $set: { ...roomDetails, thumbnail: thumbnailCloudinaryPath.url }
+    const updatedRoom = await Room.findByIdAndUpdate(req.params?.roomId, {
+        $set: { ...roomDetails, thumbnail: thumbnailCloudinaryPath.url, roomPhotos: roomPhotosCloudinaryPath }
     }, { new: true })
 
     if (!updatedRoom) {
         throw new ApiError(500, 'Failed to update room');
+    }
+
+    if (oldRoom) {
+        const oldRoomThumbnail = oldRoom.thumbnail;
+        if (oldRoomThumbnail) {
+            const oldRoomThumbnailPublicId = oldRoomThumbnail.split('/').pop().split('.')[0];
+            await deleteImageFromCloudinary(oldRoomThumbnailPublicId);
+            const oldRoomPhotos = oldRoom.roomPhotos;
+            if (oldRoomPhotos) {
+                try {
+                const oldRoomPhotosPublicIds = oldRoomPhotos.map((photo) => photo.split('/').pop().split('.')[0]);  
+                
+                    await Promise.all(
+                      oldRoomPhotosPublicIds.map(async (publicid) => {
+                        await deleteImageFromCloudinary(publicid);
+                      })
+                    );
+                  } catch (error) {
+                    throw new ApiError(500, 'Failed to delete old room photos');
+                  }
+            }
+        }
+    } else {
+        console.warn("Could not delete old room thumbnail");
     }
 
     res
@@ -131,7 +187,7 @@ const updateRoom = asyncHandler(async (req, res) => {
 });
 
 const deleteRoom = asyncHandler(async (req, res) => {
-    const roomId = req.params?.id;
+    const roomId = req.params?.roomId;
     const userId = req.user?._id;
 
     if (!isValidObjectId(roomId) || !isValidObjectId(userId)) {
@@ -161,7 +217,7 @@ const deleteRoom = asyncHandler(async (req, res) => {
 });
 
 const getRoomById = asyncHandler(async (req, res) => {
-    const roomId = req.params?.id;
+    const roomId = req.params?.roomId;
 
     if (!isValidObjectId(roomId)) {
         throw new ApiError(400, 'Invalid room id');
@@ -178,7 +234,16 @@ const getRoomById = asyncHandler(async (req, res) => {
                 from: 'users',
                 localField: 'owner',
                 foreignField: '_id',
-                as: 'owner'
+                as: 'owner',
+                pipeline: [
+                    {
+                        $project: {
+                            fullName: 1,
+                            phone : 1,
+                            avatar : 1
+                        }
+                    }
+                ]
             }
         },
         {
@@ -209,7 +274,6 @@ const getRoomById = asyncHandler(async (req, res) => {
                 totalRooms: 1,
                 roomPhotos: 1,
                 thumbnail: 1,
-                esewaId: 1,
                 createdAt: 1,
                 updatedAt: 1
             }
@@ -293,7 +357,7 @@ const getAllRooms = asyncHandler(async (req, res) => {
 const searchRooms = asyncHandler(async (req, res) => {
 
     const { page = 1, limit = 10, query, } = req.query;
-
+    query = query.trim().toLowerCase();
     const searchQuery = {
         $or: [
             { title: { $regex: query, $options: 'i' } },
@@ -409,6 +473,14 @@ const getRoomsByCategory = asyncHandler(async (req, res) => {
                 }
             },
             {
+                $lookup: {
+                    from: 'locations',
+                    localField: 'location',
+                    foreignField: '_id',
+                    as: 'location'
+                }
+            },
+            {
                 $addFields: {
                     owner: { $arrayElemAt: ['$owner', 0] }
                 }
@@ -463,9 +535,15 @@ const getRoomsByLocation = asyncHandler(async (req, res) => {
                     pipeline: [
                         {
                             $project: {
+                                _id: 1,
                                 latitude: 1,
                                 longitude: 1,
                                 address: 1
+                            }
+                        },
+                        {
+                            $addFields: {
+                                address: { $toLower: '$address' }
                             }
                         }
                     ]
@@ -516,7 +594,9 @@ const getRoomsByLocation = asyncHandler(async (req, res) => {
                     status: 1,
                     totalRooms: 1,
                     owner: 1,
-                    thumbnail: 1
+                    thumbnail: 1,
+                    roomPhotos: 1,
+                    location: 1
                 }
             }
         ]
