@@ -7,6 +7,9 @@ import {ApiError} from "../utils/ApiError.js";
 import {options} from '../constants.js';
 import Location from "../models/location.models.js";
 import Favourite from "../models/favourite.models.js";
+import Room from "../models/room.models.js";
+import Payment from "../models/payment.models.js";
+import Refund from "../models/refund.models.js";
 const generateAccessAndRefreshTokens = async (userId) => {
    const user = await User.findById(userId);
    const accessToken = user.generateAccessToken();
@@ -498,18 +501,90 @@ const getDashboard = asyncHandler(async (req, res) => {
       throw new ApiError(400, 'Invalid user id');
    }
 
-   const dashboard = await User.aggregate([
-      {
-         $match: {
-            _id: userId
+   const favourites = await Favourite.aggregate(
+      [
+         {
+            $match: {
+               userId
+            }
+         },
+         {
+            $lookup: {
+               from: 'rooms',
+               localField: 'roomId',
+               foreignField: '_id',
+               as: 'room',
+               pipeline: [
+                  {
+                     $project: {
+                        _id: 1,
+                        name: 1,
+                        description: 1,
+                        category: 1,
+                        location: 1,
+                        owner: 1,
+                        price: 1,
+                        rating: 1,
+                        thumbnail: 1,
+                     }
+                  }
+               ]
+            }
+         },
+
+         {
+            $group :{
+               _id : null,
+               rooms : {
+                  $push : '$room'
+               },
+               totalRooms : {
+                  $sum : 1
+               }
+            }
          }
-      },
-      {
-         facet :{
-            
+      ]
+   )
+
+   const myRooms = await Room.aggregate(
+      [
+         {
+            $match : {
+               owner : userId
+            }
+         },
+         {
+            $project : {
+               _id : 1,
+               name : 1,
+               category : 1,
+               price : 1,
+               thumbnail : 1,
+            }
+         },
+         {
+            $group : {
+               _id : null,
+               rooms : {
+                  $push : '$$ROOT'
+               },
+               totalRooms : {
+                  $sum : 1
+               }
+            }
          }
-      }
-   ])
+      ]
+   )
+   const myPayments = await Payment.find({ userId })
+   const requestedRefunds = await Refund.find({ userId })
+   //Add myRoommates
+   const dashboard = {
+      myRooms,
+      favourites,
+      myPayments,
+      requestedRefunds,
+      //myRoommates
+   }
    if (!dashboard) {
       throw new ApiError(404, 'Dashboard not found');
    }
