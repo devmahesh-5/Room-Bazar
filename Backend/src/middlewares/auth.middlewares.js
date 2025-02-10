@@ -3,7 +3,7 @@ import {ApiError} from "../utils/ApiError.js";
 import {asyncHandler} from "../utils/asyncHandler.js";
 import User from "../models/user.models.js";
 const verifyAuth = asyncHandler(async (req, res, next) => {
-    const token = req.cookies.accessToken || req.headers.authorization.replace("Bearer ", "");
+    const token = req.cookies.accessToken || req.headers.authorization?.replace("Bearer ", "");
     if (!token) {
         throw new ApiError(401, "User not authenticated");
     }

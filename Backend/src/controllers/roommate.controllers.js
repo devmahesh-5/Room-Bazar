@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Room from "../models/room.models.js";
 import User from "../models/user.models.js";
 import Notification from "../models/notification.models.js";
@@ -8,11 +9,55 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { isValidObjectId } from "mongoose";
 import { uploadMultipleFilesOnCloudinary } from "../utils/Cloudinary.js";
+import Location from "../models/location.models.js";
+
+const getRoommateByUserId = async(userId) => {
+
+    const roommate = await RoommateAccount.aggregate(
+        [
+            {
+                $match: {
+                    userId: new mongoose.Types.ObjectId(userId)
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'userId',
+                    foreignField: '_id',
+                    as: 'user',
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                fullName: 1
+                            }
+                    }]
+                },
+                
+            },
+            {
+                $addFields: {
+                    user: { $arrayElemAt: ['$user', 0] },
+                }
+            },
+            {
+             $project: {
+                 _id: 1,
+                 user: 1
+             }   
+            }
+        ]
+    );
+
+    return roommate[0];
+}
 
 const registerRoommate = asyncHandler(async (req, res) => {
-    const { job, pets, smoking, haveRoom, description } = req.body;
-
-    if ([job, pets, smoking, haveRoom, description].some((field) => !field || field.trim() === '')) {
+    const {job, pets, smoking, haveRoom, description,address,latitude,longitude} = req.body;
+    // console.log(req.body);
+    
+    if ([job, pets, smoking, haveRoom, description,address].some((field) => !field || !field.trim() === '')) {
         throw new ApiError(400, 'All fields are required');
     }
 
@@ -24,18 +69,23 @@ const registerRoommate = asyncHandler(async (req, res) => {
 
     const roomPhotosLocalPath = req.files?.roomPhotos?.map((file) => file.path);
 
-    if (!roomPhotosLocalPath || roomPhotosLocalPath.length === 0) {
-        throw new ApiError(400, 'Room photos are required');
+    // if (!roomPhotosLocalPath || roomPhotosLocalPath.length === 0) {
+    //     throw new ApiError(400, 'Room photos are required');
+    // }
+
+    let roomPhotosCloudinaryPath;
+
+    if (roomPhotosLocalPath && roomPhotosLocalPath.length > 0) {
+
+        roomPhotosCloudinaryPath = await uploadMultipleFilesOnCloudinary(...roomPhotosLocalPath);
+    
+        // const roomPhotosCloudinaryPathurls = roomPhotosCloudinaryPath.map((photo) => photo.url);
+    
+        if (!roomPhotosCloudinaryPath || roomPhotosCloudinaryPath.length === 0) {
+            throw new ApiError(500, 'Failed to upload image');
+        }
     }
-
-    const roomPhotosCloudinaryPath = await uploadMultipleFilesOnCloudinary(roomPhotosLocalPath);
-
-    const roomPhotosCloudinaryPathurls = roomPhotosCloudinaryPath.map((photo) => photo.url);
-
-    if (!roomPhotosCloudinaryPath || roomPhotosCloudinaryPath.length === 0) {
-        throw new ApiError(500, 'Failed to upload image');
-    }
-
+    
     const roommate = await RoommateAccount.create({
         userId: req.user?._id,
         job,
@@ -43,34 +93,71 @@ const registerRoommate = asyncHandler(async (req, res) => {
         smoking,
         haveRoom,
         description,
-        roomPhotos: roomPhotosCloudinaryPathurls
+        roomPhotos: roomPhotosCloudinaryPath
     })
+    const location = await Location.create({
+        latitude,
+        longitude,
+        address,
+        roommate : roommate._id
+    })
+    if(!Location){
+        throw new ApiError(500, 'Failed to add location');
+    }
+    const updatedRoommate = await RoommateAccount.findByIdAndUpdate(roommate._id,
+        {
+            $set: {
+                location: location._id
+            }
+        },
+        { new: true }
+    )
+
+    if(!updatedRoommate){
+        throw new ApiError(500, 'Failed to add location');
+    }
 
     res
         .status(200)
         .json(
             new ApiResponse(
                 200,
-                roommate,
+                updatedRoommate,
                 'Roommate registered successfully'
             )
         )
 });
 
 const updateRoommate = asyncHandler(async (req, res) => {
-    const roommateId = req.params?.roommateId;
+    const userId = req.user?._id;  
 
-    if (!isValidObjectId(roommateId)) {
+    if (!isValidObjectId(userId)) {
         throw new ApiError(400, 'Invalid room id');
     }
 
-    const { job, pets, smoking, haveRoom, description } = req.body;
+    const { job, pets, smoking, haveRoom, description,address,latitude,longitude } = req.body;
 
-    if ([job, pets, smoking, haveRoom, description].some((field) => !field || field.trim() === '')) {
+    if ([job, pets, smoking, haveRoom, description,address].some((field) => !field || field.trim() === '')) {
         throw new ApiError(400, 'All fields are required');
     }
 
-    const updatedRoommate = await RoommateAccount.findByIdAndUpdate(roommateId,
+    const roommate = await RoommateAccount.findOne({ userId });
+
+    if (!roommate) {
+        throw new ApiError(404, 'Roommate not found');
+    }
+    const updatedLocation = await Location.findOneAndUpdate(
+        { roommate: roommate._id },
+        {
+            $set: {
+                address,
+                latitude,
+                longitude
+            }
+        },
+    )
+    const updatedRoommate = await RoommateAccount.findOneAndUpdate(
+        { userId },
         {
             $set: {
                 job,
@@ -82,6 +169,14 @@ const updateRoommate = asyncHandler(async (req, res) => {
         },
         { new: true }
     )
+
+    if (!updatedRoommate) {
+        throw new ApiError(500, 'Failed to update roommate');
+    }
+
+    if(!updatedLocation){
+        throw new ApiError(500, 'Failed to update location');
+    }
 
     res
         .status(200)
@@ -95,7 +190,62 @@ const updateRoommate = asyncHandler(async (req, res) => {
 });
 
 const getRoommates = asyncHandler(async (req, res) => {
-    const roommates = await RoommateAccount.find();
+    const roommates = await RoommateAccount.aggregate([
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'userId',
+                foreignField: '_id',
+                as: 'user',
+                pipeline: [
+                    {
+                        $project: {
+                            fullName: 1,
+                            avatar: 1
+                        }
+                    }
+                ]
+            }
+        },{
+            $addFields: {
+                user: { $arrayElemAt: ['$user', 0] }
+            }
+        },
+        {
+            $lookup :{
+                from : 'locations',
+                localField : '_id',
+                foreignField : 'roommate',
+                as : 'location',
+                pipeline: [
+                    {
+                        $project: {
+                            latitude: 1,
+                            longitude: 1,
+                            address: 1
+                        
+                }}]
+            }
+        },
+        {
+            $addFields: {
+                location: { $arrayElemAt: ['$location', 0] }
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                user: 1,
+                job: 1,
+                pets: 1,
+                smoking: 1,
+                haveRoom: 1,
+                description: 1,
+                roomPhotos: 1,
+                location: 1
+            }
+        }
+    ]);
 
     if (!roommates) {
         throw new ApiError(404, 'Roommates not found');
@@ -114,13 +264,78 @@ const getRoommates = asyncHandler(async (req, res) => {
 });
 
 const getRoommateById = asyncHandler(async (req, res) => {
-    const roommateId = req.params?.id;
+    const roommateId = req.params?.roommateId;
 
     if (!isValidObjectId(roommateId)) {
-        throw new ApiError(400, 'Invalid room id');
+        throw new ApiError(400, 'Invalid roommate id');
     }
 
-    const roommate = await RoommateAccount.findById(roommateId);
+    // console.log(roommateId);
+    
+    const roommate = await RoommateAccount.aggregate(
+        [
+            {
+                $match: {
+                    _id: new mongoose.Types.ObjectId(roommateId)
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'userId',
+                    foreignField: '_id',
+                    as: 'user',
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                fullName: 1,
+                                email: 1,
+                                phone: 1,
+                                address: 1
+                            }
+                        },
+                    ]
+                }
+            },
+            {
+                $lookup:{
+                    from : 'locations',
+                    localField : '_id',
+                    foreignField : 'roommate',
+                    as : 'location',
+                    pipeline: [
+                        {
+                            $project: {
+                                latitude: 1,
+                                longitude: 1,
+                                address: 1
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                $addFields: {
+                    user: { $arrayElemAt: ['$user', 0] },
+                    location: { $arrayElemAt: ['$location', 0] }
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    user: 1,
+                    job: 1,
+                    pets: 1,
+                    smoking: 1,
+                    haveRoom: 1,
+                    description: 1,
+                    roomPhotos: 1,
+                    location: 1
+                }
+            }
+        ]
+    );
 
     if (!roommate) {
         throw new ApiError(404, 'Roommate not found');
@@ -137,17 +352,157 @@ const getRoommateById = asyncHandler(async (req, res) => {
         )
 });
 
-const deleteRoommateAccount = asyncHandler(async (req, res) => {
-    const roommateId = req.params?.id;
+const getMyRoommates = asyncHandler(async(req, res) => {
+    const userId = req.user._id;
+    const myRoommateAccount = await getRoommateByUserId(userId);
+    if(!myRoommateAccount){
+        throw new ApiError(404, 'Roommate not found');
+    }
 
-    if (!isValidObjectId(roommateId)) {
+    const myRoommates = await RoommateRequest.aggregate(
+        [
+            {
+                $match:{
+                   $or:[
+                        {sender:myRoommateAccount._id},
+                        {receiver:myRoommateAccount._id}
+                    ],
+                    status:'Accepted'
+                }
+                
+                },
+            {
+                $lookup: {
+                    from : 'roommateaccounts',
+                    localField : 'sender',
+                    foreignField : '_id',
+                    as : 'sender',
+                    pipeline: [
+                        {
+                            $lookup:{
+                                from : 'users',
+                                localField : 'userId',
+                                foreignField : '_id',
+                                as : 'user',
+                                pipeline: [
+                                    {
+                                        $project: {
+                                            _id: 1,
+                                            fullName: 1,
+                                            email: 1,
+                                            phone: 1,
+                                            address: 1
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            $addFields:{
+                                user:{$arrayElemAt:['$user',0]}
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                user: 1,
+                                job: 1,
+                                smoking: 1,
+                                pets: 1,
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                $lookup: {
+                    from : 'roommateaccounts',
+                    localField : 'receiver',
+                    foreignField : '_id',
+                    as : 'receiver',
+                    pipeline: [
+                        {
+                            $lookup:{
+                                from : 'users',
+                                localField : 'userId',
+                                foreignField : '_id',
+                                as : 'user',
+                                pipeline: [
+                                    {
+                                        $project: {
+                                            _id: 1,
+                                            fullName: 1,
+                                            email: 1,
+                                            phone: 1,
+                                            address: 1
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            $addFields:{
+                                user:{$arrayElemAt:['$user',0]}
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                user: 1,
+                                job: 1,
+                                smoking: 1,
+                                pets: 1,
+                        }
+                        }
+                    ]
+                }         
+            },
+            {
+                $project:{
+                    myRoommates:{
+                        $cond: {
+                            if: { $eq: ["$sender._id", myRoommateAccount._id] },
+                            then: "$receiver",
+                            else: "$sender"
+                        }
+                    }
+                }
+            }
+        ]
+    )
+
+    if(!myRoommates){
+        throw new ApiError(404, 'Roommates not found');
+    }
+
+    res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                myRoommates,
+                'Roommates fetched successfully'
+            )
+        )
+})
+
+const deleteRoommateAccount = asyncHandler(async (req, res) => {
+    const userId = req.user?.id;
+
+    if (!isValidObjectId(userId)) {
         throw new ApiError(400, 'Invalid room id');
     }
 
-    const deletedRoommateAccount = await RoommateAccount.findById(roommateId);
+    const deletedRoommateAccount = await RoommateAccount.findOneAndDelete(userId);
+
+    const deletedLocation = await Location.findOneAndDelete({roommate: deletedRoommateAccount._id});
 
     if (!deletedRoommateAccount) {
         throw new ApiError(500, "Failed to delete account");
+    }
+
+    if(!deletedLocation){
+        throw new ApiError(500, "Failed to delete location");
     }
 
     res
@@ -195,8 +550,17 @@ const searchRoomates = asyncHandler(async (req, res) => {
                 }
             },
             {
+                $lookup: {
+                    from: 'locations',
+                    localField: '_id',
+                    foreignField: 'roommate',
+                    as: 'location'
+                }
+            },
+            {
                 $addFields: {
-                    user: { $arrayElemAt: ['$user', 0] }
+                    user: { $arrayElemAt: ['$user', 0] },
+                    location: { $arrayElemAt: ['$location', 0] }
                 }
             },
             {
@@ -218,7 +582,8 @@ const searchRoomates = asyncHandler(async (req, res) => {
                     pets: 1,
                     smoking: 1,
                     haveRoom: 1,
-                    description: 1
+                    description: 1,
+                    location: 1
                 }
             }
 
@@ -241,9 +606,51 @@ const searchRoomates = asyncHandler(async (req, res) => {
 });
 
 const getRoommateByJob = asyncHandler(async (req, res) => {
-    const job = req.params?.job;
-
-    const roommates = await RoommateAccount.find({ job });
+    const {job} = req.body;
+    
+    const roommates = await RoommateAccount.aggregate(
+        [
+            {
+                $match: {
+                    job: job
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'userId',
+                    foreignField: '_id',
+                    as: 'user',
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                fullName: 1,
+                                email: 1,
+                                phone: 1,
+                                address: 1
+                            }
+                        },
+                    ]
+                }
+            },
+            {
+                $addFields: {
+                    user: { $arrayElemAt: ['$user', 0] }
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    user: 1,
+                    job: 1,
+                    pets: 1,
+                    smoking: 1,
+                    haveRoom: 1
+                }
+            }
+        ]
+    );
 
     if (!roommates) {
         throw new ApiError(404, 'Roommates not found');
@@ -260,6 +667,9 @@ const getRoommateByJob = asyncHandler(async (req, res) => {
         )
 });
 
+
+//request actions
+
 const sendRoommateRequest = asyncHandler(async (req, res) => {
     //Algorithm
     //get user id from token
@@ -271,20 +681,29 @@ const sendRoommateRequest = asyncHandler(async (req, res) => {
     //check if user is already a roommate request
     //check if roommate is already a roommate request
     //create roommate request
-
+    const userId = req.user?._id;
+    const roommate = await getRoommateByUserId(userId);
+    if(!roommate){
+        throw new ApiError(404, 'Roommate not found');
+    }
+    
     const existingRequest = await RoommateRequest.findOne({
         $or: [
-            { sender: req.user?._id, receiver: req.params?.roommateId },
-            { sender: req.params?.roommateId, receiver: req.user?._id }
+            { sender: roommate._id, receiver: req.params?.roommateId },
+            { sender: req.params?.roommateId, receiver: roommate._id }
         ]
     })
+
+    if(roommate._id.toString()===req.params?.roommateId){
+        throw new ApiError(400, 'You cannot send a request to yourself');
+    }
 
     if (existingRequest) {
         throw new ApiError(400, 'Roommate request already exists');
     }
 
     const roommateRequest = await RoommateRequest.create({
-        sender: req.user?._id,
+        sender: roommate._id,
         receiver: req.params?.roommateId,
         status: 'Pending'
     })
@@ -292,11 +711,12 @@ const sendRoommateRequest = asyncHandler(async (req, res) => {
     if (!roommateRequest) {
         throw new ApiError(500, "Failed to send request");
     }
-    const receiver = await User.findById(req.params?.roommateId);
+    const notificationReceiverRoommate = await RoommateAccount.findById(req.params?.roommateId);
+    const notificationReceiverUser = notificationReceiverRoommate.userId;
     await Notification.create({
-        receiver: req.params?.roommateId,
-        message: `${receiver.fullName} sent you a Roommate request`,
-        roommateId: req.user?._id
+        receiver: notificationReceiverUser,
+        message: `${roommate.user.fullName} sent you a Roommate request`,
+        roommateId: roommate._id
     })
 
     res
@@ -315,11 +735,14 @@ const acceptRoommateRequest = asyncHandler(async (req, res) => {
     //get user id from token(receiver)
     //get roommate id from params(sender)
     //check if user id is valid
-
+    const userId = req.user?._id;
+    const myRoommateAccount = await getRoommateByUserId(userId);
     const acceptedRoommateRequest = await RoommateRequest.findOneAndUpdate(
         {
-            receiver: req.user?._id,
-            sender: req.params?.roommateId
+            receiver: myRoommateAccount._id,
+            sender: req.params?.roommateId,
+            status: 'Pending'
+
         },
         {
             $set: {
@@ -332,12 +755,13 @@ const acceptRoommateRequest = asyncHandler(async (req, res) => {
     if (!acceptedRoommateRequest) {
         throw new ApiError(500, "Failed to accept request");
     }
-    const sender = await User.findById(req.user?._id);
+    const notificationReceiverRoommate = await RoommateAccount.findById(req.params?.roommateId);
+    const notificationReceiverUser = notificationReceiverRoommate.userId;
     await Notification.create(
         {
-            receiver: req.params?.roommateId,
-            message: `${sender.fullName} accepted your Roommate request`,
-            roommateId: req.user?._id
+            receiver: notificationReceiverUser,
+            message: `${myRoommateAccount.user.fullName} accepted your Roommate request`,
+            roommateId: myRoommateAccount._id
         }
     )
 
@@ -354,34 +778,42 @@ const acceptRoommateRequest = asyncHandler(async (req, res) => {
 });
 
 const rejectRoommateRequest = asyncHandler(async (req, res) => {
-    const receiver = req.user?._id;
+    const user = req.user?._id;
     const sender = req.params?.roommateId;
+    
+    const myRoommateAccount = await getRoommateByUserId(user);
 
-    if (!isValidObjectId(receiver) || !isValidObjectId(sender)) {
+    const receiver = myRoommateAccount._id;
+
+    if (!isValidObjectId(user) || !isValidObjectId(sender)) {
         throw new ApiError(400, 'Invalid user id');
     }
 
     const rejectedRoommateRequest = await RoommateRequest.findOneAndUpdate(
         {
             receiver,
-            sender
+            sender,
+            status: 'Pending'
         },
         {
             $set: {
                 status: 'Rejected'
             }
+        },
+        {
+            new: true
         }
     )
 
     if (!rejectedRoommateRequest) {
         throw new ApiError(500, "Failed to reject request");
     }
-
-    const receiverUser = await User.findById(receiver);
+    const notificationReceiverRoommate = await RoommateAccount.findById(sender);
+    const notificationReceiverUser = notificationReceiverRoommate.userId;
     await Notification.create(
         {
-            receiver: sender,
-            message: `${receiverUser.fullName} rejected your Roommate request`,
+            receiver: notificationReceiverUser,
+            message: `${myRoommateAccount.user.fullName} rejected your Roommate request`,
             roommateId: receiver
         }
     )
@@ -399,17 +831,18 @@ const rejectRoommateRequest = asyncHandler(async (req, res) => {
 });
 
 const cancelRoommateRequest = asyncHandler(async (req, res) => {
-    const sender = req.user?._id;
-    const receiver = req.params?.roommateId;
-
-    if (!isValidObjectId(sender) || !isValidObjectId(receiver)) {
+    const user = req.user?._id;
+    const receiver= req.params?.roommateId;
+    if(!isValidObjectId(user) || !isValidObjectId(receiver)){
         throw new ApiError(400, 'Invalid user id');
     }
-
+    const myRoommateAccount = await getRoommateByUserId(user);
+    
     const cancelledRoommateRequest = await RoommateRequest.findOneAndDelete(
         {
-            receiver,
-            sender
+         sender: myRoommateAccount._id, 
+         receiver,
+         status: 'Pending'
         }
     )
 
@@ -436,6 +869,7 @@ export {
     deleteRoommateAccount,
     searchRoomates,
     getRoommateByJob,
+    getMyRoommates,
     sendRoommateRequest,
     acceptRoommateRequest,
     rejectRoommateRequest,

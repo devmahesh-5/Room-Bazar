@@ -11,23 +11,36 @@ import {
     sendRoommateRequest,
     acceptRoommateRequest,
     rejectRoommateRequest,
-    cancelRoommateRequest
+    cancelRoommateRequest,
+    getMyRoommates
 } from '../controllers/roommate.controllers.js';
 
+import { upload } from "../middlewares/multer.middlewares.js";
 import {verifyAuth} from '../middlewares/auth.middlewares.js';
 const router = Router();
 
-router.use(verifyAuth);
+router.use(verifyAuth); 
 
-router.route('/register').post(registerRoommate);
-router.route('/update/:roommateId').patch(updateRoommate);
-router.route('/delete/:roommateId').delete(deleteRoommateAccount);
-router.route('/roommates').get(getRoommates);
+router.route('/register').post(
+    upload.fields([
+        {
+            name: 'roomPhotos',
+            maxCount: 5
+        }
+    ]),
+    registerRoommate
+);
+router.route('/update-account').patch(updateRoommate);
+router.route('/delete-account').delete(deleteRoommateAccount);
+router.route('/').get(getRoommates);
 router.route('/search').get(searchRoomates);
-router.route('/job/:job').get(getRoommateByJob);
-router.route('/myroommate').get(getRoommateById);
+router.route('/job').get(getRoommateByJob);
+router.route('/profile/:roommateId').get(getRoommateById);
+router.route('/my-roommates').post(getMyRoommates);
+//requests route
+
 router.route('/sendrequest/:roommateId').post(sendRoommateRequest);
 router.route('/acceptrequest/:roommateId').patch(acceptRoommateRequest);
 router.route('/rejectrequest/:roommateId').patch(rejectRoommateRequest);
-router.route('/cancelrequest/:roommateId').patch(cancelRoommateRequest);
+router.route('/cancelrequest/:roommateId').delete(cancelRoommateRequest);
 export default router

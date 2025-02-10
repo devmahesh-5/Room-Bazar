@@ -28,8 +28,20 @@ const roommateSchema = new mongoose.Schema({
     description :{
         type : String,
         required : true
+    },
+    location :{
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'Location'
+    },
+    address:{
+        type : String,
+    },
+    latitude:{
+        type : Number,
+    },
+    longitude :{
+        type: Number
     }
-    
 
 },{timestamps : true});
 
