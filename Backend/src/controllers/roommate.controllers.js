@@ -492,8 +492,20 @@ const deleteRoommateAccount = asyncHandler(async (req, res) => {
     if (!isValidObjectId(userId)) {
         throw new ApiError(400, 'Invalid room id');
     }
+    const roommateAccount = await getRoommateByUserId(userId);
+    
+    if(!roommateAccount){
+        throw new ApiError(404, 'Roommate not found');
+    }
 
-    const deletedRoommateAccount = await RoommateAccount.findOneAndDelete(userId);
+    const roommateRequest = await RoommateRequest.findOneAndDelete({
+        $or: [
+            { sender: roommateAccount._id },
+            { receiver: roommateAccount._id }
+        ]
+    })
+
+    const deletedRoommateAccount = await RoommateAccount.findByIdAndDelete(roommateAccount._id);
 
     const deletedLocation = await Location.findOneAndDelete({roommate: deletedRoommateAccount._id});
 

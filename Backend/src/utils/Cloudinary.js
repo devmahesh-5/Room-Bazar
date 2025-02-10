@@ -1,5 +1,6 @@
 import {v2 as cloudinary} from "cloudinary";
 import fs from "fs";
+import { ApiError } from "./ApiError.js";
 
     // Configuration
     cloudinary.config({ 
@@ -9,25 +10,27 @@ import fs from "fs";
     });
     
     // Upload file
- const uploadOnCloudinary = async (localFilePath)=>{
-    try {
+    const uploadOnCloudinary = async (localFilePath) => {
         if (!localFilePath) return null;
-        // Upload to Cloudinary
-        const uploadResult =await cloudinary.uploader
-        .upload(localFilePath,{
-            resource_type:'auto',
-        })
-        //file uploaded successfully
-        
-        fs.unlinkSync(localFilePath)//remove the locally saved temporary file
-        return uploadResult;
-
-    } catch (error) {
-        fs.unlinkSync(localFilePath)//remove the locally saved temporary file as the upload got failed
-        console.log("Cloudinary upload error::",error);
-        return null;
-    }
- }
+        try {
+            // Upload to Cloudinary
+            const uploadResult = await cloudinary.uploader.upload(localFilePath, {
+                resource_type: 'auto',
+            });
+    
+            return uploadResult;
+        } catch (error) {
+            throw new ApiError(500, error.message);
+        } finally {
+            // Always delete the local file, even if upload fails
+            try {
+                fs.unlinkSync(localFilePath);
+            } catch (err) {
+                throw new ApiError(500, err.message);
+            }
+        }
+    };
+    
 
  export const deleteImageFromCloudinary = async (publicId)=>{
     try {
