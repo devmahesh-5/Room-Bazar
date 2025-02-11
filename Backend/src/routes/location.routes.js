@@ -11,7 +11,4 @@ const router = Router();
 
 router.use(verifyAuth);
 
-router.route('/add').post(adduserLocation);
-//in room route use getLocationByRoom and in user route use getLocationByUser
-
 export default router

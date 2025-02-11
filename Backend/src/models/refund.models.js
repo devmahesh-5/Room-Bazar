@@ -41,14 +41,14 @@ const refundSchema = new mongoose.Schema({
 
 const Refund = mongoose.model('Refund', refundSchema);
 
-refundSchema.pre("save", async function (next) {
-        if(!this.isModified("status")){
-            next();
-        }else{
-            //here call the function for payment
-            next(); 
-        }
-    })
+// refundSchema.pre("save", async function (next) {
+//         if(!this.isModified("status")){
+//             next();
+//         }else{
+//             //here call the function for payment
+//             next(); 
+//         }
+//     })
 
 
 

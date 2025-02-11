@@ -10,48 +10,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { isValidObjectId } from "mongoose";
 import { uploadMultipleFilesOnCloudinary } from "../utils/Cloudinary.js";
 import Location from "../models/location.models.js";
-
-const getRoommateByUserId = async(userId) => {
-
-    const roommate = await RoommateAccount.aggregate(
-        [
-            {
-                $match: {
-                    userId: new mongoose.Types.ObjectId(userId)
-                }
-            },
-            {
-                $lookup: {
-                    from: 'users',
-                    localField: 'userId',
-                    foreignField: '_id',
-                    as: 'user',
-                    pipeline: [
-                        {
-                            $project: {
-                                _id: 1,
-                                fullName: 1
-                            }
-                    }]
-                },
-                
-            },
-            {
-                $addFields: {
-                    user: { $arrayElemAt: ['$user', 0] },
-                }
-            },
-            {
-             $project: {
-                 _id: 1,
-                 user: 1
-             }   
-            }
-        ]
-    );
-
-    return roommate[0];
-}
+import { getRoommateByUserId } from "../constants.js";
 
 const registerRoommate = asyncHandler(async (req, res) => {
     const {job, pets, smoking, haveRoom, description,address,latitude,longitude} = req.body;

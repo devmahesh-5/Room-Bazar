@@ -10,6 +10,8 @@ import Favourite from "../models/favourite.models.js";
 import Room from "../models/room.models.js";
 import Payment from "../models/payment.models.js";
 import Refund from "../models/refund.models.js";
+import { getRoommateByUserId } from "../constants.js";
+import RoommateRequest from "../models/roommateRequest.models.js";
 const generateAccessAndRefreshTokens = async (userId) => {
    const user = await User.findById(userId);
    const accessToken = user.generateAccessToken();
@@ -576,14 +578,137 @@ const getDashboard = asyncHandler(async (req, res) => {
       ]
    )
    const myPayments = await Payment.find({ userId })
+
    const requestedRefunds = await Refund.find({ userId })
-   //Add myRoommates
+
+   const myRoommateAccount = await getRoommateByUserId(userId);
+
+    if(!myRoommateAccount){
+        throw new ApiError(404, 'Roommate not found');
+    }
+
+    const myRoommates = await RoommateRequest.aggregate(
+        [
+            {
+                $match:{
+                   $or:[
+                        {sender:myRoommateAccount._id},
+                        {receiver:myRoommateAccount._id}
+                    ],
+                    status:'Accepted'
+                }
+                
+                },
+            {
+                $lookup: {
+                    from : 'roommateaccounts',
+                    localField : 'sender',
+                    foreignField : '_id',
+                    as : 'sender',
+                    pipeline: [
+                        {
+                            $lookup:{
+                                from : 'users',
+                                localField : 'userId',
+                                foreignField : '_id',
+                                as : 'user',
+                                pipeline: [
+                                    {
+                                        $project: {
+                                            _id: 1,
+                                            fullName: 1,
+                                            email: 1,
+                                            phone: 1,
+                                            address: 1
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            $addFields:{
+                                user:{$arrayElemAt:['$user',0]}
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                user: 1,
+                                job: 1,
+                                smoking: 1,
+                                pets: 1,
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                $lookup: {
+                    from : 'roommateaccounts',
+                    localField : 'receiver',
+                    foreignField : '_id',
+                    as : 'receiver',
+                    pipeline: [
+                        {
+                            $lookup:{
+                                from : 'users',
+                                localField : 'userId',
+                                foreignField : '_id',
+                                as : 'user',
+                                pipeline: [
+                                    {
+                                        $project: {
+                                            _id: 1,
+                                            fullName: 1,
+                                            email: 1,
+                                            phone: 1,
+                                            address: 1
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            $addFields:{
+                                user:{$arrayElemAt:['$user',0]}
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                user: 1,
+                                job: 1,
+                                smoking: 1,
+                                pets: 1,
+                        }
+                        }
+                    ]
+                }         
+            },
+            {
+                $project:{
+                    myRoommates:{
+                        $cond: {
+                            if: { $eq: ["$sender._id", myRoommateAccount._id] },
+                            then: "$receiver",
+                            else: "$sender"
+                        }
+                    }
+                }
+            }
+        ]
+    )
+
+    if(!myRoommates){
+        throw new ApiError(404, 'Roommates not found');
+    }
+
    const dashboard = {
       myRooms,
       favourites,
       myPayments,
       requestedRefunds,
-      //myRoommates
+      myRoommates
    }
    if (!dashboard) {
       throw new ApiError(404, 'Dashboard not found');

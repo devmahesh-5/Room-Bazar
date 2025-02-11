@@ -152,3 +152,6 @@ I use
 - **Message:** `favorite.status`   
 
 # In react in frontEnd, i use the useEffect with sending get request for fetching count and display at notifications menu and when notification is clicked,make get request first and then patch req to update isread?
+
+
+# in Refund.controllers.js and on payment.controllers.js, watch out for payment EndPoints

@@ -1,5 +1,6 @@
 import crypto from "crypto";
-
+import mongoose from "mongoose";
+import RoommateAccount from "./models/roommateAccount.models.js";
 export const DB_NAME="Room-Bazar";
 
 export const options ={
@@ -12,3 +13,45 @@ export const generateSignature = (dataToSign) => {
         .digest('base64');
     return signature;
 };
+
+export const getRoommateByUserId = async(userId) => {
+
+    const roommate = await RoommateAccount.aggregate(
+        [
+            {
+                $match: {
+                    userId: new mongoose.Types.ObjectId(userId)
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'userId',
+                    foreignField: '_id',
+                    as: 'user',
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                fullName: 1
+                            }
+                    }]
+                },
+                
+            },
+            {
+                $addFields: {
+                    user: { $arrayElemAt: ['$user', 0] },
+                }
+            },
+            {
+             $project: {
+                 _id: 1,
+                 user: 1
+             }   
+            }
+        ]
+    );
+
+    return roommate[0];
+}

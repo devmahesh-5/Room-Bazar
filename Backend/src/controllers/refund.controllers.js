@@ -28,9 +28,11 @@ const createRefund = asyncHandler(async (req, res) => {
         throw new ApiError(404, 'Room not found');
     }
     const amount = (room.price) * 0.9;
+
     if (!amount) {
         throw new ApiError(500, 'Failed to get room price');
     }
+
     const payment = await Payment.findOne(
         {
             roomId,
@@ -76,27 +78,54 @@ const createRefund = asyncHandler(async (req, res) => {
 const updateRefund = asyncHandler(async (req, res) => {
     const refundId = req.params?.refundId;
     const { status } = req.body;
-    const refund = await Refund.findOne({ _id: refundId });
 
-    if (!refund) {
-        throw new ApiError(500, 'Failed to get refund');
+    const oldRefund = await Refund.findById(refundId);
+
+    const room = await Room.findById(oldRefund.roomId);
+
+    if(room.owner.toString()!==req.user?._id.toString()){
+        throw new ApiError(400,"Only Owner can Approve Refund Request")
+    }
+    
+    const updatedRefund= await Refund.findOneAndUpdate(
+        {
+            _id:refundId,
+            
+            $or:[
+                    {status:'Pending'},
+                    {status:'RejectedByOwner'}
+                ]
+            
+        },
+        {
+            $set: {
+                status
+            }
+        },
+        {
+            new: true
+        }
+    )
+
+    if (!updatedRefund) {
+        throw new ApiError(500, 'Failed to update refund');
     }
 
-    refund.status = status;
-    refund.save({ validateBeforeSave: false });
-    const updatedRefund = await Refund.findById(refundId);
-    const room = await Room.findById(refund.roomId);
+    
+
+    // console.log(room.owner,req.user._id);
+    
     if (updatedRefund.status === 'Approved') {
         await Notification.create({
-            receiver: [refund.userId, room.owner, 'admin'],
+            receiver: [updatedRefund.userId, room.owner],
             message: `Room refund request has been approved.you will get refund soon`,
-            refundId: refund._id,
-            roomId: refund.roomId
+            refundId: updatedRefund._id,
+            roomId: updatedRefund.roomId
         })
 
         //here send the refund request to esewa with apiEndpoint
 
-        const payment = await Payment.findOne({ _id: refund.payment });
+        const payment = await Payment.findOne({ _id: updatedRefund.payment });
 
         if (!payment) {
             throw new ApiError(500, 'Failed to get payment');
@@ -106,30 +135,30 @@ const updateRefund = asyncHandler(async (req, res) => {
         const transaction_uuid = payment.transaction_uuid;
         const product_code = payment.paymentGateway.product_code;
 
-        const response = await fetch('https://uat.esewa.com.np/epay/main', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                transaction_uuid,
-                total_amount,
-                product_code
-            }),
-        });
+        // const refundResponse = await fetch('https://uat.esewa.com.np/epay/main', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify({
+        //         transaction_uuid,
+        //         total_amount,
+        //         product_code
+        //     }),
+        // });
 
-        const data = await response.json();
+        // const data = await refundResponse.json();
 
-        if (data.status === 'success') {
-            await Payment.updateOne(
-                { _id: payment._id },
-                {
-                    $set: {
-                        refund: refund._id
-                    },
-                }
-            );
-        }
+        // if (data.status === 'success') {
+        //     await Payment.updateOne(
+        //         { _id: payment._id },
+        //         {
+        //             $set: {
+        //                 refund: updatedRefund._id
+        //             },
+        //         }
+        //     );
+        // }
     }
 
     res
@@ -137,7 +166,7 @@ const updateRefund = asyncHandler(async (req, res) => {
         .json(
             new ApiResponse(
                 200,
-                refund,
+                updateRefund,
                 'Refund updated successfully'
             )
         )
@@ -186,7 +215,7 @@ const getAllRefunds = asyncHandler(async (req, res) => {
 });
 
 const rejectRefund = asyncHandler(async (req, res) => {
-    const { ownerRejectReason, status } = req.body;
+    const { ownerRejectionReason, status } = req.body;
     const refundId = req.params?.refundId;
 
     if (!isValidObjectId(refundId)) {
@@ -199,7 +228,7 @@ const rejectRefund = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'Owner rejection photos are required');
     }
 
-    const ownerRejectionPhotosCloudinaryPath = await uploadMultipleFilesOnCloudinary(ownerRejectionPhotosLocalFilesPath);
+    const ownerRejectionPhotosCloudinaryPath = await uploadMultipleFilesOnCloudinary(...ownerRejectionPhotosLocalFilesPath);
 
     if (!ownerRejectionPhotosCloudinaryPath || ownerRejectionPhotosCloudinaryPath.length === 0) {
         throw new ApiError(500, 'Failed to upload image');
@@ -210,12 +239,36 @@ const rejectRefund = asyncHandler(async (req, res) => {
     if (!refund) {
         throw new ApiError(500, 'Failed to get refund');
     }
+    const room = await Room.findById(refund.roomId);
 
-    refund.ownerRejectionReason = ownerRejectReason;
-    refund.ownerRejectionPhotos = ownerRejectionPhotosCloudinaryPath;
-    refund.status = status;
+    if(room.owner.toString()!==req.user?._id.toString()){
+        throw new ApiError(400,"Only Owner can Reject Refund Request")
+    }
 
-    await refund.save({ validateBeforeSave: false });
+    const updatedRefund = await Refund.findOneAndUpdate(
+        {
+            _id: refund._id,
+            $or: [
+                { status: 'Pending' },
+                { status: 'RejectedByOwner' }
+            ]
+        },
+        {
+            $set: {
+                status,
+                ownerRejectionReason,
+                ownerRejectionPhotos: ownerRejectionPhotosCloudinaryPath
+            }
+        },
+        {
+            new: true
+        }
+    )
+
+    if (!updatedRefund) {
+        throw new ApiError(500, 'Failed to update refund');
+        
+    }
 
     await Notification.create({
         receiver: notificationReceiver._id,
@@ -229,7 +282,7 @@ const rejectRefund = asyncHandler(async (req, res) => {
         .json(
             new ApiResponse(
                 200,
-                refund,
+                updatedRefund,
                 'Refund rejected successfully'
             )
         )
