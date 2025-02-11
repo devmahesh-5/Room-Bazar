@@ -2,14 +2,31 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import Message from "../models/message.models.js";
-import { isValidObjectId } from "mongoose";
+import mongoose, { isValidObjectId } from "mongoose";
 import User from "../models/user.models.js";
 import Notification from "../models/notification.models.js";
+import { uploadMultipleFilesOnCloudinary } from "../utils/Cloudinary.js";
 
 const createMessage = asyncHandler(async (req, res) => {
     const { message } = req.body;
     const sender = req.user?._id;
     const receiver = req.params?.userId;
+
+    let fileLocalPaths = [];
+
+    if(req.files?.messageFiles?.length>0){
+        fileLocalPaths = req.files?.messageFiles.map(file => file.path);
+    }
+    
+    let messageFilesCloudinaryUrls;
+
+    if(fileLocalPaths?.length>0){
+        messageFilesCloudinaryUrls = await uploadMultipleFilesOnCloudinary(...fileLocalPaths);
+    }
+    
+    if(!message && !messageFilesCloudinaryUrls){
+        throw new ApiError(400, 'cannot send empty message');
+    }
 
     if (!isValidObjectId(sender) || !isValidObjectId(receiver)) {
         throw new ApiError(400, 'Invalid user id');
@@ -18,17 +35,20 @@ const createMessage = asyncHandler(async (req, res) => {
     const newMessage = await Message.create({
         sender,
         receiver,
-        message
+        message,
+        messageFiles: messageFilesCloudinaryUrls
     })
 
     if (!newMessage) {
         throw new ApiError(500, 'Failed to create message');
     }
+
     const senderUser = await User.findById(sender);
 
     await Notification.create({
         receiver,
-        message: `You have a new message from ${senderUser.fullName}`
+        message: `You have a new message from ${senderUser.fullName}`,
+        messageId: newMessage._id
     })
 
     res
@@ -44,7 +64,6 @@ const createMessage = asyncHandler(async (req, res) => {
 
 const getUserMessages = asyncHandler(async (req, res) => {
     //By sender or receiver id
-
     const sender = req.user?._id;
     const receiver = req.params?.userId;
 
@@ -52,13 +71,15 @@ const getUserMessages = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'Invalid user id');
     }
 
+    // console.log(sender, receiver);
+    
     const messages = await Message.aggregate(
         [
             {
                 $match: {
                     $or: [
-                        { sender, receiver },
-                        { sender: receiver, receiver: sender }
+                        { sender:new mongoose.Types.ObjectId(sender), receiver:new mongoose.Types.ObjectId(receiver) },
+                        { sender:new mongoose.Types.ObjectId(receiver), receiver: new mongoose.Types.ObjectId(sender) }
                     ]
                 }
             },
@@ -110,13 +131,14 @@ const getUserMessages = asyncHandler(async (req, res) => {
                     sender: 1,
                     receiver: 1,
                     message: 1,
-                    createdAt: 1
+                    createdAt: 1,
+                    messageFiles: 1
                 }
             }
         ]
     )
 
-    if (!messages) {
+    if (!messages || messages.length === 0) {
         throw new ApiError(500, 'Failed to get messages');
     }
 
@@ -133,19 +155,25 @@ const getUserMessages = asyncHandler(async (req, res) => {
 
 const deleteMessage = asyncHandler(async (req, res) => {
     const messageId = req.params?.messageId;
+    const receiver = req.params?.userId;
 
-    if (!isValidObjectId(messageId)) {
-        throw new ApiError(400, 'Invalid message id');
+    if (!isValidObjectId(messageId) || !isValidObjectId(receiver)) {
+        throw new ApiError(400, 'Invalid message id or user id');
     }
 
     const deletedMessage = await Message.findOneAndDelete({
         sender: req.user?._id,
-        _id: messageId
+        _id: messageId,
+        receiver
     })
 
     if (!deletedMessage) {
         throw new ApiError(500, 'Failed to delete message');
     }
+
+    await Notification.findOneAndDelete({
+        messageId
+    })
 
     res
         .status(200)
@@ -171,36 +199,33 @@ const getMessageProfile = asyncHandler(async (req, res) => {
             {
                 $match: {
                     $or: [
-                        { sender: userId },
-                        { receiver: userId }
+                        { sender: new mongoose.Types.ObjectId(userId)},
+                        { receiver: new mongoose.Types.ObjectId(userId)}
                     ]
                 }
             },
             {
-                $lookup: {
-                    from: 'users',
-                    localField: 'sender',
-                    foreignField: '_id',
-                    as: 'sender',
-                    pipeline: [
-                        {
-                            $project: {
-                                fullName: 1,
-                                avatar: 1
-                            }
+                $group:{
+                    _id :{
+                        $cond: {
+                            if: { "$eq": ["$sender", new mongoose.Types.ObjectId(userId)] },
+                            then: "$receiver",
+                            else: "$sender"
                         }
-                    ]
+                    },
+                    createdAt: { $max: "$createdAt" }
                 }
             },
             {
                 $lookup: {
                     from: 'users',
-                    localField: 'receiver',
+                    localField: '_id',
                     foreignField: '_id',
-                    as: 'receiver',
+                    as: 'user',
                     pipeline: [
                         {
                             $project: {
+                                _id: 1,
                                 fullName: 1,
                                 avatar: 1
                             }
@@ -210,28 +235,9 @@ const getMessageProfile = asyncHandler(async (req, res) => {
             },
             {
                 $addFields: {
-                    sender: { $arrayElemAt: ['$sender', 0] },
-                    receiver: { $arrayElemAt: ['$receiver', 0] }
-                }
-            },
-            {
-                $sort: {
-                    createdAt: -1
-                }
-            },
-            {
-                $project: {
-                    profile: {
-                        $cond: {
-                            if: { "$eq": ["$sender._id", userId] },
-                            then: "$receiver",
-                            else: "$sender"
-                        }
-                    },
-                    message: 0,
-                    createdAt: 1
-                }
+                    user: { $arrayElemAt: ['$user', 0] }
             }
+        }
 
         ]
     )
@@ -251,6 +257,7 @@ const getMessageProfile = asyncHandler(async (req, res) => {
     )
 
 });
+
 export {
     createMessage,
     getUserMessages,
