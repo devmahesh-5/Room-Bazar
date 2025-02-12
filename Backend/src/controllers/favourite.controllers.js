@@ -55,14 +55,14 @@ const addFavourite = asyncHandler(async (req, res) => {
 
 //when user clicks delete button send delete request with favourite id in params 
 const removeFromFavourites = asyncHandler(async (req, res) => {
-    const roomId = req.params?.roomId;
+    const favouriteId = req.params?.favouriteId;
 
-    if(!isValidObjectId(roomId)){
+    if(!isValidObjectId(favouriteId)){
         throw new ApiError(400, 'Invalid favourite id');
     }
 
     const deletedFavourite = await Favourite.findOneAndDelete({
-        roomId,
+        _id : favouriteId,
         userId : req.user?._id
     })
 
