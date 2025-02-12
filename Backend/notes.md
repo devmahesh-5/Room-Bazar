@@ -153,5 +153,8 @@ I use
 
 # In react in frontEnd, i use the useEffect with sending get request for fetching count and display at notifications menu and when notification is clicked,make get request first and then patch req to update isread?
 
-
-# in Refund.controllers.js and on payment.controllers.js, watch out for payment EndPoints
+## Key Points to make now on Backend
+1. in refund.controllers.js and on payment.controllers.js, watch out for payment EndPoints
+2. Also report needs to be send to admin as well and for the report creation send notification to admin
+3. Also mentioned earlier, i need to send notification to user who booked but not checked in within 23 hours and still does not check in in 24 hours i send money to owner. else if user wants refund, i validate...
+4. Also i have not integrated payment from merchant to user.
