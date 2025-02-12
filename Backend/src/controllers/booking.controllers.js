@@ -18,20 +18,28 @@ const addBooking = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'Invalid room id or user id');
     }
 
-    const booking = await Booking.create({
-        roomId,
-        userId,
-    });
-    if (!booking) {
-        throw new ApiError(500, 'Failed to add booking');
-    }
-
     const foundRoom = await Room.findById(roomId);
 
     if (!foundRoom) {
         throw new ApiError(500, 'Failed to find room');
     }
-    
+    if(foundRoom.status === 'Reserved'){
+        throw new ApiError(400, 'Room is already reserved');
+    }
+
+    if(foundRoom.status === 'Booked'){
+        throw new ApiError(400, 'Room is already booked');
+    }
+
+    const booking = await Booking.create({
+        roomId,
+        userId,
+    });
+
+    if (!booking) {
+        throw new ApiError(500, 'Failed to add booking');
+    }
+
    const room = await Room.findByIdAndUpdate(roomId, {
         $set: {
             booking: booking._id,
@@ -81,7 +89,8 @@ const addBooking = asyncHandler(async (req, res) => {
         amount: total_amount,
         status : 'Pending',
         paymentGateway: 'Esewa',
-        transaction_uuid
+        transaction_uuid,
+        booking: booking._id
       })
 
     if (!payment) {
@@ -115,18 +124,26 @@ const addBooking = asyncHandler(async (req, res) => {
 
 const updateBooking = asyncHandler(async (req, res) => {
     const bookingId = req.params?.id;
-    const checksIn = req.body?.checksIn;
+
     if (!isValidObjectId(bookingId)) {
         throw new ApiError(400, 'Invalid booking id');
     }
+    const foundBooking = await Booking.findById(bookingId);
 
+    if (!foundBooking) {
+        throw new ApiError(404, 'Booking not found');
+    }
+    if(foundBooking.status !== 'Booked'){
+        throw new ApiError(400, 'you can only check in a booked room');
+    }
+    
     const updatedBooking = await Booking.findOneAndUpdate({
         _id: bookingId,
         userId: req.user?._id
     },
         {
             $set: {
-                checksIn
+                status: 'CheckedIn'
             }
         },
         {
@@ -138,6 +155,7 @@ const updateBooking = asyncHandler(async (req, res) => {
         throw new ApiError(500, 'Failed to update booking');
     }
    const room = await Room.findById(updatedBooking.roomId);
+
    if (!room) {
     throw new ApiError(500, 'Failed to find room');
    }
@@ -151,7 +169,6 @@ const updateBooking = asyncHandler(async (req, res) => {
         roomId : updatedBooking.roomId,
         message : `${user.fullName} have checked in your room`,
         bookingId : updatedBooking._id,
-        roomId : updatedBooking.roomId,
      });
      
      if(!notification) {
@@ -194,7 +211,56 @@ const getBookingsByUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'Invalid user id');
     }
 
-    const bookings = await Booking.find({ userId });
+    const bookings = await Booking.aggregate([
+        {
+            $match: {
+                userId: userId,
+                $or : [
+                    {status : 'Booked'},
+                    {status : 'CheckedIn'}
+                ]
+                
+            }
+        },
+        {
+            $lookup: {
+                from: 'rooms',
+                localField: 'roomId',
+                foreignField: '_id',
+                as: 'room',
+                pipeline: [
+                    {
+                        $project: {
+                            _id: 1,
+                            name: 1,
+                            price: 1,
+                            category: 1,
+                            location: 1,
+                            owner: 1,
+                            status: 1,
+                            thumbnail: 1,
+                        }
+                    }   
+                ]
+            }
+        },
+        {
+            $addFields: {
+                room: {
+                    $arrayElemAt: ['$room', 0]
+                }
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                roomId: 1,
+                userId: 1,
+                status: 1,
+                room: 1
+            }
+        }
+    ])
 
     if (!bookings) {
         throw new ApiError(500, 'Failed to get bookings');

@@ -82,15 +82,57 @@ const removeFromFavourites = asyncHandler(async (req, res) => {
 });
 
 const getUserFavourites = asyncHandler(async (req, res) => {
+    const {limit=10, page=1} = req.query;
     const userId = req.user?._id;
 
     if(!isValidObjectId(userId)){
         throw new ApiError(400, 'Invalid user id');
     }
 
-    const favourites = await Favourite.find({
-        userId
-    })
+    const favourites = await Favourite.aggregate(
+        [
+            {
+                $match : {
+                    userId
+                }
+            },
+            {
+                $lookup : {
+                    from : 'rooms',
+                    localField : 'roomId',
+                    foreignField : '_id',
+                    as : 'room',
+                    pipeline : [
+                        {
+                            $project : {
+                                title : 1,
+                                price : 1,
+                                thumbnail: 1
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                $sort : {
+                    createdAt : -1
+                }
+            },
+            {
+                $skip : (page-1)*limit
+            },
+            {
+                
+                $limit : limit
+            },
+            {
+                $project : {
+                    _id : 1,
+                    room : 1
+                }
+            }
+        ]
+    )
 
     if(!favourites){
         throw new ApiError(500, 'Failed to get favourites');

@@ -15,9 +15,10 @@ const bookingSchema = new mongoose.Schema({
         type : mongoose.Schema.Types.ObjectId,
         ref : 'Payment',
     },
-    checksIn :{
-        type : Boolean,
-        default: false
+    status:{
+        type : String,
+        enum : ['Reserved', 'Booked', 'CheckedIn'],
+        default : 'Reserved'
     }
 },{timestamps : true});
 

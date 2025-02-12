@@ -10,6 +10,7 @@ import { uploadMultipleFilesOnCloudinary } from "../utils/Cloudinary.js";
 import User from "../models/user.models.js";
 import Notification from "../models/notification.models.js";
 import Payment from '../models/payment.models.js';
+import Booking from "../models/booking.models.js";
 
 const createRefund = asyncHandler(async (req, res) => {
     const { reason } = req.body;
@@ -23,10 +24,33 @@ const createRefund = asyncHandler(async (req, res) => {
     if (!reason || reason.trim() === '') {
         throw new ApiError(400, 'Reason is required');
     }
+    
+    const existingRefund = await Refund.findOne({
+        roomId,
+        userId
+    })
+
+    if (existingRefund) {
+        throw new ApiError(400, 'Refund already exists');
+    }
+
     const room = await Room.findById(roomId);
     if (!room) {
         throw new ApiError(404, 'Room not found');
     }
+
+    const bookedRoom = await Booking.findOne({
+        roomId,
+        userId
+    })
+    if(!bookedRoom){
+        throw new ApiError(400, 'You have not booked this room');
+    }
+
+    if(bookedRoom.status!=='Booked'){
+        throw new ApiError(400, 'You have not booked this room or Already checked in');
+    }
+    
     const amount = (room.price) * 0.9;
 
     if (!amount) {
@@ -80,7 +104,7 @@ const updateRefund = asyncHandler(async (req, res) => {
     const { status } = req.body;
 
     const oldRefund = await Refund.findById(refundId);
-
+    
     const room = await Room.findById(oldRefund.roomId);
 
     if(room.owner.toString()!==req.user?._id.toString()){
@@ -110,10 +134,7 @@ const updateRefund = asyncHandler(async (req, res) => {
     if (!updatedRefund) {
         throw new ApiError(500, 'Failed to update refund');
     }
-
     
-
-    // console.log(room.owner,req.user._id);
     
     if (updatedRefund.status === 'Approved') {
         await Notification.create({
@@ -159,6 +180,27 @@ const updateRefund = asyncHandler(async (req, res) => {
         //         }
         //     );
         // }
+
+        //update Booking status
+        const updateRoom = await Room.updateOne(
+            { _id: updatedRefund.roomId },
+            {
+                $set: {
+                    status: 'Available'
+                },
+            }
+        );
+
+       if(!updateRoom){
+            throw new ApiError(500, 'Failed to update room');
+        }
+        //delete Booking
+       
+        const deleteBooking = await Booking.findByIdAndDelete(payment.booking);
+        
+        if(!deleteBooking){
+            throw new ApiError(500, 'Failed to delete booking');
+        }
     }
 
     res

@@ -31,6 +31,10 @@ const paymentSchema = new mongoose.Schema({
     refund :{
         type : mongoose.Schema.Types.ObjectId,
         ref : 'Refund'
+    },
+    booking : {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'Booking'
     }
 }, { timestamps: true });
 
@@ -44,11 +48,11 @@ paymentSchema.pre('save', async function (next) {
      if(!booking) throw new ApiError(500, 'Booking not found');
 
      booking.payment = this._id;
+     booking.status = 'Booked';
      await booking.save({ validateBeforeSave: false });
      if (this.status === 'Success') {
          room.status = 'Booked';
          await room.save({ validateBeforeSave: false });
-
          next();
      } else if (this.status === 'Failed') {
          room.status = 'Available';
