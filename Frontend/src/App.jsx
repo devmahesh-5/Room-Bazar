@@ -1,35 +1,39 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useEffect, useState } from 'react'
+import authService from './services/auth.services'
 import './App.css'
-
+import { useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { login, logout } from './store/authslice.js'
+import { Outlet } from 'react-router-dom'
+import {Header} from './components/index.js'
+import {Footer} from './components/index.js'
 function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  useEffect(()=>{
+    authService.getCurrentUser()
+    .then((userData)=>{
+      userData=userData.data[0]
+       userData?dispatch(login({userData})):dispatch(logout());
+    })
+    .catch((error)=>{
+        setError(error)
+    })
+    .finally(()=>{
+        setLoading(false)
+    })
+  },[])
+  return !loading ? (
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="flex-grow bg-[#F2F4F7]">
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
+  ) : null;
 }
 
 export default App
