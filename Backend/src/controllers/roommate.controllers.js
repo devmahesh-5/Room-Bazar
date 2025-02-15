@@ -832,6 +832,163 @@ const cancelRoommateRequest = asyncHandler(async (req, res) => {
         )
 });
 
+const getSentRoommateRequest = asyncHandler(async (req, res) => {
+    const user = req.user?._id;
+
+    if (!isValidObjectId(user)) {
+        throw new ApiError(400, 'Invalid user id');
+    }
+
+    const myRoommateAccount = await getRoommateByUserId(user);
+
+    const sentRequest = await RoommateRequest.aggregate([
+        {
+            $match: {
+                sender: myRoommateAccount._id,
+                status: 'Pending'
+            }
+        },
+        {
+            $group:{
+                _id:sender,
+                receiver:{$addToSet:receiver},
+            }
+        },
+        {
+            $lookup: {
+                from: 'roommateaccounts',
+                localField: 'receiver',
+                foreignField: '_id',
+                as: 'receiver',
+                pipeline: [
+                    {
+                        $lookup:{
+                            from : 'users',
+                            localField : 'userId',
+                            foreignField : '_id',
+                            as : 'user',
+                            pipeline: [
+                                {
+                                    $project: {
+                                        _id: 1,
+                                        fullName: 1
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        $addFields:{
+                            user:{$arrayElemAt:['$user',0]}
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                receiver: 1
+            }
+        }
+        
+    ])
+
+    if (!sentRequest) {
+        throw new ApiError(404, 'Roommates not found');
+    }
+
+    res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                sentRequest,
+                'Roommates found successfully'
+            )
+        )
+});
+
+const getReceivedRoommateRequest = asyncHandler(async (req, res) => {
+    const user = req.user?._id;
+
+    if (!isValidObjectId(user)) {
+        throw new ApiError(400, 'Invalid user id');
+    }
+
+    const myRoommateAccount = await getRoommateByUserId(user);
+
+    if(!myRoommateAccount){
+        throw new ApiError(404, 'Roommate not found');
+    }
+
+    const receivedRequest = await RoommateRequest.aggregate([
+        {
+            $match: {
+                receiver: myRoommateAccount._id,
+                status: 'Pending'
+            }
+        },
+        {
+            $group:{
+                _id:receiver,
+                sender:{$addToSet:sender},
+            }
+        },
+        {
+            $lookup: {
+                from: 'roommateaccounts',
+                localField: 'sender',
+                foreignField: '_id',
+                as: 'sender',
+                pipeline: [
+                    {
+                        $lookup:{
+                            from : 'users',
+                            localField : 'userId',
+                            foreignField : '_id',
+                            as : 'user',
+                            pipeline: [
+                                {
+                                    $project: {
+                                        _id: 1,
+                                        fullName: 1
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        $addFields:{
+                            user:{$arrayElemAt:['$user',0]}
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                sender: 1
+            }
+        }
+    ])
+
+    if (!receivedRequest) {
+        throw new ApiError(404, 'Roommates not found');
+    }
+
+    res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                receivedRequest,
+                'Roommates found successfully'
+            )
+        )
+});
+
 export {
     registerRoommate,
     updateRoommate,
@@ -844,5 +1001,7 @@ export {
     sendRoommateRequest,
     acceptRoommateRequest,
     rejectRoommateRequest,
-    cancelRoommateRequest
+    cancelRoommateRequest,
+    getSentRoommateRequest,
+    getReceivedRoommateRequest
 }

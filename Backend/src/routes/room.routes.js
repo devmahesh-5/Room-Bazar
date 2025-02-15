@@ -62,7 +62,7 @@ router.route('/update/:roomId').patch(
     updateRoom
 );
 router.route('/delete/:roomId').delete(deleteRoom);
-router.route('/allrooms').get(getAllRooms);
+router.route('/').get(getAllRooms);
 router.route('/search').get(searchRooms);
 router.route('/category/:category').get(getRoomsByCategory);
 router.route('/location/:location').get(getRoomsByLocation);
