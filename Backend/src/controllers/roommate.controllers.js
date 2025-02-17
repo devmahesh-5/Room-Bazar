@@ -160,7 +160,8 @@ const getRoommates = asyncHandler(async (req, res) => {
                     {
                         $project: {
                             fullName: 1,
-                            avatar: 1
+                            avatar: 1,
+                            coverImage: 1
                         }
                     }
                 ]

@@ -1,0 +1,43 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+const ProfileCard = ({ avatar, _id, fullName, location, haveRoom }) => {
+  return (
+    <Link to={`/roommates/${_id}`}>
+    <div className="w-full max-w-sm bg-[#F2F4F7] shadow border border-[#6C48E3] rounded-lg overflow-hidden p-4">
+      {/* Top Section: Avatar and User Info */}
+      <div className="flex items-center cursor-pointer">
+        {avatar ? (
+          <img
+            src={avatar}
+            alt="Profile"
+            className="w-16 h-16 object-cover rounded-full mr-4"
+          />
+        ) : (
+          <div className="w-16 h-16 bg-gray-400 rounded-full flex items-center justify-center text-white font-bold mr-4">
+            {fullName ? fullName.charAt(0) : 'U'}
+          </div>
+        )}
+        <div>
+          <h2 className="text-lg font-semibold text-gray-800">{fullName}</h2>
+          {location && <p className="text-sm text-gray-500">{location}</p>}
+          {haveRoom !== false && (
+            <p className="text-xs text-gray-400">Have Rooms</p>
+          )}
+        </div>
+      </div>
+
+      {/* Bottom Section: Action Buttons */}
+      <div className="flex justify-between mt-4">
+        <button className="flex-1 mr-2 px-3 py-1 bg-[#6C48E3] text-white text-sm font-semibold rounded hover:opacity-80 transition duration-300">
+          Add Friend
+        </button>
+        <button className="flex-1 ml-2 px-3 py-1 bg-gray-200 text-gray-700 text-sm font-semibold rounded hover:bg-gray-300 transition duration-300">
+          Message
+        </button>
+      </div>
+    </div>
+    </Link>
+  );
+};
+
+export default ProfileCard;

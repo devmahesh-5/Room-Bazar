@@ -7,6 +7,11 @@ import Select from "./Select.jsx";
 import Signup from "./SignUp.jsx";
 import Login from "./Login.jsx";
 import Home from "./Home.jsx";
+import Roomform from "./forms/Roomform.jsx";
+import MessageProfile from "./MessageProfile.jsx";
+import MessageCard from "./Messagecard.jsx";
+import RoomCard from "./Roomcard.jsx";
+import ProfileCard from "./ProfileCard.jsx";
 
 export {
     Logo,
@@ -17,5 +22,10 @@ export {
     Select,
     Signup,
     Login,
-    Home
+    Home,
+    Roomform,
+    MessageProfile,
+    MessageCard,
+    RoomCard,
+    ProfileCard
 }

@@ -13,7 +13,7 @@ const router = Router();
 
 router.use(verifyAuth);
 
-router.route('/:userId')
+router.route('/ib/:userId')
 .post(
     upload.fields([
         {

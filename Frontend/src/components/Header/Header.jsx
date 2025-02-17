@@ -11,8 +11,6 @@ function Header() {
   const userData = useSelector((state) => state.auth.userData);
   const navigate = useNavigate();
   const isAdmin = userData && userData.role === 'admin';
-  console.log(authStatus);
-  
   const navItems = [
     { name: 'Home', slug: '/', active: true },
     { name: 'Rooms', slug: '/rooms', active: true },

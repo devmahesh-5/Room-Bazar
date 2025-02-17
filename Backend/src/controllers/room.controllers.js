@@ -15,9 +15,6 @@ const createRoom = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'All fields are required');
     }
 
-
-
-
     const thumbnailLocalPath = req.files?.thumbnail[0]?.path;
     if (!thumbnailLocalPath) {
         throw new ApiError(400, 'Room thumbnail is required');
@@ -32,9 +29,8 @@ const createRoom = asyncHandler(async (req, res) => {
     }
 
 
-    let roomPhotosCloudinaryPath = await uploadMultipleFilesOnCloudinary(...roomPhotosLocalPath);
+    const roomPhotosCloudinaryPath = await uploadMultipleFilesOnCloudinary(...roomPhotosLocalPath);
 
-    // roomPhotosCloudinaryPath = roomPhotosCloudinaryPath.map((photo) => photo.url);
 
     const videoLocalPath = req.files?.video[0]?.path;
 
@@ -63,7 +59,7 @@ const createRoom = asyncHandler(async (req, res) => {
         esewaId,
         owner: req.user._id,
         rentPerMonth,
-        video: videoCloudinaryPath.url
+        video: 'videoCloudinaryPath.url'
     })
 
     if (!room) {
@@ -367,6 +363,7 @@ const getAllRooms = asyncHandler(async (req, res) => {
                 status: 1,
                 totalRooms: 1,
                 thumbnail: 1,
+                rentPerMonth: 1,
                 esewaId: 1,
                 createdAt: 1,
                 updatedAt: 1
@@ -381,10 +378,11 @@ const getAllRooms = asyncHandler(async (req, res) => {
     res
         .status(200)
         .json(
-            new ApiResponse({
-                message: 'Rooms fetched successfully',
-                data: rooms
-            })
+            new ApiResponse(
+                200,
+                rooms,
+                'Rooms fetched successfully'
+            )
         )
 
 });
@@ -468,10 +466,11 @@ const searchRooms = asyncHandler(async (req, res) => {
     res
         .status(200)
         .json(
-            new ApiResponse({
-                message: 'Rooms fetched successfully',
-                data: rooms
-            })
+            new ApiResponse(
+                201,
+                rooms,
+                'Rooms fetched successfully'
+            )
         )
 });
 

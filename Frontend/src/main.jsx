@@ -5,10 +5,13 @@ import App from './App.jsx'
 import {Home} from './components'
 import {Signup} from './components'
 import {Login} from './components'
+import Profiles from './pages/Profiles.jsx'
 import { Provider } from 'react-redux'
 import {store} from './store/store.js'
 import { RouterProvider } from 'react-router-dom'
 import { createBrowserRouter } from 'react-router-dom'
+import Rooms from './pages/Rooms.jsx'
+import Addroom from './pages/Addroom.jsx'
 const router = createBrowserRouter([
   {
     path:"/",
@@ -30,6 +33,29 @@ const router = createBrowserRouter([
             element: <Login />
           }
         ]
+      },
+      {
+        path:"/rooms",
+        children:[
+          {
+            path:"",
+            element:<Rooms />
+          },
+          {
+            path:"add",
+            element:<Addroom />
+          }
+        ]
+      },
+      {
+        path:'roommates',
+        children:[
+          {
+            path:'',
+            element:<Profiles />
+          }
+        ]
+
       }
     ]
   }
