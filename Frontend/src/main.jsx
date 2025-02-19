@@ -12,6 +12,7 @@ import { RouterProvider } from 'react-router-dom'
 import { createBrowserRouter } from 'react-router-dom'
 import Rooms from './pages/Rooms.jsx'
 import Addroom from './pages/Addroom.jsx'
+import Addroommate from './pages/Registerroommate.jsx'
 const router = createBrowserRouter([
   {
     path:"/",
@@ -19,7 +20,7 @@ const router = createBrowserRouter([
     children:[
       {
         path:"/",
-        element:<Home/>
+        element:<Login />
       },
       {
         path: '/users',
@@ -53,6 +54,10 @@ const router = createBrowserRouter([
           {
             path:'',
             element:<Profiles />
+          },
+          {
+            path:'add',
+            element:<Addroommate />
           }
         ]
 

@@ -20,7 +20,7 @@ function Login() {
                if (userData) {
                  dispatch(authLogin({userData}))
                }
-               navigate('/');
+               navigate('/rooms');
             } 
         } catch (error) {
             setError(error.response.data.error)

@@ -38,7 +38,7 @@ function App() {
       <Header />
       <main className="flex-grow bg-[#F2F4F7] flex flex-row-reverse"> {/* Added `flex-row-reverse` */}
         {/* Sidebar (MessageProfile) - Moves to Right */}
-       {authStatus && <MessageProfile className="w-2/3 ml-4" /> 
+       {authStatus && <MessageProfile className="w-1/3 ml-4" /> 
        } {/* Use `ml-4` for spacing from Outlet */}
   
         {/* Main Content (Outlet) - Takes Remaining Space */}

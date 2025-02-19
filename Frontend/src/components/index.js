@@ -12,7 +12,7 @@ import MessageProfile from "./MessageProfile.jsx";
 import MessageCard from "./Messagecard.jsx";
 import RoomCard from "./Roomcard.jsx";
 import ProfileCard from "./ProfileCard.jsx";
-
+import Roommateform from "./forms/Roommateform.jsx";
 export {
     Logo,
     Header,
@@ -27,5 +27,6 @@ export {
     MessageProfile,
     MessageCard,
     RoomCard,
-    ProfileCard
+    ProfileCard,
+    Roommateform
 }

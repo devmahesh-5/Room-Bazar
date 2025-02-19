@@ -293,7 +293,7 @@ const getRoomById = asyncHandler(async (req, res) => {
 
 const getAllRooms = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10 } = req.query;
-    
+
     const rooms = await Room.aggregate([
         {
             $match: {
@@ -331,7 +331,7 @@ const getAllRooms = asyncHandler(async (req, res) => {
                             address: 1
                         }
                     },
-                    
+
                 ]
             }
         },
@@ -389,19 +389,62 @@ const getAllRooms = asyncHandler(async (req, res) => {
 
 const searchRooms = asyncHandler(async (req, res) => {
 
-    const { page = 1, limit = 10, query, } = req.query;
-    query = query.trim().toLowerCase();
-    const searchQuery = {
-        $or: [
-            { title: { $regex: query, $options: 'i' } },
-            { description: { $regex: query, $options: 'i' } },
-        ]
+    let { page = 1, limit = 10, query, field } = req.query;
+
+    let searchQuery = {
+        [field]: { $regex: query, $options: 'i' }
+    }
+
+    if (!query || !field) {
+        throw new ApiError(400, 'All fields are required');
+    }
+
+    if (field === 'location') {
+        searchQuery = {
+            'location.address': { $regex: query, $options: 'i' } 
+        }
     }
 
     const rooms = await Room.aggregate(
         [
+
+             {
+                $lookup: {
+                    from: 'locations',
+                    localField: '_id',
+                    foreignField: 'roomid',
+                    as: 'location',
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                latitude: 1,
+                                longitude: 1,
+                                address: 1
+                            }
+                        },
+                        {
+                            $addFields: {
+                                address: { $toLower: '$address' }
+                            }
+                        }
+                    ]
+                }
+            },
             {
-                $match: searchQuery
+                $addFields: {
+                    location: { $arrayElemAt: ['$location', 0] }
+                }
+            },
+            {
+                $match: {
+                    $and: [
+                        searchQuery,
+                        {
+                            status: 'Available'
+                        }
+                    ]
+                }
             },
             {
                 $lookup: {
@@ -423,21 +466,12 @@ const searchRooms = asyncHandler(async (req, res) => {
                 }
             },
             {
-                $lookup: {
-                    from: 'locations',
-                    localField: '_id',
-                    foreignField: 'roomid',
-                    as: 'location'
-                }
-            },
-            {
                 $addFields: {
-                    owner: { $arrayElemAt: ['$owner', 0] },
-                    location: { $arrayElemAt: ['$location', 0] }
+                    owner: { $arrayElemAt: ['$owner', 0] }
                 }
             },
             {
-                $skip: (page - 1) * Number(limit)
+                $skip: (Number(page) - 1) * Number(limit)
             },
             {
                 $limit: Number(limit)
@@ -448,10 +482,13 @@ const searchRooms = asyncHandler(async (req, res) => {
                     title: 1,
                     description: 1,
                     capacity: 1,
+                    thumbnail: 1,
                     price: 1,
                     category: 1,
                     status: 1,
                     totalRooms: 1,
+                    rentPerMonth: 1,
+                    location: 1,
                     owner: 1,
                     roomPhotos: 1
                 }

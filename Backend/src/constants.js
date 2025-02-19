@@ -33,7 +33,8 @@ export const getRoommateByUserId = async(userId) => {
                         {
                             $project: {
                                 _id: 1,
-                                fullName: 1
+                                fullName: 1,
+                                avatar: 1
                             }
                     }]
                 },

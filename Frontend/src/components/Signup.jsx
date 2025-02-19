@@ -40,7 +40,7 @@ function Signup() {
                     if (userData) {
                         dispatch(login({ userData }));
                     }
-                    navigate("/");
+                    navigate("/rooms");
                 }
             }
         } catch (error) {

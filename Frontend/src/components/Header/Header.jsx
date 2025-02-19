@@ -12,7 +12,6 @@ function Header() {
   const navigate = useNavigate();
   const isAdmin = userData && userData.role === 'admin';
   const navItems = [
-    { name: 'Home', slug: '/', active: true },
     { name: 'Rooms', slug: '/rooms', active: true },
     { name: 'Roommates', slug: '/roommates', active: authStatus },
     { name: 'List Room', slug: '/rooms/add', active: authStatus },

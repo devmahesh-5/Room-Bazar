@@ -4,7 +4,7 @@ const RoomCard = ({ _id,thumbnail, price, title, location, rentPerMonth }) => {
 
   return (
     <Link to={`/rooms/${_id}`} className="block group">
-      <div className="w-full max-w-sm bg-[#F2F4F7] shadow-md rounded-xl overflow-hidden hover:shadow-lg transition-shadow duration-300 p-4 cursor-pointer border border-[#6C48E3]">
+      <div className="w-full max-w-sm bg-[#F2F4F7] shadow-md rounded-xl overflow-hidden hover:shadow-lg transition-shadow duration-300 p-4 cursor-pointer border hover:border-[#6C48E3]">
         {/* Thumbnail */}
         <img
           src={thumbnail}

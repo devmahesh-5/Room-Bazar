@@ -50,9 +50,10 @@ class roommateServices{
         }
     }
 
-    async searchRoommates(page, limit, query){
+    async searchRoommates(page, limit, data){
         try {
-            const response = await axios.get(`/api/v1/roommates/search?page=${page}&limit=${limit}&query=${query}`);
+            const { query, field } = data
+            const response = await axios.get(`/api/v1/roommates/search?page=${page}&limit=${limit}&query=${query}&field=${field}`);
             if (!response) {
                 throw new Error("Error searching roommates");
             }
@@ -79,6 +80,18 @@ class roommateServices{
             const response = await axios.post(`/api/v1/roommates/my-roommates`);
             if (!response) {
                 throw new Error("Error getting roommates");
+            }
+            return response.data;
+        } catch (error) {
+            throw error
+        }
+    }
+
+    async getMyRoommateAccount(){
+        try {
+            const response = await axios.get(`/api/v1/roommates/myprofile`);
+            if (!response) {
+                throw new Error("Error getting roommate");
             }
             return response.data;
         } catch (error) {

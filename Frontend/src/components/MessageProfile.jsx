@@ -8,7 +8,7 @@ function MessageProfile({
 }) {
     const [profiles, setProfiles] = useState([]);
     const [loading, setLoading] = useState(true);
-
+    const [isHovered, setIsHovered] = useState(false);
     useEffect(() => {
         ;(async () => {
             try {
@@ -25,13 +25,17 @@ function MessageProfile({
     },[]);
 
     if (!Array.isArray(profiles) || profiles.length === 0) {
-        return (<div className="w-1/3 p-4 bg-gray-100 rounded-lg">
+        return (<div className="w-1/3 p-4 bg-gray-100 rounded-lg" 
+          
+        >
         <h2 className="text-lg font-semibold">No profiles found</h2>
     </div>);
       } else {
         return (
-            <div className="w-1/3 p-4 bg-[#F2F4F7] rounded-lg">
+            <div
+            className={`w-1/3 p-4 bg-[#F2F4F7] rounded-lg sticky top-0 `}>
             <h2 className="text-lg font-semibold">Contacts</h2>
+            
             {profiles.map((profile) => (
               <MessageCard
                 key={profile.user._id}

@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-const ProfileCard = ({ avatar, _id, fullName, location, haveRoom }) => {
+const ProfileCard = ({ avatar, _id, fullName, location, haveRoom,job }) => {
   return (
     <Link to={`/roommates/${_id}`}>
-    <div className="w-full max-w-sm bg-[#F2F4F7] shadow border border-[#6C48E3] rounded-lg overflow-hidden p-4">
+    <div className="w-full max-w-sm bg-[#F2F4F7] shadow border hover:border-[#6C48E3] rounded-lg overflow-hidden p-4">
       {/* Top Section: Avatar and User Info */}
       <div className="flex items-center cursor-pointer">
         {avatar ? (
@@ -19,7 +19,8 @@ const ProfileCard = ({ avatar, _id, fullName, location, haveRoom }) => {
         )}
         <div>
           <h2 className="text-lg font-semibold text-gray-800">{fullName}</h2>
-          {location && <p className="text-sm text-gray-500">{location}</p>}
+          <h2 className="text-sm text-[#6C48E3]">{job}</h2>
+          {location && <p className="text-sm text-[#6C48E3]">{location}</p>}
           {haveRoom !== false && (
             <p className="text-xs text-gray-400">Have Rooms</p>
           )}

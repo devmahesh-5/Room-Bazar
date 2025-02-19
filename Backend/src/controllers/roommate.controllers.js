@@ -149,8 +149,16 @@ const updateRoommate = asyncHandler(async (req, res) => {
 });
 
 const getRoommates = asyncHandler(async (req, res) => {
+    const user = req.user?._id;
     const roommates = await RoommateAccount.aggregate([
         {
+            $match: {
+              "userId": { $ne: new mongoose.Types.ObjectId(user) }
+            }
+          },
+          
+        {
+
             $lookup: {
                 from: 'users',
                 localField: 'userId',
@@ -489,18 +497,31 @@ const deleteRoommateAccount = asyncHandler(async (req, res) => {
 });
 
 const searchRoomates = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, query, } = req.query;
+    const { page = 1, limit = 10, query,field } = req.query;
+    const userId = req.user._id;
+    let searchQuery = {
+        [field]: { $regex: query, $options: 'i' }
+    }
 
-    const searchQuery = {
-        $or: [
-            { 'user.fullName': { $regex: query, $options: 'i' } },
-            { description: { $regex: query, $options: 'i' } },
-        ]
+    if(!query || !field){
+        throw new ApiError(400, 'All fields are required');
+    } 
+
+    if(field ==='gender'){
+        searchQuery = {
+            'user.gender': { $regex: query, $options: 'i' }
+        }
+    }
+
+    if(field ==='location'){
+        searchQuery = {
+            'location.address': { $regex: query, $options: 'i' }
+        }
     }
 
     const roommates = await RoommateAccount.aggregate(
         [
-            { $match: searchQuery },
+            
             {
                 $lookup: {
                     from: 'users',
@@ -514,7 +535,9 @@ const searchRoomates = asyncHandler(async (req, res) => {
                                 fullName: 1,
                                 email: 1,
                                 phone: 1,
-                                address: 1
+                                address: 1,
+                                gender: 1,
+                                avatar: 1
                             }
                         },
                     ]
@@ -536,15 +559,23 @@ const searchRoomates = asyncHandler(async (req, res) => {
                 }
             },
             {
+                 $match: {
+                    $and : [
+                        searchQuery,
+                        { $expr: { $ne: ["$user._id", userId] } }
+                    ]
+                 }
+                },
+            {
                 $sort: {
                     createdAt: -1
                 }
             },
             {
-                $skip: (page - 1) * limit
+                $skip: (Number(page) - 1) * Number(limit)
             },
             {
-                $limit: limit
+                $limit: Number(limit)
             },
             {
                 $project: {
@@ -561,7 +592,7 @@ const searchRoomates = asyncHandler(async (req, res) => {
 
         ]
     )
-
+   
     if (!roommates) {
         throw new ApiError(404, 'Roommates not found');
     }
@@ -639,6 +670,22 @@ const getRoommateByJob = asyncHandler(async (req, res) => {
         )
 });
 
+const getMyRoommateAccount = asyncHandler(async (req, res) => {
+    const userId = req.user._id;
+    const myRoommateAccount = await getRoommateByUserId(userId);
+    if(!myRoommateAccount){
+        throw new ApiError(404, 'Roommate not found');
+    }
+    res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                myRoommateAccount,
+                'Roommate fetched successfully'
+            )
+        )
+})
 
 //request actions
 
@@ -999,6 +1046,7 @@ export {
     searchRoomates,
     getRoommateByJob,
     getMyRoommates,
+    getMyRoommateAccount,
     sendRoommateRequest,
     acceptRoommateRequest,
     rejectRoommateRequest,

@@ -89,9 +89,9 @@ class roomServices {
         }
     }
 
-    async searchRooms(page, limit, query) {
+    async searchRooms(page=1, limit=10,data) {
         try {
-            const response = await axios.get(`/api/v1/rooms/search?page=${page}&limit=${limit}&query=${query}`);
+            const response = await axios.get(`/api/v1/rooms/search?page=${page}&limit=${limit}&query=${data.query}&field=${data.field}`);
             if (!response) {
                 throw new Error("Error searching rooms");
             }
