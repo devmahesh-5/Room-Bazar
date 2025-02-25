@@ -33,7 +33,7 @@ function MessageProfile({
       } else {
         return (
             <div
-            className={`w-1/3 p-4 bg-[#F2F4F7] rounded-lg sticky top-0 `}>
+            className={`w-1/3 p-4 bg-[#F2F4F7] rounded-lg sticky top-0 hidden sm:block`}>
             <h2 className="text-lg font-semibold">Contacts</h2>
             
             {profiles.map((profile) => (

@@ -13,6 +13,7 @@ import { createBrowserRouter } from 'react-router-dom'
 import Rooms from './pages/Rooms.jsx'
 import Addroom from './pages/Addroom.jsx'
 import Addroommate from './pages/Registerroommate.jsx'
+import Room from './pages/Room.jsx'
 const router = createBrowserRouter([
   {
     path:"/",
@@ -45,6 +46,10 @@ const router = createBrowserRouter([
           {
             path:"add",
             element:<Addroom />
+          },
+          {
+            path:':id',
+            element:<Room />
           }
         ]
       },

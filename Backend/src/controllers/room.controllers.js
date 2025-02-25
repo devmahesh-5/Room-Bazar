@@ -269,6 +269,8 @@ const getRoomById = asyncHandler(async (req, res) => {
                 status: 1,
                 totalRooms: 1,
                 roomPhotos: 1,
+                rentPerMonth: 1,
+                video: 1,
                 thumbnail: 1,
                 createdAt: 1,
                 updatedAt: 1
@@ -283,10 +285,11 @@ const getRoomById = asyncHandler(async (req, res) => {
     res
         .status(200)
         .json(
-            new ApiResponse({
-                message: 'Room fetched successfully',
-                data: room
-            })
+            new ApiResponse(
+                200,
+                room,
+                'Room fetched successfully'
+            )
         )
 
 });

@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Button, ProfileCard, Input, Select } from '../components';
 import roommateService from '../services/roommate.services.js';
-import { useForm } from 'react-hook-form';
+import { set, useForm } from 'react-hook-form';
+import { Link } from 'react-router-dom';
+
 const Profiles = () => {
   const [myAccount, setMyAccount] = useState([]);
   const [users, setUsers] = useState([]);
   const { register, handleSubmit } = useForm();
-  const [loading, setLoading] = useState(false);  
+  const [loading, setLoading] = useState(false);
+  const [flag, setFlag] = useState(false);
    useEffect(() => {
     (async () => {
       try {
@@ -15,10 +18,13 @@ const Profiles = () => {
         const myAccount = await roommateService.getMyRoommateAccount();
         
         if (users && myAccount) {
+
           setMyAccount(myAccount.data);
           setUsers(users.data);
+          setFlag(true);
         }
       } catch (error) {
+
         throw error;
       }finally{
         setLoading(false);
@@ -46,18 +52,44 @@ const getSearchResults = async (data) => {
     return !loading?(
         <div className="flex flex-col min-h-screen bg-[#F2F4F7] mt-4">
       {/* Search and Filter Section */}
-      {
-  myAccount && (
-    <div className="flex items-center gap-3 p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200">
-      <img
-        src={myAccount?.user?.avatar}
-        alt="Profile"
-        className="w-10 h-10 object-cover rounded-full border-2 border-white shadow-sm"
-      />
-      <p className="text-sm font-medium text-gray-700">{myAccount?.user?.fullName}</p>
+      {   
+  flag && (
+    <Link to={`/roommates/${myAccount?._id}`}>
+    <div className="flex items-center gap-3 p-2 bg-[#F2F4F7] rounded-lg border-2 border-[#6C48E3] hover:bg-gray-200 transition-colors duration-200">
+    <img
+      src={myAccount?.user?.avatar}
+      alt="Profile"
+      className="w-16 h-16 object-cover rounded-full border border-[#6C48E3] shadow-sm"
+    />
+    <p className="text-sm font-medium text-gray-700">{myAccount?.user?.fullName}</p>
+    <div className="ml-auto">
+      <Link to="/roommates/update">
+        <Button className="bg-[#6C48E3] text-white px-3 py-2 rounded-lg hover:opacity-80 hover:text-[#F2F4F7]">
+          Update
+        </Button>
+      </Link>
     </div>
+  </div>
+  </Link>
   )
 }
+
+  {
+    !flag && (
+      <div className="flex items-center gap-3 p-2 bg-[#F2F4F7] rounded-lg border border-[#6C48E3] hover:bg-gray-200 transition-colors duration-200">
+      
+      <p className="text-sm font-medium text-gray-700">Create Roommate Account</p>
+      <div className="ml-auto">
+        <Link to="/roommates/add">
+        <Button className="bg-[#6C48E3] text-white px-3 py-2 rounded-lg hover:opacity-80 hover:text-[#F2F4F7]">
+          Create
+        </Button>
+        </Link>
+      </div>
+    </div>
+    )
+  }
+
       <form onSubmit={handleSubmit(getSearchResults)}>
                       <div className="w-full max-w-4xl p-4 bg-[#F2F4F7] rounded-lg items-center flex flex-row gap-4">
                               <Input
