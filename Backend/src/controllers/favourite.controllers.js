@@ -6,68 +6,37 @@ import Notification from "../models/notification.models.js";
 import {isValidObjectId} from "mongoose";
 import Room from "../models/room.models.js";
 
-const addFavourite = asyncHandler(async (req, res) => {
-    const userId = req.user?._id;
+const toggleFavourite = asyncHandler(async (req, res) => {
     const roomId = req.params?.roomId;
-
-    if(!isValidObjectId(userId) || !isValidObjectId(roomId)){
-        throw new ApiError(400, 'Invalid user id or room id');
-    }
-    const existingFavourite = await Favourite.findOne({
-        userId,
-        roomId
-    })
-
-    if(existingFavourite){
-        throw new ApiError(400, 'Room already added to favourites');
-    }
-
-    const favourite = await Favourite.create({
-        userId,
-        roomId
-    })
-
-    if(!favourite){
-        throw new ApiError(500, 'Failed to add favourite');
-    }
     
-    const room = await Room.findById(roomId);
-    if(!room){
-        throw new ApiError(500, 'Room not found');
+    if(!isValidObjectId(roomId)){
+        throw new ApiError(400, 'Invalid room id');
     }
 
-    await Notification.create({
-        receiver : req.user?._id,
-        message : `Room ${room.title} has been added to your favourites`,
-        roomId : room._id
+    const favourite = await Favourite.findOne({
+        userId : req.user?._id,
+        roomId
     })
+    let isFavourite = false;
+    if(favourite){
+        //delete favourite
+        const deletedFavourite = await Favourite.findByIdAndDelete(favourite._id);
 
-    res
-    .status(200)
-    .json(
-        new ApiResponse(
-            200,
-            favourite,
-            'Room added to favourites successfully'
-        )
-    )
-});
+        if(!deletedFavourite){
+            throw new ApiError(500, 'Failed to delete favourite');
+        }
+    }else{
+        //add favourite
+        const addedFavourite = await Favourite.create({
+            userId : req.user?._id,
+            roomId
+        })
 
-//when user clicks delete button send delete request with favourite id in params 
-const removeFromFavourites = asyncHandler(async (req, res) => {
-    const favouriteId = req.params?.favouriteId;
+        if(!addedFavourite){
+            throw new ApiError(500, 'Failed to add favourite');
+        }
 
-    if(!isValidObjectId(favouriteId)){
-        throw new ApiError(400, 'Invalid favourite id');
-    }
-
-    const deletedFavourite = await Favourite.findOneAndDelete({
-        _id : favouriteId,
-        userId : req.user?._id
-    })
-
-    if(!deletedFavourite){
-        throw new ApiError(500, 'Failed to delete favourite');
+        isFavourite = true;
     }
 
     res
@@ -75,11 +44,12 @@ const removeFromFavourites = asyncHandler(async (req, res) => {
     .json(
         new ApiResponse(
             200,
-            deletedFavourite,
-            'Favourite deleted successfully'
+            {isFavourite: isFavourite},
+            'Favourite toggled successfully'
         )
     )
-});
+})
+
 
 const getUserFavourites = asyncHandler(async (req, res) => {
     const {limit=10, page=1} = req.query;
@@ -105,6 +75,7 @@ const getUserFavourites = asyncHandler(async (req, res) => {
                     pipeline : [
                         {
                             $project : {
+                                _id :1,
                                 title : 1,
                                 price : 1,
                                 thumbnail: 1
@@ -149,8 +120,37 @@ const getUserFavourites = asyncHandler(async (req, res) => {
     )
 });
 
+
+const getFavouriteByRoomId = asyncHandler(async (req, res) => {
+    const roomId = req.params?.roomId;
+
+    if(!isValidObjectId(roomId)){
+        throw new ApiError(400, 'Invalid room id');
+    }
+
+    const favourite = await Favourite.findOne({
+        roomId,
+        userId : req.user?._id
+    })
+
+    if(!favourite){
+        throw new ApiError(404, 'Favourite not found');
+    }
+
+    res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            favourite,
+            'Favourite fetched successfully'
+        )
+    )
+
+
+})
 export {
-    addFavourite,
-    removeFromFavourites,
-    getUserFavourites
+    toggleFavourite,
+    getUserFavourites,
+    getFavouriteByRoomId
 }

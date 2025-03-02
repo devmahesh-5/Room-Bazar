@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import roomServices from "../services/room.services";
+import roomServices from "../services/room.services.js";
+import favouriteService from "../services/favourite.services.js";
 import { Button } from "../components";
 import { useSelector } from "react-redux";
 import { FaHeart, FaBook } from "react-icons/fa"; // Import icons from react-icons
+
 
 function Room() {
     const navigate = useNavigate();
@@ -19,6 +21,14 @@ function Room() {
                 try {
                     const response = await roomServices.getRoomById(slug.id);
                     setRoom(response.data[0]); // Store the room in state
+                    try {
+                        const favResponse = await favouriteService.getFavouriteByRoomId(slug.id);
+                        if (favResponse) {
+                            setIsFavourite(true);
+                        }
+                    } catch (error) {
+                        setIsFavourite(false);
+                    }
                 } catch (error) {
                     console.error("Error fetching room:", error);
                 }
@@ -40,15 +50,26 @@ function Room() {
 
     const handleBook = () => {
         // Add booking logic here
-        console.log("Room booked:", room.title);
-        alert(`You have booked: ${room.title}`);
+        
     };
 
     const handleFavourite = () => {
-        // Toggle favourite status
-        setIsFavourite(!isFavourite);
-        console.log("Room favourited:", room.title);
-        alert(`Room ${isFavourite ? "removed from favourites" : "added to favourites"}`);
+        
+        try {
+            favouriteService.toggleFavourite(room._id).then((response) => {
+                if (response) {
+                    if (response.data.isFavourite) {
+                        setIsFavourite(true);
+                    } else {
+                        setIsFavourite(false);
+                    }
+                
+                }
+            });
+        } catch (error) {
+            
+        }
+        
     };
 
     if (!room) {
@@ -56,7 +77,7 @@ function Room() {
     }
 
     // Fallback for missing thumbnail or roomPhotos
-    const thumbnail = room.thumbnail || (room.roomPhotos && room.roomPhotos[0]) || "https://via.placeholder.com/400x300";
+    const thumbnail = room.thumbnail || (room.roomPhotos && room.roomPhotos[0])
 
     return (
         <div className="py-10 px-6 max-w-6xl mx-auto">
@@ -162,7 +183,7 @@ function Room() {
                             className="px-6 py-2 rounded-md flex items-center space-x-2"
                         >
                             <FaHeart className="text-lg" />
-                            <span>{isFavourite ? "Favourited" : "Favourite"}</span>
+                            <span>{isFavourite ? "Unfavourite" : "Favourite"}</span>
                         </Button>
                     </div>
                 )}

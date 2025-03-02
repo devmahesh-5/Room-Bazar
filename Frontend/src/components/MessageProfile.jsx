@@ -1,54 +1,51 @@
-import React,{useState, useEffect} from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useState, useEffect } from 'react';
 import messageService from '../services/message.services';
-import{MessageCard} from '../components/index.js';
-function MessageProfile({
-    children,
-    className = ''
-}) {
-    const [profiles, setProfiles] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [isHovered, setIsHovered] = useState(false);
-    useEffect(() => {
-        ;(async () => {
-            try {
-                const messageProfile = await messageService.getMessageProfile();
-                if (messageProfile) {
-                    setProfiles(messageProfile.data);
-                }
-            } catch (error) {
-                throw error
-            } finally {
-                setLoading(false);
-            }
-        })();
-    },[]);
+import { MessageCard } from '../components/index.js';
 
-    if (!Array.isArray(profiles) || profiles.length === 0) {
-        return (<div className="w-1/3 p-4 bg-gray-100 rounded-lg" 
-          
-        >
-        <h2 className="text-lg font-semibold">No profiles found</h2>
-    </div>);
-      } else {
-        return (
-            <div
-            className={`w-1/3 p-4 bg-[#F2F4F7] rounded-lg sticky top-0 hidden sm:block`}>
-            <h2 className="text-lg font-semibold">Contacts</h2>
-            
-            {profiles.map((profile) => (
-              <MessageCard
-                key={profile.user._id}
-                _id={profile.user._id}
-                avatar={profile.user.avatar}
-                fullName={profile.user.fullName}
-              />
-            ))}
-          </div>
-        );
+function MessageProfile() {
+  const [profiles, setProfiles] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const messageProfile = await messageService.getMessageProfile();
+        if (messageProfile) {
+          setProfiles(messageProfile.data);
+        }
+      } catch (error) {
+        console.error('Error fetching message profiles:', error);
+      } finally {
+        setLoading(false);
       }
-      
-    
+    })();
+  }, []);
+
+  if (loading) {
+    return <div className="text-center p-4">Loading profiles...</div>;
+  }
+
+  if (!Array.isArray(profiles) || profiles.length === 0) {
+    return (
+      <div className="w-1/3 p-4 bg-[#F2F4F7] rounded-lg sticky top-0">
+        <h2 className="text-lg font-semibold">No profiles found</h2>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-72 p-4 bg-[#F2F4F7] rounded-lg sticky top-0 h-screen overflow-y-auto">
+      <h2 className="text-lg font-semibold mb-4">Contacts</h2>
+      {profiles.map((profile) => (
+        <MessageCard
+          key={profile.user._id}
+          _id={profile.user._id}
+          avatar={profile.user.avatar}
+          fullName={profile.user.fullName}
+        />
+      ))}
+    </div>
+  );
 }
 
-export default MessageProfile
+export default MessageProfile;

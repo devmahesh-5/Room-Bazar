@@ -14,6 +14,8 @@ import Rooms from './pages/Rooms.jsx'
 import Addroom from './pages/Addroom.jsx'
 import Addroommate from './pages/Registerroommate.jsx'
 import Room from './pages/Room.jsx'
+import Notifications from './pages/Notifications.jsx'
+
 const router = createBrowserRouter([
   {
     path:"/",
@@ -66,7 +68,12 @@ const router = createBrowserRouter([
           }
         ]
 
+      },
+      {
+        path: 'notifications',
+        element: <Notifications />
       }
+
     ]
   }
 ])

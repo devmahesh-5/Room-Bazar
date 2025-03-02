@@ -10,7 +10,7 @@ import {
     getRoomsByLocation
 } from '../controllers/room.controllers.js';
 
-import { addFavourite, removeFromFavourites } from '../controllers/favourite.controllers.js';
+import { toggleFavourite, getFavouriteByRoomId } from '../controllers/favourite.controllers.js';
 import { updateRoomLocation } from "../controllers/location.controllers.js";
 import { addBooking } from "../controllers/booking.controllers.js";
 import { createRefund } from "../controllers/refund.controllers.js";
@@ -66,8 +66,8 @@ router.route('/').get(getAllRooms);
 router.route('/search').get(searchRooms);
 router.route('/category/:category').get(getRoomsByCategory);
 router.route('/location/:location').get(getRoomsByLocation);
-router.route('/:roomId').get(getRoomById).post(addFavourite).delete(removeFromFavourites);
-
+router.route('/:roomId').get(getRoomById).post(toggleFavourite);
+router.route('/favourites/:roomId').get(getFavouriteByRoomId);
 //location route
 
 router.route('/location/:roomId').patch(updateRoomLocation);
