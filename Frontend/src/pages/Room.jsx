@@ -4,16 +4,23 @@ import roomServices from "../services/room.services.js";
 import favouriteService from "../services/favourite.services.js";
 import { Button } from "../components";
 import { useSelector } from "react-redux";
-import { FaHeart, FaBook } from "react-icons/fa"; // Import icons from react-icons
-
+import { FaHeart, FaBook, FaStar, FaComment } from "react-icons/fa"; // Import icons from react-icons
+import reviewService from "../services/review.services.js";
+import { useForm } from "react-hook-form";
 
 function Room() {
     const navigate = useNavigate();
     const slug = useParams();
+    const [reviews, setReviews] = useState([]);
     const [room, setRoom] = useState(null);
-    const [isFavourite, setIsFavourite] = useState(false); // State for favourite status
+    const [isFavourite, setIsFavourite] = useState(false);
+    const [showCommentBox, setShowCommentBox] = useState(false); // State to toggle comment box
+    const [rating, setRating] = useState(0); // State for user's rating
+    const [averageRating, setAverageRating] = useState(0); // State for average room rating
     const userData = useSelector((state) => state.auth.userData);
     const isOwner = room && userData ? room.owner._id === userData._id : false;
+
+    const { register, handleSubmit, reset } = useForm();
 
     useEffect(() => {
         if (slug.id) {
@@ -21,6 +28,8 @@ function Room() {
                 try {
                     const response = await roomServices.getRoomById(slug.id);
                     setRoom(response.data[0]); // Store the room in state
+
+                    // Fetch favourite status
                     try {
                         const favResponse = await favouriteService.getFavouriteByRoomId(slug.id);
                         if (favResponse) {
@@ -28,6 +37,17 @@ function Room() {
                         }
                     } catch (error) {
                         setIsFavourite(false);
+                    }
+
+                    // Fetch reviews and calculate average rating
+                    try {
+                        const reviewResponse = await reviewService.getRoomReviews(slug.id);
+                        if (reviewResponse) {
+                            setReviews(reviewResponse.data);
+                            calculateAverageRating(reviewResponse.data); // Calculate average rating
+                        }
+                    } catch (error) {
+                        console.error("Error fetching room reviews:", error);
                     }
                 } catch (error) {
                     console.error("Error fetching room:", error);
@@ -48,28 +68,54 @@ function Room() {
         }
     };
 
+    // Calculate average rating
+    const calculateAverageRating = (reviews) => {
+        if (reviews.length === 0) {
+            setAverageRating(0);
+            return;
+        }
+        const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+        const avgRating = totalRating / reviews.length;
+        setAverageRating(avgRating.toFixed(1)); // Round to 1 decimal place
+    };
+
+    // Handle comment submission
+    const handleCommentPost = async (data) => {
+        try {
+            const commentData = await reviewService.addReview(room._id, { ...data, rating });
+            if (!commentData) {
+                throw new Error("Error adding review");
+            }
+            // Refresh reviews after posting
+            const reviewResponse = await reviewService.getRoomReviews(slug.id);
+            setReviews(reviewResponse.data);
+            calculateAverageRating(reviewResponse.data);
+            reset(); // Reset the form
+            setShowCommentBox(false); // Hide the comment box after submission
+        } catch (error) {
+            console.error("Error posting comment:", error);
+        }
+    };
+
     const handleBook = () => {
-        // Add booking logic here
-        
+        // Handle booking logic here
     };
 
     const handleFavourite = () => {
-        
         try {
             favouriteService.toggleFavourite(room._id).then((response) => {
                 if (response) {
-                    if (response.data.isFavourite) {
-                        setIsFavourite(true);
-                    } else {
-                        setIsFavourite(false);
-                    }
-                
+                    setIsFavourite(response.data.isFavourite);
                 }
             });
         } catch (error) {
-            
+            console.error("Error toggling favourite:", error);
         }
-        
+    };
+
+    // Toggle comment box visibility
+    const toggleCommentBox = () => {
+        setShowCommentBox(!showCommentBox);
     };
 
     if (!room) {
@@ -77,7 +123,7 @@ function Room() {
     }
 
     // Fallback for missing thumbnail or roomPhotos
-    const thumbnail = room.thumbnail || (room.roomPhotos && room.roomPhotos[0])
+    const thumbnail = room.thumbnail || (room.roomPhotos && room.roomPhotos[0]);
 
     return (
         <div className="py-10 px-6 max-w-6xl mx-auto">
@@ -95,9 +141,9 @@ function Room() {
                                 Edit
                             </Button>
                         </Link>
-                        <Button 
-                            bgColor="bg-red-600 hover:bg-red-700 text-white" 
-                            onClick={deleteRoom} 
+                        <Button
+                            bgColor="bg-red-600 hover:bg-red-700 text-white"
+                            onClick={deleteRoom}
                             className="px-5 py-2 rounded-md"
                         >
                             Delete
@@ -153,10 +199,7 @@ function Room() {
                     ))}
                 </div>
 
-
                 {/* Video (if available) */}
-
-
                 {room.video && (
                     <div className="w-full">
                         <video controls className="w-full rounded-lg">
@@ -166,7 +209,7 @@ function Room() {
                     </div>
                 )}
 
-                {/* Book and Favourite Buttons (for non-owners) */}
+                {/* Book, Favourite, and Comment Buttons (for non-owners) */}
                 {!isOwner && (
                     <div className="flex space-x-4">
                         <Button
@@ -185,8 +228,104 @@ function Room() {
                             <FaHeart className="text-lg" />
                             <span>{isFavourite ? "Unfavourite" : "Favourite"}</span>
                         </Button>
+                        <Button
+                            bgColor="bg-[#6C48E3] hover:bg-blue-700 text-white"
+                            onClick={toggleCommentBox}
+                            className="px-6 py-2 rounded-md flex items-center space-x-2"
+                        >
+                            <FaComment className="text-lg" />
+                            <span>Comment</span>
+                        </Button>
                     </div>
                 )}
+
+                {/* Rating Section */}
+                <div className="mt-8">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-4">Rating</h2>
+                    <div className="flex items-center space-x-2">
+                        <span className="text-lg font-semibold">Average Rating: {averageRating}</span>
+                        <div className="flex space-x-1">
+                            {[...Array(5)].map((_, index) => (
+                                <FaStar
+                                    key={index}
+                                    className={`text-xl ${index < averageRating ? 'text-yellow-400' : 'text-gray-300'}`}
+                                />
+                            ))}
+
+                        </div>
+                    </div>
+                </div>
+
+                {/* Comment Section */}
+                <div className="mt-8">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-4">Comments</h2>
+
+                    {/* Comment Box (Conditionally Rendered) */}
+                    {showCommentBox && (
+                        <form onSubmit={handleSubmit(handleCommentPost)} className="mb-6">
+                            {/* Rating Input */}
+                            <div className="flex space-x-1 mb-4">
+                                {[...Array(5)].map((_, index) => (
+                                    <FaStar
+                                        key={index}
+                                        className={`text-${index < rating ? "yellow-400" : "gray-300"} text-xl cursor-pointer`}
+                                        onClick={() => setRating(index + 1)}
+                                    />
+                                ))}
+                            </div>
+                            <textarea
+                                {...register("comment", { required: true })}
+                                placeholder="Write your comment..."
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6C48E3]"
+                                rows="4"
+                            ></textarea>
+                            <Button
+                                type="submit"
+                                bgColor="bg-[#6C48E3] hover:bg-blue-700 text-white"
+                                className="mt-2 px-6 py-2 rounded-md"
+                            >
+                                Post Comment
+                            </Button>
+                        </form>
+                    )}
+
+                    {/* Display Comments */}
+                    <div className="space-y-4">
+  {reviews.map((review, index) => (
+    <div key={index} className="bg-gray-50 p-4 rounded-lg shadow-sm">
+      <div className="flex items-start space-x-4 mb-3">
+        {/* Avatar */}
+         <Link to={`/profile/${review.user?._id}`}>{/*define this path for any user profile */}
+        <img
+          src={review.user?.avatar} 
+          alt="User Avatar"
+          className="w-10 h-10 rounded-full object-cover"
+        />
+    </Link>
+        {/* Rating stars */}
+        <div className="flex space-x-1">
+          {[...Array(5)].map((_, i) => (
+            <FaStar
+              key={i}
+              className={`text-${i < review.rating ? "yellow-400" : "gray-300"} text-lg`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Comment */}
+      <p className="text-gray-700">{review.comment}</p>
+
+      {/* User Info */}
+      <p className="text-sm text-gray-500 mt-2">
+        <span className="font-semibold">{review.user?.fullName || "Anonymous"}</span> on{" "}
+        {new Date(review.createdAt).toLocaleDateString()}
+      </p>
+    </div>
+  ))}
+</div>
+
+                </div>
             </div>
         </div>
     );

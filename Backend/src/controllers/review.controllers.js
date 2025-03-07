@@ -12,7 +12,7 @@ const addReview = asyncHandler(async (req, res) => {
     const userId = req.user?._id;
     const roomId = req.params?.roomId;
 
-    if ([rating, comment].some((field) => !field || field.trim() === '')) {
+    if ([rating, comment].some((field) => !field)) {
         throw new ApiError(400, 'All fields are required');
     }
     const trimmedComment = comment.trim();
