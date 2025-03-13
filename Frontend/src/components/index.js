@@ -14,6 +14,7 @@ import RoomCard from "./Roomcard.jsx";
 import ProfileCard from "./ProfileCard.jsx";
 import Roommateform from "./forms/Roommateform.jsx";
 import NotificationCard from "./NotificationCard.jsx";
+import Messages from "./Messages.jsx";
 
 export {
     Logo,
@@ -31,5 +32,6 @@ export {
     RoomCard,
     ProfileCard,
     Roommateform,
-    NotificationCard
+    NotificationCard,
+    Messages
 }

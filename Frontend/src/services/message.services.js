@@ -17,9 +17,9 @@ class messageServices {
         }
     }
 
-    async getMessages(userId,messageId) {
+    async getMessages(userId) {
         try {
-            const response = await axios.get(`/api/v1/messages/ib/${userId}/${messageId}`);
+            const response = await axios.get(`/api/v1/messages/ib/${userId}`);
             if (!response) {
                 throw new Error("Error getting messages");
             }

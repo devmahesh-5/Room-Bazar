@@ -17,7 +17,7 @@ function Header() {
     { name: 'Roommates', slug: '/roommates', active: authStatus, icon: <MdGroup /> },
     { name: 'List Room', slug: '/rooms/add', active: authStatus, icon: <MdAddBox /> },
     { name: 'Favourites', slug: '/favourites/myfavourites', active: authStatus, icon: <MdFavorite /> },
-    { name: 'messages', slug: '/messages', active: authStatus, icon: <MdMessage /> },
+    { name: 'messages', slug: '/messages/ib', active: authStatus, icon: <MdMessage /> },
     { name: 'notifications', slug: '/notifications', active: authStatus, icon: <MdNotifications /> },
   ];
 

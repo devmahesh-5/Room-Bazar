@@ -123,7 +123,7 @@ const getUserMessages = asyncHandler(async (req, res) => {
             },
             {
                 $sort: {
-                    createdAt: -1
+                    createdAt: 1
                 }
             },
             {

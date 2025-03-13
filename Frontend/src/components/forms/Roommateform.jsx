@@ -13,8 +13,6 @@ const Roommateform = ({ roommate }) => {
 
     const submit = async (data) => {
         try {
-            console.log(data);
-            
             const formData = new FormData();
             for (const key in data) {
                  if (key === 'roomPhotos') {
@@ -26,9 +24,6 @@ const Roommateform = ({ roommate }) => {
                     formData.append(key, data[key]); // Other fields
                 }
             }
-            
-            console.log(formData);
-            
 
             if (roommate) {
                 const updatedRoommate = await roommateServices.updateRoommate(roommate._id, formData);
@@ -37,10 +32,8 @@ const Roommateform = ({ roommate }) => {
                 }
                 navigate(`/roommates/${updatedRoommate._id}`);
             } else {
-                console.log("user");
                 
                 const newRoommate = await roommateServices.registerRoommate(formData);
-                console.log(newRoommate);
                 
                 if (!newRoommate) {
                     throw new Error("Error adding roommate");
