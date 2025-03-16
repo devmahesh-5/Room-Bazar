@@ -15,6 +15,7 @@ function InboxForm({ userId }) {
                 setMessages(fetchedMessages.data);
             } catch (error) {
                 console.error('Error fetching messages:', error);
+                setMessages([]);
             }
         }
         fetchMessages();
@@ -48,7 +49,9 @@ function InboxForm({ userId }) {
             console.error('Error sending message:', error);
         }
     };
-
+    if (messages.length === 0) {
+        return <div className="flex flex-col h-screen bg-gray-100 p-4 justify-center items-center">No messages found</div>;
+    }else{
     return (
         <div className="flex flex-col h-screen bg-gray-100 p-4">
             {/* Messages List */}
@@ -128,7 +131,9 @@ function InboxForm({ userId }) {
                 
             </form>
         </div>
+    
     );
+}
 }
 
 export default InboxForm;

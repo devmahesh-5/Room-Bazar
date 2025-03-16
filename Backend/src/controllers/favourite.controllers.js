@@ -73,12 +73,30 @@ const getUserFavourites = asyncHandler(async (req, res) => {
                     foreignField : '_id',
                     as : 'room',
                     pipeline : [
-                        {
+                        
+                            {
+                                
+                                $lookup : {
+                                    from : 'locations',
+                                    localField : 'location',
+                                    foreignField : '_id',
+                                    as : 'location'
+                                }
+                            },
+                            {
+                                $addFields : {
+                                    location : { $arrayElemAt : ['$location', 0] }
+                                }
+                            },
+                            {
                             $project : {
                                 _id :1,
                                 title : 1,
                                 price : 1,
-                                thumbnail: 1
+                                thumbnail: 1,
+                                location : 1,
+                                rentPerMonth : 1,
+                                price : 1
                             }
                         }
                     ]

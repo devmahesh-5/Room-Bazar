@@ -1,6 +1,7 @@
 import axios from "axios";
 
 class favouriteServices {
+    
    async toggleFavourite(roomId) {
        try {
            const response = await axios.post(`/api/v1/rooms/${roomId}`);

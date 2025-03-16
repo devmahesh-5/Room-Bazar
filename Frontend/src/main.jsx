@@ -16,6 +16,8 @@ import Addroommate from './pages/Registerroommate.jsx'
 import Room from './pages/Room.jsx'
 import Notifications from './pages/Notifications.jsx'
 import Message from './pages/Message.jsx'
+import HollowMessage from './pages/HollowMessage.jsx'
+import Favourites from './pages/Favourites.jsx'
 const router = createBrowserRouter([
   {
     path:"/",
@@ -74,11 +76,24 @@ const router = createBrowserRouter([
         element: <Notifications />
       },
       {
-        path: 'messages/ib/:userId',
+        path: 'messages/ib',
         children: [
           {
             path: '',
+            element: <HollowMessage />
+          },
+          {
+            path: ':userId',
             element: <Message />
+          }
+        ]
+      },
+      {
+        path: 'favourites',
+        children: [
+          {
+            path: 'myfavourites',
+            element: <Favourites />
           }
         ]
       }
