@@ -2,24 +2,31 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import messageService from '../../services/message.services';
 import { MdSend, MdAttachFile } from 'react-icons/md';
+import authServices from '../../services/auth.services';
 
 function InboxForm({ userId }) {
     const { register, handleSubmit, reset, setValue } = useForm();
     const [messages, setMessages] = useState([]);
+    const [receiver, setReceiver] = useState(null);
     const [selectedFiles, setSelectedFiles] = useState([]); // Track selected files
-
+    const [loading, setLoading] = useState(false);
     useEffect(() => {
         async function fetchMessages() {
             try {
+                setLoading(true);
+                const user = await authServices.getUserById({ userId });
                 const fetchedMessages = await messageService.getMessages(userId);
                 setMessages(fetchedMessages.data);
+                setReceiver(user.data); // Set receiver profile
             } catch (error) {
                 console.error('Error fetching messages:', error);
                 setMessages([]);
+            }finally{
+                setLoading(false);
             }
         }
         fetchMessages();
-    }, []);
+    }, [userId]);
 
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);
@@ -49,11 +56,24 @@ function InboxForm({ userId }) {
             console.error('Error sending message:', error);
         }
     };
-    if (messages.length === 0) {
-        return <div className="flex flex-col h-screen bg-gray-100 p-4 justify-center items-center">No messages found</div>;
-    }else{
-    return (
-        <div className="flex flex-col h-screen bg-gray-100 p-4">
+
+    return !loading ? (
+        <div className="flex flex-col h-screen p-4">
+            {/* Receiver Profile Section */}
+            {receiver && (
+                <div className="flex items-center p-4 bg-[#F2F4F7] rounded-lg mb-2">
+                    <img
+                        src={receiver.avatar}
+                        alt={receiver.fullName}
+                        className="w-12 h-12 rounded-full"
+                    />
+                    <div className="ml-4">
+                        <h2 className="text-lg font-semibold text-gray-800">{receiver.fullName}</h2>
+                        <p className="text-sm text-gray-600">{receiver.username}</p>
+                    </div>
+                </div>
+            )}
+
             {/* Messages List */}
             <div className="flex-1 overflow-y-auto space-y-1">
                 {messages.map((msg) => {
@@ -63,7 +83,7 @@ function InboxForm({ userId }) {
                             {isSentByUser && msg.sender?.avatar && (
                                 <img src={msg.sender.avatar} alt={msg.sender.fullName} className="w-8 h-8 rounded-full" />
                             )}
-                            <div className={`max-w-xs p-3 rounded-xl shadow-md ${isSentByUser ? 'bg-blue-500 text-white' : 'bg-[#6C48E3] text-[#F2F4F7]'}`}>
+                            <div className={`max-w-xs p-2 rounded-xl shadow-md ${isSentByUser ? 'bg-blue-500 text-[#F2F4F7]' : 'bg-[#6C48E3] text-[#F2F4F7]'}`}>
                                 <p className="mt-2">{msg.message}</p>
 
                                 {/* Display Attached Files */}
@@ -97,19 +117,19 @@ function InboxForm({ userId }) {
                 })}
             </div>
 
-                {/* Selected Files Preview */}
-                {selectedFiles.length > 0 && (
-                    <div className="mt-2 p-2 bg-gray-200 rounded-lg">
-                        <p className="text-sm font-medium">Selected Files:</p>
-                        <ul className="text-sm text-gray-700">
-                            {selectedFiles.map((file, index) => (
-                                <li key={index} className="mt-1">{file}</li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
+            {/* Selected Files Preview */}
+            {selectedFiles.length > 0 && (
+                <div className="mt-2 p-2 bg-gray-200 rounded-lg">
+                    <p className="text-sm font-medium">Selected Files:</p>
+                    <ul className="text-sm text-gray-700">
+                        {selectedFiles.map((file, index) => (
+                            <li key={index} className="mt-1">{file}</li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
             {/* Message Input */}
-            
             <form className="flex flex-row bg-white p-2 rounded-lg shadow-md mt-4" onSubmit={handleSubmit(handleSendMessage)}>
                 <textarea
                     {...register('message')}
@@ -127,13 +147,9 @@ function InboxForm({ userId }) {
                         <MdSend />
                     </button>
                 </div>
-
-                
             </form>
         </div>
-    
-    );
-}
+    ):(<div className='flex justify-center items-center h-screen'>No Message Selected</div>);
 }
 
 export default InboxForm;

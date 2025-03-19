@@ -52,7 +52,7 @@ const toggleFavourite = asyncHandler(async (req, res) => {
 
 
 const getUserFavourites = asyncHandler(async (req, res) => {
-    const {limit=10, page=1} = req.query;
+    // const {limit=10, page=1} = req.query;
     const userId = req.user?._id;
 
     if(!isValidObjectId(userId)){
@@ -107,13 +107,13 @@ const getUserFavourites = asyncHandler(async (req, res) => {
                     createdAt : -1
                 }
             },
-            {
-                $skip : (page-1)*limit
-            },
-            {
+            // {
+            //     $skip : (page-1)*limit
+            // },
+            // {
                 
-                $limit : limit
-            },
+            //     $limit : limit
+            // },
             {
                 $project : {
                     _id : 1,
@@ -122,6 +122,7 @@ const getUserFavourites = asyncHandler(async (req, res) => {
             }
         ]
     )
+    
 
     if(!favourites){
         throw new ApiError(500, 'Failed to get favourites');

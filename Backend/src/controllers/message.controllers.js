@@ -71,8 +71,6 @@ const getUserMessages = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'Invalid user id');
     }
 
-    // console.log(sender, receiver);
-    
     const messages = await Message.aggregate(
         [
             {
@@ -245,7 +243,8 @@ const getMessageProfile = asyncHandler(async (req, res) => {
     if(!messageProfile){
         throw new ApiError(500, 'Failed to get message profile');
     }
-
+    console.log(messageProfile);
+    
     res 
     .status(200)
     .json(

@@ -12,7 +12,8 @@ import {
     updateProfilePicture,
     updateCoverPicture,
     getUserFavourites,
-    getDashboard
+    getDashboard,
+    getUserById
 } from '../controllers/user.controllers.js';
 
 import { getLocationByUser,updateUserLocation } from '../controllers/location.controllers.js';
@@ -64,6 +65,11 @@ router.route('/change-password').patch(
 router.route('/myprofile').get(
     verifyAuth,
     getUserProfile
+)
+
+router.route('/:userId').get(
+    verifyAuth,
+    getUserById
 )
 
 router.route('/myfavourites').get(  

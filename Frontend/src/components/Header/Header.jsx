@@ -19,6 +19,7 @@ function Header() {
     { name: 'Favourites', slug: '/favourites/myfavourites', active: authStatus, icon: <MdFavorite /> },
     { name: 'messages', slug: '/messages/ib', active: authStatus, icon: <MdMessage /> },
     { name: 'notifications', slug: '/notifications', active: authStatus, icon: <MdNotifications /> },
+    { name: 'Profile', slug: '/users/myprofile', active: authStatus, icon: <MdPerson /> },
   ];
 
   return (
@@ -48,19 +49,6 @@ function Header() {
 
                 </li>
               )
-          )}
-          {authStatus && (
-            <li>
-              <button
-                onClick={() => navigate('/users/myprofile')}
-                className={`inline-bock px-4 py-2 duration-200 text-[#6C48E3] bg-[#F2F4F7] rounded-lg hover:bg-[#6C48E3] hover:text-white' ${location.pathname === '/users/myprofile'
-                    ? 'bg-[#6C48E3] text-white' // Active state
-                    : 'text-[#131038] hover:bg-[#6C48E3] hover:text-white' // Inactive state
-                  }`}
-              >
-                <MdPerson />
-              </button>
-            </li>
           )}
           {authStatus && (
             <li>

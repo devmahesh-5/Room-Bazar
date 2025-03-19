@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-const MessageCard = ({ _id, avatar, fullName }) => {
+const MessageCard = ({ _id, avatar, fullName }) => {//userid
   return (
     <Link to={`/messages/ib/${_id}`}>
     <div className="flex items-center p-3 border hover:border-[#6C48E3] rounded-lg bg-[#F2F4F7] my-2" key={_id}>

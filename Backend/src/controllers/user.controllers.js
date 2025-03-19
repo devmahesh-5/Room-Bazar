@@ -724,6 +724,27 @@ const getDashboard = asyncHandler(async (req, res) => {
       )
 })
 
+const getUserById = asyncHandler(async (req, res) => {
+   const userId = req.params?.userId;
+
+   if (!isValidObjectId(userId)) {
+      throw new ApiError(400, 'Invalid user id');
+   }
+
+   const user = await User.findById(userId).select('-password -refreshToken -role');
+   if (!user) {
+      throw new ApiError(404, 'User not found');
+   }
+   res
+      .status(200)
+      .json(
+         new ApiResponse(
+            200,
+            user,
+            'User fetched successfully'
+         )
+      )
+})
 export {
    registerUser,
    loginUser,
@@ -736,5 +757,6 @@ export {
    updateProfilePicture,
    updateCoverPicture,
    getUserFavourites,
-   getDashboard
+   getDashboard,
+   getUserById
 };

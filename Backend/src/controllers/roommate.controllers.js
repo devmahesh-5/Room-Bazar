@@ -230,7 +230,9 @@ const getRoommates = asyncHandler(async (req, res) => {
         )
 
 });
-
+const getNonRoommates = asyncHandler(async (req, res) => {
+    const user = req.user?._id;
+})
 const getRoommateById = asyncHandler(async (req, res) => {
     const roommateId = req.params?.roommateId;
 
@@ -571,12 +573,12 @@ const searchRoomates = asyncHandler(async (req, res) => {
                     createdAt: -1
                 }
             },
-            {
-                $skip: (Number(page) - 1) * Number(limit)
-            },
-            {
-                $limit: Number(limit)
-            },
+            // {
+            //     $skip: (Number(page) - 1) * Number(limit)
+            // },
+            // {
+            //     $limit: Number(limit)
+            // },
             {
                 $project: {
                     _id: 1,

@@ -18,6 +18,7 @@ import Notifications from './pages/Notifications.jsx'
 import Message from './pages/Message.jsx'
 import HollowMessage from './pages/HollowMessage.jsx'
 import Favourites from './pages/Favourites.jsx'
+import Myprofile from './pages/Myprofile.jsx'
 const router = createBrowserRouter([
   {
     path:"/",
@@ -37,6 +38,10 @@ const router = createBrowserRouter([
           {
             path: 'login',
             element: <Login />
+          },
+          {
+            path:'myprofile',
+            element:<Myprofile />
           }
         ]
       },

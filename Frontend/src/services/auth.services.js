@@ -143,7 +143,7 @@ class authServices {
         }
     } 
     
-    async getUseDashboars(){
+    async getUserDashboard(){
         try {
             const response = await axios.get("/api/v1/users/dashboard",
                 {
@@ -212,6 +212,18 @@ class authServices {
             return response.data;
         } catch (error) {
             console.error("Error getting owner reports:", error);
+        }
+    }
+
+    async getUserById({ userId }) {
+        try {
+            const response = await axios.get(`/api/v1/users/${userId}`);
+            if (!response) {
+                throw new Error("Error getting user by ID");
+            }
+            return response.data;
+        } catch (error) {
+            console.error("Error getting user by ID:", error);
         }
     }
 }

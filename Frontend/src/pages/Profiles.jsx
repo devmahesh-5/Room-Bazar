@@ -117,7 +117,7 @@ const getSearchResults = async (data) => {
             </div>
           </div>
         </div>
-    ):(<div>Loading...</div>);
+    ):(<div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#6C48E3]"></div>);
   }
 
   return !loading ? (
@@ -163,6 +163,7 @@ const getSearchResults = async (data) => {
             <ProfileCard
               avatar={user.user.avatar}
               _id={user._id}
+              userId={user.user._id}
               haveRoom={user.haveRoom}
               fullName={user.user.fullName}
               location={user.location.address}
@@ -173,7 +174,7 @@ const getSearchResults = async (data) => {
       </div>
     </div>
   ):(
-    <div>Loading...</div>
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#6C48E3]"></div>
   );
 };
 
