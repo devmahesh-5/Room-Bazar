@@ -1090,14 +1090,14 @@ const getReceivedRoommateRequest = asyncHandler(async (req, res) => {
     const receivedRequest = await RoommateRequest.aggregate([
         {
             $match: {
-                receiver: myRoommateAccount._id,
+                receiver: new mongoose.Types.ObjectId(myRoommateAccount._id),
                 status: 'Pending'
             }
         },
         {
             $group: {
-                _id: receiver,
-                sender: { $addToSet: sender },
+                _id: '$receiver',
+                sender: { $addToSet: '$sender' },
             }
         },
         {
@@ -1117,7 +1117,8 @@ const getReceivedRoommateRequest = asyncHandler(async (req, res) => {
                                 {
                                     $project: {
                                         _id: 1,
-                                        fullName: 1
+                                        fullName: 1,
+                                        avatar: 1
                                     }
                                 }
                             ]
@@ -1129,12 +1130,6 @@ const getReceivedRoommateRequest = asyncHandler(async (req, res) => {
                         }
                     }
                 ]
-            }
-        },
-        {
-            $project: {
-                _id: 1,
-                sender: 1
             }
         }
     ])

@@ -149,7 +149,7 @@ class roommateServices{
 
     async cancelRoommateRequest(roommateId){
         try {
-            const response = await axios.patch(`/api/v1/roommates/cancelrequest/${roommateId}`);
+            const response = await axios.delete(`/api/v1/roommates/cancelrequest/${roommateId}`);
             if (!response) {
                 throw new Error("Error canceling roommate request");
             }

@@ -14,6 +14,7 @@ const ProfilePage = () => {
     requestedRefunds: [],
   });
   const [sentRequest, setSentRequest] = useState([]);
+  const [receivedRequest, setReceivedRequest] = useState([]);
   const [activeSection, setActiveSection] = useState('roommates'); // Default active section
 
   useEffect(() => {
@@ -23,10 +24,11 @@ const ProfilePage = () => {
         setDashboardData(response.data);
 
         try {
-          
+        const receivedRequest = await roommateService.getReceivedRoommateRequests();
+        setReceivedRequest(receivedRequest.data);
         const sentRequest = await roommateService.getSentRoommateRequests();
         setSentRequest(sentRequest.data);
-          console.log(sentRequest.data);
+          console.log(receivedRequest.data);
           
         } catch (error) {
           throw error
@@ -227,15 +229,51 @@ const ProfilePage = () => {
               
                 {sentRequest[0].receiver.map((request, index) => (<div 
             key={index} 
-            className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden"
+            className="bg-[#F2F4F7] rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden"
           >
-                    
-                    <RequestCard {...(request.user)} cardType="sent"/>
+                    <RequestCard 
+                      fullName={request.user.fullName}
+                      _id={request._id}//it is roommate id
+                      avatar={request.user.avatar}
+                      email={request.user.email}
+                      job={request.job}
+                      userId={request.user._id}
+                      cardType="sent"
+                      />
                   </div>
                 ))}
               </div>
             ) : (
               <p className="text-gray-500">No sent requests found.</p>
+            )}
+            </div>
+        )
+      }
+
+{
+        activeSection ==='received_requests' && (
+          <div className="bg-[#F2F4F7] rounded-lg shadow-md p-3">
+            {receivedRequest?.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              
+                {receivedRequest[0].sender.map((request, index) => (<div 
+            key={index} 
+            className="bg-[#F2F4F7] rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden"
+          >
+                    <RequestCard 
+                      fullName={request.user.fullName}
+                      _id={request._id}//it is roommate id
+                      avatar={request.user.avatar}
+                      email={request.user.email}
+                      job={request.job}
+                      userId={request.user._id}
+                      cardType="received" 
+                      />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500">No requests found.</p>
             )}
             </div>
         )

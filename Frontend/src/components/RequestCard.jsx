@@ -1,5 +1,5 @@
 import React from 'react'
-
+import roommateService from '../services/roommate.services.js';
 function RequestCard({
     _id,
     avatar,
@@ -17,8 +17,12 @@ function RequestCard({
         // Handle reject request logic here
       };
 
-      const cancelRequest = () => {
-        // Handle cancel request logic here
+      const cancelRequest = async() => {
+        try {
+            const response =await roommateService.cancelRoommateRequest(_id);
+        } catch (error) {
+            console.error(error);
+        }
       };
 
     return (
