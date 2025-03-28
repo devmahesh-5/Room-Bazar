@@ -17,6 +17,7 @@ import NotificationCard from "./NotificationCard.jsx";
 import Messages from "./Messages.jsx";
 import Dashboard from "./Dashboard.jsx";
 import MyProfile from "./MyProfile.jsx";
+import RequestCard from "./RequestCard.jsx";
 export {
     Logo,
     Header,
@@ -36,5 +37,6 @@ export {
     NotificationCard,
     Messages,
     Dashboard,
-    MyProfile
+    MyProfile,
+    RequestCard
 }

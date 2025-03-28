@@ -1,12 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import roommateService from '../services/roommate.services.js';
+
 const ProfileCard = ({ avatar, _id,userId, fullName, location, haveRoom,job }) => {
   const sendRequest = async () => {
-    
+    try {
+      const response = await roommateService.sendRoommateRequest(_id);
+    } catch (error) {
+      console.error('Error sending roommate request:', error);
+    }
   }
   return (
-    <Link to={`/roommates/${_id}`}>
+    <div>
       {/* //roommate id */}
     <div className="w-full max-w-sm bg-[#F2F4F7] shadow border hover:border-[#6C48E3] rounded-lg overflow-hidden p-4">
       {/* Top Section: Avatar and User Info */}
@@ -45,7 +50,7 @@ const ProfileCard = ({ avatar, _id,userId, fullName, location, haveRoom,job }) =
         </Link>
       </div>
     </div>
-    </Link>
+    </div>
   );
 };
 

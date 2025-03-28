@@ -13,7 +13,11 @@ import {
     rejectRoommateRequest,
     cancelRoommateRequest,
     getMyRoommates,
-    getMyRoommateAccount
+    getMyRoommateAccount,
+    getNonRoommates,
+    getSentRoommateRequest,
+    getReceivedRoommateRequest,
+
 } from '../controllers/roommate.controllers.js';
 
 import { upload } from "../middlewares/multer.middlewares.js";
@@ -33,12 +37,15 @@ router.route('/register').post(
 );
 router.route('/update-account').patch(updateRoommate);
 router.route('/delete-account').delete(deleteRoommateAccount);
+router.route('/non-roommates').get(getNonRoommates);
 router.route('/').get(getRoommates);
 router.route('/search').get(searchRoomates);
 router.route('/job').get(getRoommateByJob);
 router.route('/profile/:roommateId').get(getRoommateById);
 router.route('/my-roommates').post(getMyRoommates);
 router.route('/myprofile').get(getMyRoommateAccount);
+router.route('/sentrequests').get(getSentRoommateRequest);
+router.route('/receivedrequests').get(getReceivedRoommateRequest);
 //requests route
 
 router.route('/sendrequest/:roommateId').post(sendRoommateRequest);

@@ -498,6 +498,7 @@ const getUserFavourites = asyncHandler(async (req, res) => {
 
 const getDashboard = asyncHandler(async (req, res) => {
    const userId = req.user?._id;
+
    if (!isValidObjectId(userId)) {
       throw new ApiError(400, 'Invalid user id');
    }
@@ -561,6 +562,7 @@ const getDashboard = asyncHandler(async (req, res) => {
                category : 1,
                price : 1,
                thumbnail : 1,
+               rentPerMonth : 1
             }
          },
          {
@@ -576,6 +578,7 @@ const getDashboard = asyncHandler(async (req, res) => {
          }
       ]
    )
+
    const myPayments = await Payment.find({ userId })
 
    const requestedRefunds = await Refund.find({ userId })
@@ -618,7 +621,9 @@ const getDashboard = asyncHandler(async (req, res) => {
                                             fullName: 1,
                                             email: 1,
                                             phone: 1,
-                                            address: 1
+                                            address: 1,
+                                            avatar: 1,
+                                            gender: 1
                                         }
                                     }
                                 ]
@@ -661,7 +666,9 @@ const getDashboard = asyncHandler(async (req, res) => {
                                             fullName: 1,
                                             email: 1,
                                             phone: 1,
-                                            address: 1
+                                            address: 1,
+                                            avatar: 1,
+                                            gender: 1
                                         }
                                     }
                                 ]
@@ -684,6 +691,14 @@ const getDashboard = asyncHandler(async (req, res) => {
                     ]
                 }         
             },
+            // {
+            //    sort: {
+            //       createdAt: -1
+            //    }
+            // },
+            // {
+            //    limit: 6//check functionality later
+            // },
             {
                 $project:{
                     myRoommates:{

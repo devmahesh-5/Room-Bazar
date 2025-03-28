@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import authService from '../services/auth.services.js';
 import { FaUsers, FaMoneyBill, FaHome, FaUndo } from 'react-icons/fa'; // Icons for navbar
-
+import RoomCard from './Roomcard.jsx';
+import roommateService from '../services/roommate.services.js';
+import {RequestCard} from '../components/index.js';
 const ProfilePage = () => {
   const userData = useSelector((state) => state.auth.userData);
   const [dashboardData, setDashboardData] = useState({
@@ -11,6 +13,7 @@ const ProfilePage = () => {
     myRooms: [],
     requestedRefunds: [],
   });
+  const [sentRequest, setSentRequest] = useState([]);
   const [activeSection, setActiveSection] = useState('roommates'); // Default active section
 
   useEffect(() => {
@@ -18,12 +21,22 @@ const ProfilePage = () => {
       try {
         const response = await authService.getUserDashboard();
         setDashboardData(response.data);
+
+        try {
+          
+        const sentRequest = await roommateService.getSentRoommateRequests();
+        setSentRequest(sentRequest.data);
+          console.log(sentRequest.data);
+          
+        } catch (error) {
+          throw error
+        }
+        
       } catch (error) {
         console.error('Error getting user dashboard:', error);
       }
     })();
   }, []);
-
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       {/* Profile Section */}
@@ -66,13 +79,13 @@ const ProfilePage = () => {
           <FaUsers />
           <span>Roommates</span>
         </button>
-        <button
+        {/* <button
           onClick={() => setActiveSection('payments')}
           className={`flex items-center space-x-2 ${activeSection === 'payments' ? 'text-[#6C48E3]' : 'text-gray-700'}`}
         >
           <FaMoneyBill />
           <span>Payments</span>
-        </button>
+        </button> */}
         <button
           onClick={() => setActiveSection('rooms')}
           className={`flex items-center space-x-2 ${activeSection === 'rooms' ? 'text-[#6C48E3]' : 'text-gray-700'}`}
@@ -80,13 +93,13 @@ const ProfilePage = () => {
           <FaHome />
           <span>Rooms</span>
         </button>
-        <button
+        {/* <button
           onClick={() => setActiveSection('refunds')}
           className={`flex items-center space-x-2 ${activeSection === 'refunds' ? 'text-[#6C48E3]' : 'text-gray-700'}`}
         >
           <FaUndo />
           <span>Refunds</span>
-        </button>
+        </button> */}
         <button
           onClick={() => setActiveSection('edit')}
           className={`flex items-center space-x-2 ${activeSection === 'refunds' ? 'text-[#6C48E3]' : 'text-gray-700'}`}
@@ -112,29 +125,45 @@ const ProfilePage = () => {
 
       {/* Roommates Section */}
       {activeSection === 'roommates' && (
-        <div className="bg-[#F2F4F7] rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold mb-4">My Roommates</h2>
-          {dashboardData.myRoommates?.length > 0 ? (
-            <ul>
-              {dashboardData.myRoommates[0].myRoommates?.map((roommate, index) => (
-                <li key={index} className="mb-4 p-4 bg-[#F2F4F7] rounded-lg">
-                    <div className='flex items-center space-x-4'>
-                    <img src={roommate?.user?.avatar} alt="User Avatar" className="w-12 h-12 rounded-full object-cover mr-4" />
-                  <p className="font-semibold text-gray-700">{roommate?.user?.fullName}</p>
-                    </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-500">No roommates found.</p>
-          )}
-        </div>
-      )}
+  <div className="bg-[#F2F4F7] rounded-lg p-4">
+    {dashboardData.myRoommates?.length > 0 ? (
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {dashboardData.myRoommates[0].myRoommates?.map((roommate, index) => (
+          <div 
+            key={index} 
+            className="bg-white p-3 rounded-lg flex items-center space-x-3 hover:shadow-sm transition-all"
+          >
+            <div className="flex-shrink-0">
+              <img 
+                src={roommate?.user?.avatar || '/default-avatar.png'} 
+                alt={roommate?.user?.fullName} 
+                className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                onError={(e) => {
+                  e.target.onerror = null; 
+                  e.target.src = '/default-avatar.png'
+                }}
+              />
+            </div>
+            <div className="min-w-0">
+              <p className="font-medium text-gray-800">{roommate?.user?.fullName}</p>
+              <p className="text-xs text-gray-500">{roommate?.user?.email}</p>
+              <p className="text-xs text-gray-500 truncate">{roommate?.job}</p>
+
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div className="bg-white rounded-lg p-4 text-center">
+        <p className="text-gray-500">No roommates found</p>
+      </div>
+    )}
+  </div>
+)}
 
       {/* Payments Section */}
       {activeSection === 'payments' && (
         <div className="bg-[#F2F4F7] rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold mb-4">My Payments</h2>
           {dashboardData.myPayments?.length > 0 ? (
             <ul>
               {dashboardData.myPayments.map((payment, index) => (
@@ -152,27 +181,29 @@ const ProfilePage = () => {
 
       {/* Rooms Section */}
       {activeSection === 'rooms' && (
-        <div className="bg-[#F2F4F7] rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold mb-4">My Rooms</h2>
-          {dashboardData.myRooms?.length > 0 ? (
-            <ul>
-              {dashboardData.myRooms[0]?.rooms.map((room, index) => (
-                <li key={index} className="mb-4 p-4 bg-gray-50 rounded-lg">
-                  <p className="text-gray-700">{room.category}</p>
-                  <p className="text-sm text-gray-500">Price: ${room.price}</p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-500">No rooms found.</p>
-          )}
-        </div>
-      )}
+  <div className="bg-[#F2F4F7] rounded-lg p-4">
+    {dashboardData.myRooms?.length > 0 ? (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {dashboardData.myRooms[0]?.rooms.map((room, index) => (
+          <div 
+            key={index} 
+            className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden"
+          >
+            <RoomCard {...room} compact='true' />
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div className="bg-white rounded-lg p-6 text-center">
+        <p className="text-gray-500">No rooms found</p>
+      </div>
+    )}
+  </div>
+)}
 
       {/* Refunds Section */}
       {activeSection === 'refunds' && (
         <div className="bg-[#F2F4F7] rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold mb-4">My Refunds</h2>
           {dashboardData.requestedRefunds?.length > 0 ? (
             <ul>
               {dashboardData.requestedRefunds[0].map((refund, index) => (
@@ -187,6 +218,28 @@ const ProfilePage = () => {
           )}
         </div>
       )}
+
+      {
+        activeSection ==='sent_requests' && (
+          <div className="bg-[#F2F4F7] rounded-lg shadow-md p-3">
+            {sentRequest?.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              
+                {sentRequest[0].receiver.map((request, index) => (<div 
+            key={index} 
+            className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden"
+          >
+                    
+                    <RequestCard {...(request.user)} cardType="sent"/>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500">No sent requests found.</p>
+            )}
+            </div>
+        )
+      }
     </div>
   );
 };

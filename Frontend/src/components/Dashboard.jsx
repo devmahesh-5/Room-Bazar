@@ -31,7 +31,6 @@ const Dashboard = () => {
         <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
           <div className="flex items-center mb-4">
             <FaUsers className="text-2xl text-[#4CAF50] mr-2" />
-            <h2 className="text-xl font-semibold">My Roommates</h2>
           </div>
           {dashboardData.myRoommates?.length > 0 ? (
             <ul>
@@ -71,7 +70,6 @@ const Dashboard = () => {
         <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
           <div className="flex items-center mb-4">
             <FaHome className="text-2xl text-[#4CAF50] mr-2" />
-            <h2 className="text-xl font-semibold">My Rooms</h2>
           </div>
           {dashboardData.myRooms?.length > 0 ? (
             <ul>

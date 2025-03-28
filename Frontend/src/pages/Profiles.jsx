@@ -14,7 +14,7 @@ const Profiles = () => {
     (async () => {
       try {
         setLoading(true);
-        const users = await roommateService.getAllRoommates();
+        const users = await roommateService.getNonRoommates();
         const myAccount = await roommateService.getMyRoommateAccount();
         
         if (users && myAccount) {

@@ -99,9 +99,9 @@ class roommateServices{
         }
     }
 
-    async getAllRoommates(page, limit){
+    async getNonRoommates(page, limit){
         try {
-            const response = await axios.get(`/api/v1/roommates?page=${page}&limit=${limit}`);
+            const response = await axios.get(`/api/v1//roommates/non-roommates?page=${page}&limit=${limit}`);
             if (!response) {
                 throw new Error("Error getting roommates");
             }

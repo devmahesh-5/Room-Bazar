@@ -1,10 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-const RoomCard = ({ _id,thumbnail, price, title, location, rentPerMonth }) => {
+const RoomCard = ({ _id,thumbnail, price, title, location, rentPerMonth,className='',compact=false }) => {
 
   return (
     <Link to={`/rooms/${_id}`} className="block group">
-      <div className="w-full max-w-sm bg-[#F2F4F7] shadow-md rounded-xl overflow-hidden hover:shadow-lg transition-shadow duration-300 p-4 cursor-pointer border hover:border-[#6C48E3]">
+      <div className={`w-full max-w-sm bg-[#F2F4F7] shadow-md rounded-xl overflow-hidden hover:shadow-lg transition-shadow duration-300 p-4 cursor-pointer border hover:border-[#6C48E3] ${className}`}>
         {/* Thumbnail */}
         <img
           src={thumbnail}
@@ -22,7 +22,7 @@ const RoomCard = ({ _id,thumbnail, price, title, location, rentPerMonth }) => {
             {location}
           </p>
           <div className="flex items-center justify-between text-gray-700">
-            <span className="text-lg font-bold">Broker Price: Rs.{price}</span>
+            <span className={compact ? 'text-sm' : 'text-lg'}>Broker Price: Rs.{price}</span>
             <span className="text-sm text-green-500">Rent/Month: Rs.{rentPerMonth}</span>
           </div>
         </div>
