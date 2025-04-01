@@ -2,12 +2,12 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
-import {Home} from './components'
-import {Signup} from './components'
-import {Login} from './components'
+import { Home } from './components'
+import { Signup } from './components'
+import { Login } from './components'
 import Profiles from './pages/Profiles.jsx'
 import { Provider } from 'react-redux'
-import {store} from './store/store.js'
+import { store } from './store/store.js'
 import { RouterProvider } from 'react-router-dom'
 import { createBrowserRouter } from 'react-router-dom'
 import Rooms from './pages/Rooms.jsx'
@@ -21,12 +21,12 @@ import Favourites from './pages/Favourites.jsx'
 import Myprofile from './pages/Myprofile.jsx'
 const router = createBrowserRouter([
   {
-    path:"/",
-    element:<App/>,
-    children:[
+    path: "/",
+    element: <App />,
+    children: [
       {
-        path:"/",
-        element:<Login />
+        path: "/",
+        element: <Login />
       },
       {
         path: '/users',
@@ -40,38 +40,38 @@ const router = createBrowserRouter([
             element: <Login />
           },
           {
-            path:'myprofile',
-            element:<Myprofile />
+            path: 'myprofile',
+            element: <Myprofile />
           }
         ]
       },
       {
-        path:"/rooms",
-        children:[
+        path: "/rooms",
+        children: [
           {
-            path:"",
-            element:<Rooms />
+            path: "",
+            element: <Rooms />
           },
           {
-            path:"add",
-            element:<Addroom />
+            path: "add",
+            element: <Addroom />
           },
           {
-            path:':id',
-            element:<Room />
+            path: ':id',
+            element: <Room />
           }
         ]
       },
       {
-        path:'roommates',
-        children:[
+        path: 'roommates',
+        children: [
           {
-            path:'',
-            element:<Profiles />
+            path: '',
+            element: <Profiles />
           },
           {
-            path:'add',
-            element:<Addroommate />
+            path: 'add',
+            element: <Addroommate />
           }
         ]
 
@@ -108,6 +108,6 @@ const router = createBrowserRouter([
 ])
 createRoot(document.getElementById('root')).render(
   <Provider store={store}>
-  <RouterProvider router ={router} />
-</Provider>
+    <RouterProvider router={router} />
+  </Provider>
 )

@@ -2,9 +2,9 @@ import dotenv from "dotenv";
 import app from "./app.js";
 import connectDB from "./db/index.js";
 
-dotenv.config({ path: '../.env' });
+dotenv.config({ path: '../.env' });//configuring dotenv
 
-
+//.config is used to configure dotenv so that w can access the environment variables with process.env
 
 
 

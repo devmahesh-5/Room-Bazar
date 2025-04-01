@@ -136,7 +136,7 @@ const getUserMessages = asyncHandler(async (req, res) => {
         ]
     )
 
-    if (!messages || messages.length === 0) {
+    if (!messages) {
         throw new ApiError(500, 'Failed to get messages');
     }
 

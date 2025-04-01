@@ -24,39 +24,44 @@ function Messages() {
 
     })();
   }, []);
-
-
- if (loading) {
-    return <div className="text-center p-4">Loading profiles...</div>;
+  if(loading){
+    return(
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#6C48E3]"></div>
+        <span className="ml-4 text-lg font-semibold">Loading profiles...</span>
+      </div>
+    )
   }
-
-  if (!Array.isArray(profiles) || profiles.length === 0) {
-    return (
+  return (    
+    Array.isArray(profiles) && profiles.length > 0 ? (
+      console.log('profiles'),
+      
+      <div className='flex flex-row'>
+      <div className="w-72 p-4 bg-[#F2F4F7] rounded-lg sticky top-0 h-screen overflow-y-auto">
+        <h2 className="text-lg font-semibold mb-4">Messages</h2>
+        {profiles.map((profile) => (
+          <MessageCard
+            key={profile.user._id}
+            _id={profile.user._id}
+            avatar={profile.user.avatar}
+            fullName={profile.user.fullName}
+          />
+        ))}
+      </div>
+      <div className="flex-1 p-4 bg-[#F2F4F7] rounded-lg">
+          <Inboxform userId={userId} />
+      </div>
+      </div>
+    ) : (
+      <div className='flex flex-row'>
       <div className="w-1/3 p-4 bg-[#F2F4F7] rounded-lg sticky top-0">
         <h2 className="text-lg font-semibold">No profiles found</h2>
       </div>
-    );
-  }
-
-  return (
-    <div className='flex flex-row'>
-    <div className="w-72 p-4 bg-[#F2F4F7] rounded-lg sticky top-0 h-screen overflow-y-auto">
-      <h2 className="text-lg font-semibold mb-4">Messages</h2>
-      {profiles.map((profile) => (
-        <MessageCard
-          key={profile.user._id}
-          _id={profile.user._id}
-          avatar={profile.user.avatar}
-          fullName={profile.user.fullName}
-        />
-      ))}
-    </div>
-    <div className="flex-1 p-4 bg-[#F2F4F7] rounded-lg">
-        <Inboxform userId={userId} />
-    </div>
-    </div>
-  );
-    
+      <div className="flex-1 p-4 bg-[#F2F4F7] rounded-lg">
+          <Inboxform userId={userId} />
+      </div>
+      </div>
+    )
+  ) 
 }
-
-export default Messages;
+export default Messages

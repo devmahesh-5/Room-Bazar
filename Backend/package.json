@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "this is backend for ",
+  "description": "this is backend for Room-Bazar Website",
   "main": "index.js",
   "type": "module",
   "scripts": {

@@ -296,5 +296,5 @@ const ProfilePage = () => {
     </div>
   );
 };
-
+// remember edit is on user profile not user roommate profile
 export default ProfilePage;

@@ -12,7 +12,7 @@ app.use(cors(
     }
 ))
 
-app.use(express.static("public"))
+app.use(express.static("public"))//middleware to serve static files
 
 app.use(express.urlencoded(
     {
