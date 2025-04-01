@@ -18,7 +18,6 @@ const Profiles = () => {
         const myAccount = await roommateService.getMyRoommateAccount();
         
         if (users && myAccount) {
-
           setMyAccount(myAccount.data);
           setUsers(users.data);
           setFlag(true);

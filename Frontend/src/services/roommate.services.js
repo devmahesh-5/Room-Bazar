@@ -77,7 +77,7 @@ class roommateServices{
 
     async getMyRoommates(){
         try {
-            const response = await axios.post(`/api/v1/roommates/my-roommates`);
+            const response = await axios.get(`/api/v1/roommates/my-roommates`);
             if (!response) {
                 throw new Error("Error getting roommates");
             }

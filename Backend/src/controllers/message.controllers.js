@@ -243,7 +243,6 @@ const getMessageProfile = asyncHandler(async (req, res) => {
     if(!messageProfile){
         throw new ApiError(500, 'Failed to get message profile');
     }
-    console.log(messageProfile);
     
     res 
     .status(200)

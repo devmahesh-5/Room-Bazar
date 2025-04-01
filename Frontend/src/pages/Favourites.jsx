@@ -34,16 +34,16 @@ function Favourites() {
             {
                 favourites.map((favourite) => (
                     
-                              <div key={favourite._id} className="p-2">
+                              <div key={favourite?._id} className="p-2">
                                 
                                 
                                 <RoomCard
-                                  _id={favourite?.room[0]._id}
-                                  thumbnail={favourite?.room[0].thumbnail}
-                                  price={favourite?.room[0].price}
-                                  title={favourite?.room[0].title}
-                                  location={favourite?.room[0].location?.address}
-                                  rentPerMonth={favourite?.room[0].rentPerMonth}
+                                  _id={favourite?.room[0]?._id}
+                                  thumbnail={favourite?.room[0]?.thumbnail}
+                                  price={favourite?.room[0]?.price}
+                                  title={favourite?.room[0]?.title}
+                                  location={favourite?.room[0]?.location?.address}
+                                  rentPerMonth={favourite?.room[0]?.rentPerMonth}
                                 />
                               </div>
                             ))}

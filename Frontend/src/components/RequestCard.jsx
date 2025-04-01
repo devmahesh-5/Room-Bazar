@@ -9,12 +9,20 @@ function RequestCard({
     haveRoom,
     cardType=''
 }) {
-    const acceptRequest = () => {
-        // Handle accept request logic here
+    const acceptRequest = async() => {
+        try {
+          const acceptRequest = await roommateService.acceptRoommateRequest(_id);
+        } catch (error) {
+          console.error(error);
+        }
       };
     
       const rejectRequest = () => {
-        // Handle reject request logic here
+        try {
+          const rejectRequest = roommateService.rejectRoommateRequest(_id);
+        } catch (error) {
+          console.error(error);
+        }
       };
 
       const cancelRequest = async() => {

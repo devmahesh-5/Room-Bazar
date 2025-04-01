@@ -42,7 +42,7 @@ router.route('/').get(getRoommates);
 router.route('/search').get(searchRoomates);
 router.route('/job').get(getRoommateByJob);
 router.route('/profile/:roommateId').get(getRoommateById);
-router.route('/my-roommates').post(getMyRoommates);
+router.route('/my-roommates').get(getMyRoommates);
 router.route('/myprofile').get(getMyRoommateAccount);
 router.route('/sentrequests').get(getSentRoommateRequest);
 router.route('/receivedrequests').get(getReceivedRoommateRequest);

@@ -588,14 +588,14 @@ const getDashboard = asyncHandler(async (req, res) => {
     if(!myRoommateAccount){
         throw new ApiError(404, 'Roommate not found');
     }
-
+    
     const myRoommates = await RoommateRequest.aggregate(
         [
             {
                 $match:{
                    $or:[
-                        {sender:myRoommateAccount._id},
-                        {receiver:myRoommateAccount._id}
+                        {sender: myRoommateAccount._id},
+                        {receiver: myRoommateAccount._id}
                     ],
                     status:'Accepted'
                 }
@@ -691,6 +691,12 @@ const getDashboard = asyncHandler(async (req, res) => {
                     ]
                 }         
             },
+            {
+                $addFields: {
+                    sender: { $arrayElemAt: ['$sender', 0] },
+                    receiver: { $arrayElemAt: ['$receiver', 0] }
+                }
+            },
             // {
             //    sort: {
             //       createdAt: -1
@@ -712,7 +718,7 @@ const getDashboard = asyncHandler(async (req, res) => {
             }
         ]
     )
-
+    
     if(!myRoommates){
         throw new ApiError(404, 'Roommates not found');
     }

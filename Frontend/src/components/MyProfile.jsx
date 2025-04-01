@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import authService from '../services/auth.services.js';
 import { FaUsers, FaMoneyBill, FaHome, FaUndo } from 'react-icons/fa'; // Icons for navbar
 import RoomCard from './Roomcard.jsx';
 import roommateService from '../services/roommate.services.js';
-import {RequestCard} from '../components/index.js';
+import { RequestCard } from '../components/index.js';
 const ProfilePage = () => {
-  const userData = useSelector((state) => state.auth.userData);
+  const [userData, setUserData] = useState(null);
   const [dashboardData, setDashboardData] = useState({
     myRoommates: [],
     myPayments: [],
@@ -16,38 +15,52 @@ const ProfilePage = () => {
   const [sentRequest, setSentRequest] = useState([]);
   const [receivedRequest, setReceivedRequest] = useState([]);
   const [activeSection, setActiveSection] = useState('roommates'); // Default active section
-
+  const [loading, setLoading] = useState(!userData?._id);
   useEffect(() => {
-    (async () => {
-      try {
-        const response = await authService.getUserDashboard();
-        setDashboardData(response.data);
-
+    setLoading(true);
+      (async () => {
         try {
-        const receivedRequest = await roommateService.getReceivedRoommateRequests();
-        setReceivedRequest(receivedRequest.data);
-        const sentRequest = await roommateService.getSentRoommateRequests();
-        setSentRequest(sentRequest.data);
-          console.log(receivedRequest.data);
-          
+          const userData = await authService.getCurrentUser();
+          setUserData(userData.data[0]);
+          const response = await authService.getUserDashboard();
+          setDashboardData(response.data);
+
+          try {
+            const receivedRequest = await roommateService.getReceivedRoommateRequests();
+            setReceivedRequest(receivedRequest.data);
+            const sentRequest = await roommateService.getSentRoommateRequests();
+            setSentRequest(sentRequest.data);
+
+          } catch (error) {
+            throw error
+          }
+
         } catch (error) {
-          throw error
+          console.error('Error getting user dashboard:', error);
+        }finally{
+          setLoading(false);
         }
-        
-      } catch (error) {
-        console.error('Error getting user dashboard:', error);
-      }
-    })();
-  }, []);
+      })();
+    
+  }, [userData?._id]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#6C48E3]"></div>
+        <span className="ml-4 text-lg font-semibold">Loading profile...</span>
+      </div>
+    );
+  }
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       {/* Profile Section */}
       <div className="bg-[#F2F4F7] rounded-lg shadow-md overflow-hidden">
         {/* Cover Image */}
         <div className="h-48 bg-gray-200 relative">
-          {userData.coverImage && (
+          {userData?.coverImage && (
             <img
-              src={userData.coverImage}
+              src={userData?.coverImage}
               alt="Cover"
               className="w-full h-full object-cover"
             />
@@ -58,15 +71,15 @@ const ProfilePage = () => {
         <div className="p-6">
           <div className="flex items-center space-x-6">
             <img
-              src={userData.avatar}
-              alt={userData.fullName}
+              src={userData?.avatar}
+              alt={userData?.fullName}
               className="w-24 h-24 rounded-full border-4 border-[#F2F4F7] -mt-16"
             />
             <div>
-              <h3 className="text-2xl font-bold">{userData.fullName}</h3>
-              <p className="text-gray-500">{userData.email}</p>
-              <p className="text-gray-500">{userData.phone}</p>
-              <p className="text-gray-500">{userData.address}</p>
+              <h3 className="text-2xl font-bold">{userData?.fullName}</h3>
+              <p className="text-gray-500">{userData?.email}</p>
+              <p className="text-gray-500">{userData?.phone}</p>
+              <p className="text-gray-500">{userData?.address}</p>
             </div>
           </div>
         </div>
@@ -127,41 +140,43 @@ const ProfilePage = () => {
 
       {/* Roommates Section */}
       {activeSection === 'roommates' && (
-  <div className="bg-[#F2F4F7] rounded-lg p-4">
-    {dashboardData.myRoommates?.length > 0 ? (
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {dashboardData.myRoommates[0].myRoommates?.map((roommate, index) => (
-          <div 
-            key={index} 
-            className="bg-white p-3 rounded-lg flex items-center space-x-3 hover:shadow-sm transition-all"
-          >
-            <div className="flex-shrink-0">
-              <img 
-                src={roommate?.user?.avatar || '/default-avatar.png'} 
-                alt={roommate?.user?.fullName} 
-                className="w-10 h-10 rounded-full object-cover border border-gray-200"
-                onError={(e) => {
-                  e.target.onerror = null; 
-                  e.target.src = '/default-avatar.png'
-                }}
-              />
-            </div>
-            <div className="min-w-0">
-              <p className="font-medium text-gray-800">{roommate?.user?.fullName}</p>
-              <p className="text-xs text-gray-500">{roommate?.user?.email}</p>
-              <p className="text-xs text-gray-500 truncate">{roommate?.job}</p>
+        <div className="bg-[#F2F4F7] rounded-lg p-4">
+          {dashboardData.myRoommates?.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              
+              {dashboardData.myRoommates?.map((roommate, index) => (
+                
+                <div
+                  key={index}
+                  className="bg-white p-3 rounded-lg flex items-center space-x-3 hover:shadow-sm transition-all"
+                >
+                  <div className="flex-shrink-0">
+                    <img
+                      src={roommate?.myRoommates?.user?.avatar || '/default-avatar.png'}
+                      alt={roommate?.myRoommates?.user?.fullName}
+                      className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = '/default-avatar.png'
+                      }}
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-medium text-gray-800">{roommate?.myRoommates?.user?.fullName}</p>
+                    <p className="text-xs text-gray-500">{roommate?.myRoommates?.user?.email}</p>
+                    <p className="text-xs text-gray-500 truncate">{roommate?.myRoommates?.job}</p>
 
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
-        ))}
-      </div>
-    ) : (
-      <div className="bg-white rounded-lg p-4 text-center">
-        <p className="text-gray-500">No roommates found</p>
-      </div>
-    )}
-  </div>
-)}
+          ) : (
+            <div className="bg-white rounded-lg p-4 text-center">
+              <p className="text-gray-500">No roommates found</p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Payments Section */}
       {activeSection === 'payments' && (
@@ -183,25 +198,25 @@ const ProfilePage = () => {
 
       {/* Rooms Section */}
       {activeSection === 'rooms' && (
-  <div className="bg-[#F2F4F7] rounded-lg p-4">
-    {dashboardData.myRooms?.length > 0 ? (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {dashboardData.myRooms[0]?.rooms.map((room, index) => (
-          <div 
-            key={index} 
-            className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden"
-          >
-            <RoomCard {...room} compact='true' />
-          </div>
-        ))}
-      </div>
-    ) : (
-      <div className="bg-white rounded-lg p-6 text-center">
-        <p className="text-gray-500">No rooms found</p>
-      </div>
-    )}
-  </div>
-)}
+        <div className="bg-[#F2F4F7] rounded-lg p-4">
+          {dashboardData.myRooms?.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {dashboardData.myRooms[0]?.rooms.map((room, index) => (
+                <div
+                  key={index}
+                  className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden"
+                >
+                  <RoomCard {...room} compact='true' />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white rounded-lg p-6 text-center">
+              <p className="text-gray-500">No rooms found</p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Refunds Section */}
       {activeSection === 'refunds' && (
@@ -222,60 +237,60 @@ const ProfilePage = () => {
       )}
 
       {
-        activeSection ==='sent_requests' && (
+        activeSection === 'sent_requests' && (
           <div className="bg-[#F2F4F7] rounded-lg shadow-md p-3">
             {sentRequest?.length > 0 ? (
               <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              
-                {sentRequest[0].receiver.map((request, index) => (<div 
-            key={index} 
-            className="bg-[#F2F4F7] rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden"
-          >
-                    <RequestCard 
-                      fullName={request.user.fullName}
-                      _id={request._id}//it is roommate id
-                      avatar={request.user.avatar}
-                      email={request.user.email}
-                      job={request.job}
-                      userId={request.user._id}
-                      cardType="sent"
-                      />
-                  </div>
+
+                {sentRequest[0].receiver.map((request, index) => (<div
+                  key={index}
+                  className="bg-[#F2F4F7] rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden"
+                >
+                  <RequestCard
+                    fullName={request.user.fullName}
+                    _id={request._id}//it is roommate id
+                    avatar={request.user.avatar}
+                    email={request.user.email}
+                    job={request.job}
+                    userId={request.user._id}
+                    cardType="sent"
+                  />
+                </div>
                 ))}
               </div>
             ) : (
               <p className="text-gray-500">No sent requests found.</p>
             )}
-            </div>
+          </div>
         )
       }
 
-{
-        activeSection ==='received_requests' && (
+      {
+        activeSection === 'received_requests' && (
           <div className="bg-[#F2F4F7] rounded-lg shadow-md p-3">
             {receivedRequest?.length > 0 ? (
               <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              
-                {receivedRequest[0].sender.map((request, index) => (<div 
-            key={index} 
-            className="bg-[#F2F4F7] rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden"
-          >
-                    <RequestCard 
-                      fullName={request.user.fullName}
-                      _id={request._id}//it is roommate id
-                      avatar={request.user.avatar}
-                      email={request.user.email}
-                      job={request.job}
-                      userId={request.user._id}
-                      cardType="received" 
-                      />
-                  </div>
+
+                {receivedRequest[0].sender.map((request, index) => (<div
+                  key={index}
+                  className="bg-[#F2F4F7] rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden"
+                >
+                  <RequestCard
+                    fullName={request.user.fullName}
+                    _id={request._id}//it is roommate id
+                    avatar={request.user.avatar}
+                    email={request.user.email}
+                    job={request.job}
+                    userId={request.user._id}
+                    cardType="received"
+                  />
+                </div>
                 ))}
               </div>
             ) : (
               <p className="text-gray-500">No requests found.</p>
             )}
-            </div>
+          </div>
         )
       }
     </div>

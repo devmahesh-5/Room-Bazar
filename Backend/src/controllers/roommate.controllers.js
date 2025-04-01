@@ -353,7 +353,6 @@ const getRoommateById = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'Invalid roommate id');
     }
 
-    // console.log(roommateId);
 
     const roommate = await RoommateAccount.aggregate(
         [
@@ -436,12 +435,16 @@ const getRoommateById = asyncHandler(async (req, res) => {
 });
 
 const getMyRoommates = asyncHandler(async (req, res) => {
+    console.log('hello');
+    
     const userId = req.user._id;
+    console.log('userId', userId);
+    
     const myRoommateAccount = await getRoommateByUserId(userId);
     if (!myRoommateAccount) {
         throw new ApiError(404, 'Roommate not found');
     }
-
+    console.log('myRoommateAccount', myRoommateAccount);
     const myRoommates = await RoommateRequest.aggregate(
         [
             {
@@ -553,7 +556,8 @@ const getMyRoommates = asyncHandler(async (req, res) => {
             }
         ]
     )
-
+    console.log('roommates',myRoommates);
+    
     if (!myRoommates) {
         throw new ApiError(404, 'Roommates not found');
     }
@@ -923,19 +927,11 @@ const rejectRoommateRequest = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'Invalid user id');
     }
 
-    const rejectedRoommateRequest = await RoommateRequest.findOneAndUpdate(
+    const rejectedRoommateRequest = await RoommateRequest.findOneAndDelete(
         {
             receiver,
             sender,
             status: 'Pending'
-        },
-        {
-            $set: {
-                status: 'Rejected'
-            }
-        },
-        {
-            new: true
         }
     )
 
