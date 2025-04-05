@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button, ProfileCard, Input, Select } from '../components';
 import roommateService from '../services/roommate.services.js';
 import { set, useForm } from 'react-hook-form';
@@ -10,46 +10,59 @@ const Profiles = () => {
   const { register, handleSubmit } = useForm();
   const [loading, setLoading] = useState(false);
   const [flag, setFlag] = useState(false);
+  const [error, setError] = useState(null);
+  const [myRoommates, setMyRoommates] = useState([]);
   useEffect(() => {
+    const isMounted = true;
     (async () => {
       try {
         setLoading(true);
-        const users = await roommateService.getNonRoommates();
-        const myAccount = await roommateService.getMyRoommateAccount();
-        if (users) {
-          setUsers(users.data);
-        }
+        const [userResponse, myAccountResponse] = await Promise.all([
+          roommateService.getNonRoommates(),
+          roommateService.getMyRoommateAccount()
+        ])
 
-        if (myAccount) {
-          setMyAccount(myAccount.data);
-          setFlag(true);
+        if (isMounted) {
+          if (userResponse) {
+            setUsers(userResponse.data);
+          }
+
+          if (myAccountResponse) {
+            setMyAccount(myAccountResponse.data);
+            setFlag(true);
+          }
         }
 
       } catch (error) {
-        throw error;
+        setError(error);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     })();
   }, []);
 
+  const getSearchResults = useCallback(
+    async (data) => {
+      try {
+        setLoading(true);
+        const [users, myRoommates] = await Promise.all([
+          await roommateService.searchRoommates(1, 10, data),
+          await roommateService.getMyRoommates()
+        ])
+        if (users) {
+          setUsers(users.data);
+        }
 
+        if (myRoommates) {
 
-  const getSearchResults = async (data) => {
-    try {
-      setLoading(true);
-      const users = await roommateService.searchRoommates(1, 10, data);
-      if (users) {
-        setUsers(users.data);
+          setMyRoommates(myRoommates.data);
+        }
+      } catch (error) {
+        setError(error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
+    }, [setUsers])
   return !loading ? (
     <div className="flex flex-col min-h-screen bg-[#F2F4F7] mt-4">
 
@@ -102,26 +115,25 @@ const Profiles = () => {
         </div>
       </form>
       <div className="grid cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        
-          
-          {
-          (Array.isArray(users) && users.length>0)?(
-          users.map((user) => (
-            <div key={user._id} className="w-full">
-              <ProfileCard
-                avatar={user.user.avatar}
-                _id={user._id}
-                userId={user.user._id}
-                haveRoom={user.haveRoom}
-                fullName={user.user.fullName}
-                location={user.location.address}
-                job={user.job}
-              />
-            </div>
-          ))):(
+        {
+          (Array.isArray(users) && users.length > 0) ? (
+            users.map((user) => (
+              <div key={user._id} className="w-full">
+                <ProfileCard
+                  avatar={user.user.avatar}
+                  _id={user._id}
+                  userId={user.user._id}
+                  haveRoom={user.haveRoom}
+                  fullName={user.user.fullName}
+                  location={user.location.address}
+                  job={user.job}
+                  alreadyRoommate={myRoommates.some((roommate) => roommate?.myRoommates?.user?._id === user?.user?._id)}
+                />
+              </div>
+            ))) : (
             <p className='text-center'>No User Found</p>
           )}
-        
+
 
       </div>
     </div>

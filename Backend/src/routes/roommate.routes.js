@@ -17,6 +17,7 @@ import {
     getNonRoommates,
     getSentRoommateRequest,
     getReceivedRoommateRequest,
+    deleteRoommate
 
 } from '../controllers/roommate.controllers.js';
 
@@ -52,4 +53,6 @@ router.route('/sendrequest/:roommateId').post(sendRoommateRequest);
 router.route('/acceptrequest/:roommateId').patch(acceptRoommateRequest);
 router.route('/rejectrequest/:roommateId').patch(rejectRoommateRequest);
 router.route('/cancelrequest/:roommateId').delete(cancelRoommateRequest);
+
+router.route('/delete/:roommateId').delete(deleteRoommate);
 export default router

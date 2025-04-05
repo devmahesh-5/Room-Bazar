@@ -22,7 +22,6 @@ class authServices {
     async loginUser(data) {
         try {
             const response = await axios.post("/api/v1/users/login", data);
-            
             if (!response) {
                 throw new Error("Error logging in user");
             }

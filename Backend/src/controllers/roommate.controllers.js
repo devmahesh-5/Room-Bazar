@@ -1,6 +1,4 @@
 import mongoose from "mongoose";
-import Room from "../models/room.models.js";
-import User from "../models/user.models.js";
 import Notification from "../models/notification.models.js";
 import RoommateRequest from "../models/roommateRequest.models.js";
 import RoommateAccount from "../models/roommateAccount.models.js";
@@ -233,23 +231,23 @@ const getRoommates = asyncHandler(async (req, res) => {
 });
 
 const getNonRoommates = asyncHandler(async (req, res) => {
-    
+
     const userId = req.user?._id;
     if (!isValidObjectId(userId)) {
         throw new ApiError(400, 'Invalid user id');
     }
 
-    
+
     const myRoommateAccount = await getRoommateByUserId(userId);
     const myRoommateId = myRoommateAccount._id;
     const roommateRequests = await RoommateRequest.aggregate([
         {
             $match: {
                 $or: [
-                  { sender: new mongoose.Types.ObjectId(myRoommateId) },
-                  { receiver: new mongoose.Types.ObjectId(myRoommateId) }
+                    { sender: new mongoose.Types.ObjectId(myRoommateId) },
+                    { receiver: new mongoose.Types.ObjectId(myRoommateId) }
                 ]
-              }
+            }
         },
         {
             $project: {
@@ -259,8 +257,8 @@ const getNonRoommates = asyncHandler(async (req, res) => {
             }
         }
     ])
-    
-    
+
+
     const roommates = await RoommateAccount.aggregate([
         {
             $match: {
@@ -435,16 +433,11 @@ const getRoommateById = asyncHandler(async (req, res) => {
 });
 
 const getMyRoommates = asyncHandler(async (req, res) => {
-    console.log('hello');
-    
     const userId = req.user._id;
-    console.log('userId', userId);
-    
     const myRoommateAccount = await getRoommateByUserId(userId);
     if (!myRoommateAccount) {
         throw new ApiError(404, 'Roommate not found');
     }
-    console.log('myRoommateAccount', myRoommateAccount);
     const myRoommates = await RoommateRequest.aggregate(
         [
             {
@@ -544,6 +537,12 @@ const getMyRoommates = asyncHandler(async (req, res) => {
                 }
             },
             {
+                $addFields: {
+                    sender: { $arrayElemAt: ['$sender', 0] },
+                    receiver: { $arrayElemAt: ['$receiver', 0] }
+                }
+            },
+            {
                 $project: {
                     myRoommates: {
                         $cond: {
@@ -556,8 +555,7 @@ const getMyRoommates = asyncHandler(async (req, res) => {
             }
         ]
     )
-    console.log('roommates',myRoommates);
-    
+
     if (!myRoommates) {
         throw new ApiError(404, 'Roommates not found');
     }
@@ -1054,7 +1052,7 @@ const getSentRoommateRequest = asyncHandler(async (req, res) => {
         // }
 
     ])
-    
+
     if (!sentRequest) {
         throw new ApiError(404, 'Roommates not found');
     }
@@ -1145,6 +1143,45 @@ const getReceivedRoommateRequest = asyncHandler(async (req, res) => {
         )
 });
 
+const deleteRoommate = asyncHandler(async (req, res) => {
+    const roommateId = req.params?.roommateId;
+    const user = req.user?._id;
+
+    if (!isValidObjectId(roommateId)) {
+        throw new ApiError(400, 'Invalid roommate id');
+    }
+
+    const myRoommateAccount = await getRoommateByUserId(user);
+
+    if (!myRoommateAccount) {
+        throw new ApiError(500, 'cannot find roommate account');
+    }
+
+    const deletedRoommate = await RoommateRequest.findOneAndDelete({
+        $or: [
+            { sender: roommateId },
+            { receiver: myRoommateAccount._id },
+            { sender: myRoommateAccount._id },
+            { receiver: roommateId }
+
+        ]
+    })
+
+    if (!deletedRoommate) {
+        throw new ApiError(500, 'Roommate not deleted');
+    }
+
+    res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                deletedRoommate,
+                'Roommate deleted successfully'
+            )
+        )
+
+})
 export {
     registerRoommate,
     updateRoommate,
@@ -1161,5 +1198,6 @@ export {
     cancelRoommateRequest,
     getSentRoommateRequest,
     getReceivedRoommateRequest,
-    getNonRoommates
+    getNonRoommates,
+    deleteRoommate
 }

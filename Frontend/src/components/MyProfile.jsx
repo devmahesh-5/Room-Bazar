@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import authService from '../services/auth.services.js';
-import { FaUsers, FaMoneyBill, FaHome, FaUndo } from 'react-icons/fa'; // Icons for navbar
+import { FaUsers, FaEdit, FaHome, FaUndo,FaUserPlus } from 'react-icons/fa'; // Icons for navbar
 import RoomCard from './Roomcard.jsx';
 import roommateService from '../services/roommate.services.js';
 import { RequestCard } from '../components/index.js';
+import { set } from 'react-hook-form';
 const ProfilePage = () => {
+  const [error, setError] = useState(null);
   const [userData, setUserData] = useState(null);
   const [dashboardData, setDashboardData] = useState({
     myRoommates: [],
@@ -17,32 +19,57 @@ const ProfilePage = () => {
   const [activeSection, setActiveSection] = useState('roommates'); // Default active section
   const [loading, setLoading] = useState(!userData?._id);
   useEffect(() => {
+    const isMounted = true;
     setLoading(true);
       (async () => {
         try {
-          const userData = await authService.getCurrentUser();
-          setUserData(userData.data[0]);
-          const response = await authService.getUserDashboard();
-          setDashboardData(response.data);
+         const [myAccountResponse,myRoommatesResponse] = await Promise.all([
+          authService.getCurrentUser(),
+          authService.getUserDashboard()
+          ])
 
-          try {
-            const receivedRequest = await roommateService.getReceivedRoommateRequests();
-            setReceivedRequest(receivedRequest.data);
-            const sentRequest = await roommateService.getSentRoommateRequests();
-            setSentRequest(sentRequest.data);
-
-          } catch (error) {
-            throw error
+          if (isMounted) {
+            setUserData(myAccountResponse.data[0]);
+            setDashboardData(myRoommatesResponse.data);
           }
-
         } catch (error) {
-          console.error('Error getting user dashboard:', error);
+          setError(error.message);
         }finally{
-          setLoading(false);
+          isMounted && setLoading(false);
         }
       })();
     
   }, [userData?._id]);
+
+  const fetchSentRequests = useCallback(async () => {
+    try {
+      const sentRequest = await roommateService.getSentRoommateRequests();
+      if (sentRequest) {
+        setSentRequest(sentRequest.data);
+      }
+    } catch (error) {
+      setError(error);
+    }
+  }, [setSentRequest]);
+  
+  const fetchReceivedRequests = useCallback(async () => {
+    try {
+      const receivedRequest = await roommateService.getReceivedRoommateRequests();
+      if (receivedRequest) {
+        setReceivedRequest(receivedRequest.data);
+      }
+    } catch (error) {
+      setError(error);
+    }
+  }, [setReceivedRequest]);
+  
+  useEffect(() => {
+    if (activeSection === 'sent_requests') {
+      fetchSentRequests();
+    } else if (activeSection === 'received_requests') {
+      fetchReceivedRequests();
+    }
+  }, [activeSection, fetchSentRequests, fetchReceivedRequests]); // Re-run when `activeSection` changes
 
   if (loading) {
     return (
@@ -119,21 +146,21 @@ const ProfilePage = () => {
           onClick={() => setActiveSection('edit')}
           className={`flex items-center space-x-2 ${activeSection === 'refunds' ? 'text-[#6C48E3]' : 'text-gray-700'}`}
         >
-          <FaUndo />
+          <FaEdit />
           <span>Edit</span>
         </button>
         <button
           onClick={() => setActiveSection('sent_requests')}
           className={`flex items-center space-x-2 ${activeSection === 'sent_requests' ? 'text-[#6C48E3]' : 'text-gray-700'}`}
         >
-          <FaUndo />
+          <FaUserPlus />
           <span>sent Requests</span>
         </button>
         <button
           onClick={() => setActiveSection('received_requests')}
           className={`flex items-center space-x-2 ${activeSection === 'received_requests' ? 'text-[#6C48E3]' : 'text-gray-700'}`}
         >
-          <FaUndo />
+          <FaUserPlus />
           <span>Received Requests</span>
         </button>
       </nav>

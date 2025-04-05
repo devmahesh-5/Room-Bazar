@@ -182,6 +182,18 @@ class roommateServices{
             throw error
         }
     }
+
+    async deleteRoommate(roommateId){
+        try {
+            const response = await axios.delete(`/api/v1/roommates/delete/${roommateId}`);
+            if (!response) {
+                throw new Error("Error deleting roommate");
+            }
+            return response.data;
+        } catch (error) {
+            throw error
+        }
+    }
     
 }
 
