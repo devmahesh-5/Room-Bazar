@@ -9,28 +9,47 @@ const Roommateform = ({ roommate }) => {
     const id = useId();
     const navigate = useNavigate();
     const user = useSelector((state) => state.auth.userData);
-    const { register, handleSubmit } = useForm();
+    const { register, handleSubmit,reset } = useForm({
+        defaultValues: {
+            job: roommate?.job || '',
+            pets: roommate?.pets || false,
+            smoking: roommate?.smoking || false,
+            haveRoom: roommate?.haveRoom || false,
+            description: roommate?.description || '',
+            roomThumbnail: roommate?.roomPhotos[0] || '',
+        }
+    });
 
+    React.useEffect(() => {
+        if (roommate) {
+            reset(roommate);
+        }
+    }, [roommate, reset]);
+    
     const submit = async (data) => {
+        console.log(data);
+        
         try {
             const formData = new FormData();
             for (const key in data) {
-                 if (key === 'roomPhotos') {
+                if (key === 'roomPhotos') {
                     if (data[key] && data[key].length > 0) {
                         for (let i = 0; i < data[key].length; i++) {
                             formData.append('roomPhotos', data[key][i]);
                         }
-                    }} else {
-                    formData.append(key, data[key]); // Other fields
-                }
+                    }
+                } else {
+                        formData.append(key, data[key]);
+                } 
             }
 
+            
             if (roommate) {
-                const updatedRoommate = await roommateServices.updateRoommate(roommate._id, formData);
+                const updatedRoommate = await roommateServices.updateRoommate(formData);
                 if (!updatedRoommate) {
                     throw new Error("Error updating room");
                 }
-                navigate(`/roommates/${updatedRoommate._id}`);
+                navigate(`/users/myprofile`);
             } else {
                 
                 const newRoommate = await roommateServices.registerRoommate(formData);
@@ -38,7 +57,7 @@ const Roommateform = ({ roommate }) => {
                 if (!newRoommate) {
                     throw new Error("Error adding roommate");
                 }
-                navigate(`/roommates/${newRoommate._id}`);
+                navigate(`/users/myprofile`);
             }
 
         } catch (error) {
@@ -76,8 +95,8 @@ const Roommateform = ({ roommate }) => {
         <input
             type="checkbox"
             id='smoking'
-            className="w-4 h-4"  // Adjust checkbox size
-            defaultChecked={roommate?.smoke}
+            defaultValue={roommate?.smoking}
+            className="w-4 h-4"  
             {...register("smoking")}
         />
     </div>
@@ -87,7 +106,7 @@ const Roommateform = ({ roommate }) => {
             type="checkbox"
             id='haveRoom'
             className="w-4 h-4"  // Adjust checkbox size
-            defaultChecked={roommate?.haveRoom}
+            defaultValue={roommate?.haveRoom}
             {...register("haveRoom")}
         />
     </div>
@@ -103,7 +122,7 @@ const Roommateform = ({ roommate }) => {
 </div>
             {roommate && (
                 <div className="w-full">
-                    <img src={roommate.user.avatar} alt={roommate.user.fullName} className="rounded-lg w-full" />
+                    <img src={roommate?.roomPhotos[0]} alt={roommate.user.fullName} className="rounded-lg w-full" />
                 </div>
             )}
 
@@ -112,7 +131,7 @@ const Roommateform = ({ roommate }) => {
                 type="text"
                 label="Location"
                 className="w-full"
-                defaultValue={roommate?.location.address}
+                defaultValue={roommate?.location?.address}
                 {...register("address", { required: true })}
             />
 

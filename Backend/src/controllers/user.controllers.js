@@ -53,7 +53,7 @@ const registerUser = asyncHandler(async (req, res) => {
          email,
          password,
          username,
-         phone,
+         phone: phone.toString(),
          address,
          avatar: avatarCloudinaryPath?.url,
          coverImage: coverImageCloudinaryPath?.url,

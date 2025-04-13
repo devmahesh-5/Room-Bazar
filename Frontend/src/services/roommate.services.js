@@ -1,6 +1,6 @@
 import axios from "axios";
-class roommateServices{
-    async registerRoommate(formData){
+class roommateServices {
+    async registerRoommate(formData) {
         try {
             const response = await axios.post("/api/v1/roommates/register", formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
@@ -14,19 +14,24 @@ class roommateServices{
         }
     }
 
-    async updateRoommate(data){
+    async updateRoommate(formData) {
         try {
-            const response = await axios.patch(`/api/v1/roommates/update-account`, data);
+            const response = await axios.patch(`/api/v1/roommates/update-account`, formData, {
+
+                headers: { 'Content-Type': 'multipart/form-data' }
+
+            });
             if (!response) {
+
                 throw new Error("Error updating roommate");
             }
-            return response.data;
+            return response;
         } catch (error) {
-            throw error
+            console.log(error)
         }
     }
 
-    async deleteRoommateAccount(){
+    async deleteRoommateAccount() {
         try {
             const response = await axios.delete(`/api/v1/roommates/delete-account`);
             if (!response) {
@@ -38,7 +43,7 @@ class roommateServices{
         }
     }
 
-    async getRoommateById(roommateId){
+    async getRoommateById(roommateId) {
         try {
             const response = await axios.get(`/api/v1/roommates/profile/${roommateId}`);
             if (!response) {
@@ -50,7 +55,7 @@ class roommateServices{
         }
     }
 
-    async searchRoommates(page, limit, data){
+    async searchRoommates(page, limit, data) {
         try {
             const { query, field } = data
             const response = await axios.get(`/api/v1/roommates/search?page=${page}&limit=${limit}&query=${query}&field=${field}`);
@@ -63,7 +68,7 @@ class roommateServices{
         }
     }
 
-    async getRoommateByJob(job){
+    async getRoommateByJob(job) {
         try {
             const response = await axios.get(`/api/v1/roommates/job/${job}`);
             if (!response) {
@@ -75,7 +80,7 @@ class roommateServices{
         }
     }
 
-    async getMyRoommates(){
+    async getMyRoommates() {
         try {
             const response = await axios.get(`/api/v1/roommates/my-roommates`);
             if (!response) {
@@ -87,7 +92,7 @@ class roommateServices{
         }
     }
 
-    async getMyRoommateAccount(){
+    async getMyRoommateAccount() {
         try {
             const response = await axios.get(`/api/v1/roommates/myprofile`);
             if (!response) {
@@ -99,7 +104,7 @@ class roommateServices{
         }
     }
 
-    async getNonRoommates(page, limit){
+    async getNonRoommates(page, limit) {
         try {
             const response = await axios.get(`/api/v1//roommates/non-roommates?page=${page}&limit=${limit}`);
             if (!response) {
@@ -111,7 +116,7 @@ class roommateServices{
         }
     }
 
-    async sendRoommateRequest(roommateId){
+    async sendRoommateRequest(roommateId) {
         try {
             const response = await axios.post(`/api/v1/roommates/sendrequest/${roommateId}`);
             if (!response) {
@@ -123,7 +128,7 @@ class roommateServices{
         }
     }
 
-    async acceptRoommateRequest(roommateId){
+    async acceptRoommateRequest(roommateId) {
         try {
             const response = await axios.patch(`/api/v1/roommates/acceptrequest/${roommateId}`);
             if (!response) {
@@ -135,7 +140,7 @@ class roommateServices{
         }
     }
 
-    async rejectRoommateRequest(roommateId){
+    async rejectRoommateRequest(roommateId) {
         try {
             const response = await axios.patch(`/api/v1/roommates/rejectrequest/${roommateId}`);
             if (!response) {
@@ -147,7 +152,7 @@ class roommateServices{
         }
     }
 
-    async cancelRoommateRequest(roommateId){
+    async cancelRoommateRequest(roommateId) {
         try {
             const response = await axios.delete(`/api/v1/roommates/cancelrequest/${roommateId}`);
             if (!response) {
@@ -159,7 +164,7 @@ class roommateServices{
         }
     }
 
-    async getSentRoommateRequests(){
+    async getSentRoommateRequests() {
         try {
             const response = await axios.get(`/api/v1/roommates/sentrequests`);
             if (!response) {
@@ -171,7 +176,7 @@ class roommateServices{
         }
     }
 
-    async getReceivedRoommateRequests(){
+    async getReceivedRoommateRequests() {
         try {
             const response = await axios.get(`/api/v1/roommates/receivedrequests`);
             if (!response) {
@@ -183,7 +188,7 @@ class roommateServices{
         }
     }
 
-    async deleteRoommate(roommateId){
+    async deleteRoommate(roommateId) {
         try {
             const response = await axios.delete(`/api/v1/roommates/delete/${roommateId}`);
             if (!response) {
@@ -194,7 +199,7 @@ class roommateServices{
             throw error
         }
     }
-    
+
 }
 
 const roommateService = new roommateServices();

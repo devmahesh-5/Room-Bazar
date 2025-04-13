@@ -41,14 +41,37 @@ export const getRoommateByUserId = async(userId) => {
                 
             },
             {
+                $lookup: {
+                    from: 'locations',
+                    localField: 'location',
+                    foreignField: '_id',
+                    as: 'location',
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                address: 1
+                            }
+                    }]
+                }
+            },
+            {
                 $addFields: {
                     user: { $arrayElemAt: ['$user', 0] },
+                    location: { $arrayElemAt: ['$location', 0] }
                 }
             },
             {
              $project: {
                  _id: 1,
-                 user: 1
+                 user: 1,
+                 job: 1,
+                 pets: 1,
+                 smoking: 1,
+                 haveRoom: 1,
+                 description: 1,
+                 location: 1,
+                 roomPhotos: 1
              }   
             }
         ]

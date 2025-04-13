@@ -11,10 +11,18 @@ import Location from "../models/location.models.js";
 import { getRoommateByUserId } from "../constants.js";
 
 const registerRoommate = asyncHandler(async (req, res) => {
-    const { job, pets, smoking, haveRoom, description, address, latitude, longitude } = req.body;
-    // console.log(req.body);
+    let { job, pets, smoking, haveRoom, description, address, latitude, longitude } = req.body;
 
-    if ([job, pets, smoking, haveRoom, description, address].some((field) => !field || !field.trim() === '')) {
+    function toBoolean(value) {
+        if (value === 'false') return false;
+        if (value === 'true') return true;
+        return Boolean(value);
+    }
+
+    smoking = toBoolean(smoking);
+    haveRoom = toBoolean(haveRoom);
+
+    if ([job, pets, smoking, haveRoom, description, address].some((field) => field === undefined || field === null || String(field).trim() === '')) {
         throw new ApiError(400, 'All fields are required');
     }
 
@@ -93,8 +101,7 @@ const updateRoommate = asyncHandler(async (req, res) => {
     }
 
     const { job, pets, smoking, haveRoom, description, address, latitude, longitude } = req.body;
-
-    if ([job, pets, smoking, haveRoom, description, address].some((field) => !field || field.trim() === '')) {
+    if ([job, pets, smoking, haveRoom, description, address].some((field) => field === undefined || field === null || String(field).trim() === '')) {
         throw new ApiError(400, 'All fields are required');
     }
 
@@ -103,6 +110,7 @@ const updateRoommate = asyncHandler(async (req, res) => {
     if (!roommate) {
         throw new ApiError(404, 'Roommate not found');
     }
+
     const updatedLocation = await Location.findOneAndUpdate(
         { roommate: roommate._id },
         {
@@ -113,6 +121,27 @@ const updateRoommate = asyncHandler(async (req, res) => {
             }
         },
     )
+
+
+    const roomPhotosLocalPath = req.files?.roomPhotos?.map((file) => file.path);
+
+    // if (!roomPhotosLocalPath || roomPhotosLocalPath.length === 0) {
+    //     throw new ApiError(400, 'Room photos are required');
+    // }
+
+    let roomPhotosCloudinaryPath;
+
+    if (roomPhotosLocalPath && roomPhotosLocalPath.length > 0) {
+
+        roomPhotosCloudinaryPath = await uploadMultipleFilesOnCloudinary(...roomPhotosLocalPath);
+
+        // const roomPhotosCloudinaryPathurls = roomPhotosCloudinaryPath.map((photo) => photo.url);
+
+        if (!roomPhotosCloudinaryPath || roomPhotosCloudinaryPath.length === 0) {
+            throw new ApiError(500, 'Failed to upload image');
+        }
+    }
+
     const updatedRoommate = await RoommateAccount.findOneAndUpdate(
         { userId },
         {
@@ -121,7 +150,8 @@ const updateRoommate = asyncHandler(async (req, res) => {
                 pets,
                 smoking,
                 haveRoom,
-                description
+                description,
+                roomPhotos: roomPhotosCloudinaryPath
             }
         },
         { new: true }

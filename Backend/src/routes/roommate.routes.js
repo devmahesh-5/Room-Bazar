@@ -36,7 +36,7 @@ router.route('/register').post(
     ]),
     registerRoommate
 );
-router.route('/update-account').patch(updateRoommate);
+router.route('/update-account').patch(upload.fields([{ name: 'roomPhotos', maxCount: 5 }]),updateRoommate);
 router.route('/delete-account').delete(deleteRoommateAccount);
 router.route('/non-roommates').get(getNonRoommates);
 router.route('/').get(getRoommates);
