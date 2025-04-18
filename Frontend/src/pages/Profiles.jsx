@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button, ProfileCard, Input, Select } from '../components';
 import roommateService from '../services/roommate.services.js';
-import { set, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
-
+import {Roommateform} from '../components/index.js';
 const Profiles = () => {
   const [myAccount, setMyAccount] = useState([]);
   const [users, setUsers] = useState([]);
@@ -12,6 +12,7 @@ const Profiles = () => {
   const [flag, setFlag] = useState(false);
   const [error, setError] = useState(null);
   const [myRoommates, setMyRoommates] = useState([]);
+  const [activeSection, setActiveSection] = useState('');
   useEffect(() => {
     const isMounted = true;
     (async () => {
@@ -63,22 +64,47 @@ const Profiles = () => {
         setLoading(false);
       }
     }, [setUsers])
+  
   return !loading ? (
     <div className="flex flex-col min-h-screen bg-[#F2F4F7] mt-4">
 
       {
-        flag ? (
-          <Link to={`/users/myprofile`}>
-            <div className="flex items-center gap-3 p-2 bg-[#F2F4F7] rounded-lg hover:bg-gray-200 transition-colors duration-200">
-              <img
-                src={myAccount?.user?.avatar}
-                alt="Profile"
-                className="w-16 h-16 object-cover rounded-full shadow-sm"
-              />
-              <p className="text-sm font-medium text-gray-700">{myAccount?.user?.fullName}</p>
-            </div>
-          </Link>
-        ) : (
+        flag && activeSection ==='edit'&& (
+          <div className="bg-[#F2F4F7] rounded-lg shadow-md p-3">
+            < Roommateform  roommate={myAccount}/>
+          </div>
+        )
+      }
+      {
+      flag &&(<div className="flex items-center gap-3 p-2 bg-[#F2F4F7] rounded-lg hover:bg-gray-200 transition-colors duration-200">
+        <img
+          src={myAccount?.user?.avatar}
+          alt="Profile"
+          className="w-16 h-16 object-cover rounded-full shadow-sm"
+        />
+        <p className="text-sm font-medium text-gray-700">{myAccount?.user?.fullName}</p>
+        <div className="ml-auto">
+        <Button
+                  onClick={() => setActiveSection(prev => prev === 'edit' ? '' : 'edit')}
+                  className={`flex items-center space-x-2 ${activeSection === 'edit' ? 'text-[#6C48E3]' : 'text-gray-700'}`}
+                >
+                  
+                    {
+                      activeSection === 'edit' ? (
+                        <span>
+                          Close</span>
+                        ):(
+                          <span>
+                    Edit</span>
+                        )
+                    }
+                </Button>
+        </div>
+        </div>
+      )
+      }
+      {  
+         !flag && (
           <div className="flex items-center gap-3 p-2 bg-[#F2F4F7] rounded-lg hover:bg-gray-200 transition-colors duration-200">
 
             <p className="text-sm font-medium text-gray-700">Create Roommate Account</p>

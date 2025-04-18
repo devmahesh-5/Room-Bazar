@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import { Input, Button, Select } from '../../components/index';
 import { useId } from 'react';
 const Roommateform = ({ roommate }) => {
+    const [loading, setLoading] = React.useState(false);
     const id = useId();
     const navigate = useNavigate();
     const user = useSelector((state) => state.auth.userData);
@@ -27,9 +28,9 @@ const Roommateform = ({ roommate }) => {
     }, [roommate, reset]);
     
     const submit = async (data) => {
-        console.log(data);
         
         try {
+            setLoading(true);
             const formData = new FormData();
             for (const key in data) {
                 if (key === 'roomPhotos') {
@@ -49,7 +50,7 @@ const Roommateform = ({ roommate }) => {
                 if (!updatedRoommate) {
                     throw new Error("Error updating room");
                 }
-                navigate(`/users/myprofile`);
+                navigate(`/roommates`);
             } else {
                 
                 const newRoommate = await roommateServices.registerRoommate(formData);
@@ -57,11 +58,13 @@ const Roommateform = ({ roommate }) => {
                 if (!newRoommate) {
                     throw new Error("Error adding roommate");
                 }
-                navigate(`/users/myprofile`);
+                navigate(`/roommates`);
             }
 
         } catch (error) {
             throw error
+        }finally{
+            setLoading(false);
         }
     }
     return (
@@ -120,7 +123,7 @@ const Roommateform = ({ roommate }) => {
         />
     </div>
 </div>
-            {roommate && (
+            {roommate?.roomPhotos && (
                 <div className="w-full">
                     <img src={roommate?.roomPhotos[0]} alt={roommate.user.fullName} className="rounded-lg w-full" />
                 </div>
@@ -149,9 +152,15 @@ const Roommateform = ({ roommate }) => {
         
         {/* Submit Button - Full Width */}
         <div className="col-span-3">
-        <Button type="submit" className={`${roommate ? "bg-green-500" : ""} w-full border hover:bg-[#F2F4F7] hover:border-[#6C48E3] hover:text-[#6C48E3]`}>
+       {!loading ? (<Button type="submit" className={`w-full border hover:bg-[#F2F4F7] hover:border-[#6C48E3] hover:text-[#6C48E3]`}>
    {roommate ? "Update" : "Submit"}
-            </Button>
+            </Button>):
+            (
+                <Button type="submit" className={`w-full border hover:bg-[#F2F4F7] hover:border-[#6C48E3] hover:text-[#6C48E3]`}>
+                    {roommate ? "Updating" : "Submiting"}
+                </Button>
+            )
+            }
         </div>
     </form>
 

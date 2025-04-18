@@ -23,7 +23,7 @@ const generateAccessAndRefreshTokens = async (userId) => {
 
 const registerUser = asyncHandler(async (req, res) => {
    const { fullName, email, password, username, phone, address, gender,latitude,longitude } = req.body;
-   if ([fullName, email, password, username, phone, address, gender].some((field) => !field || field.trim() === '')) {
+   if ([fullName, email, password, username, phone, address, gender].some((field) => !field || String(field.trim()) === '')) {
       throw new ApiError(400, 'All fields are required');
    }
    
@@ -261,8 +261,7 @@ const updateUserPassword = asyncHandler(async (req, res) => {
 
 const updateUserProfile = asyncHandler(async (req, res) => {
    const { fullName, email, phone, address } = req.body;
-
-   if ([fullName, email, phone, address].some((field) => !field || field.trim() === '')) {
+   if ([fullName, email, phone, address].some((field) => !field || String(field).trim() === '')) {
       throw new ApiError(400, 'All fields are required');
    }
    const userId = req.user?._id;
@@ -339,7 +338,8 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 });
 
 const updateProfilePicture = asyncHandler(async (req, res) => {
-   const userId = req.user?._id;
+   const userId = req.user?._id; 
+   
    if (!isValidObjectId(userId)) {
       throw new ApiError(400, 'Invalid user id');
    }

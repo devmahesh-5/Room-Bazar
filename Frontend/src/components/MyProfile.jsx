@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import authService from '../services/auth.services.js';
-import { FaUsers, FaEdit, FaHome, FaUndo,FaUserPlus } from 'react-icons/fa'; // Icons for navbar
+import { FaUsers, FaEdit, FaHome,FaUserPlus } from 'react-icons/fa'; // Icons for navbar
 import RoomCard from './Roomcard.jsx';
 import roommateService from '../services/roommate.services.js';
 import { RequestCard } from '../components/index.js';
 import {Roommateform } from '../components/index.js';
+import {Profileform} from '../components/index.js';
 const ProfilePage = () => {
   const [error, setError] = useState(null);
   const [userData, setUserData] = useState(null);
@@ -64,26 +65,14 @@ const ProfilePage = () => {
     }
   }, [setReceivedRequest]);
 
-  const fetchMyRoommateAccount = useCallback(async () => {
-    try {
-      const myRoommateAccount = await roommateService.getMyRoommateAccount();
-      if (myRoommateAccount) {
-        setMyRoommateAccount(myRoommateAccount.data);
-      }
-    } catch (error) {
-      setError(error);
-    }
-  }, [setMyRoommateAccount]);
   
   useEffect(() => {
     if (activeSection === 'sent_requests') {
       fetchSentRequests();
     } else if (activeSection === 'received_requests') {
       fetchReceivedRequests();
-    }else if (activeSection === 'edit') {
-      fetchMyRoommateAccount();
     }
-  }, [activeSection, fetchSentRequests, fetchReceivedRequests,fetchMyRoommateAccount]); // Re-run when `activeSection` changes
+  }, [activeSection, fetchSentRequests, fetchReceivedRequests]); // Re-run when `activeSection` changes
 
   if (loading) {
     return (
@@ -156,13 +145,12 @@ const ProfilePage = () => {
           <FaUndo />
           <span>Refunds</span>
         </button> */}
-        <button
-          onClick={() => setActiveSection('edit')}
-          className={`flex items-center space-x-2 ${activeSection === 'refunds' ? 'text-[#6C48E3]' : 'text-gray-700'}`}
-        >
-          <FaEdit />
-          <span>Edit</span>
+        <button onClick={() => setActiveSection('edit_profile')}
+          className={`flex items-center space-x-2 ${activeSection === 'edit_profile' ? 'text-[#6C48E3]' : 'text-gray-700'}`}>
+            <FaEdit />
+            <span>Edit</span>
         </button>
+
         <button
           onClick={() => setActiveSection('sent_requests')}
           className={`flex items-center space-x-2 ${activeSection === 'sent_requests' ? 'text-[#6C48E3]' : 'text-gray-700'}`}
@@ -339,6 +327,14 @@ const ProfilePage = () => {
         activeSection ==='edit' && (
           <div className="bg-[#F2F4F7] rounded-lg shadow-md p-3">
             < Roommateform  roommate={myRoommateAccount}/>
+          </div>
+        )
+      }
+
+      {
+        activeSection === 'edit_profile' && (
+          <div className="bg-[#F2F4F7] rounded-lg shadow-md p-3">
+            <Profileform myProfile={userData}/>
           </div>
         )
       }

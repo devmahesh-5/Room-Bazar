@@ -11,9 +11,10 @@ const Roomform = ({ room }) => {
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.userData);
   const { register, handleSubmit } = useForm();
-
+  const [loading, setLoading] = React.useState(false);
   const submit = async (data) => {
     try {
+      setLoading(true);
       const formData = new FormData();
       for (const key in data) {
         if (key === 'thumbnail' || key === 'video') {
@@ -46,6 +47,8 @@ const Roomform = ({ room }) => {
       }
     } catch (error) {
       throw error;
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -177,13 +180,26 @@ const Roomform = ({ room }) => {
 
       {/* Submit Button - Full Width */}
       <div className="col-span-3">
-        <Button
+        {
+        !loading?(<Button
           type="submit"
-          bgColor={room ? "bg-green-500" : undefined}
-          className="w-full border hover:bg-[#F2F4F7] hover:border-[#6C48E3] hover:text-[#6C48E3]"
+          bgColor={room ? "bg-[#F2F4F7]" : undefined}
+          className="w-full border hover:bg-gray-100 border-[#6C48E3] hover:text-[#6C48E3]"
         >
           {room ? "Update" : "Submit"}
+        </Button>)
+        :
+        (
+          <Button
+          type="submit"
+          disabled
+          bgColor={room ? "bg-[#F2F4F7]" : undefined}
+          className="w-full border border-[#6C48E3] hover:text-[#6C48E3]"
+        >
+          {room ? "Updating..." : "Submitting..."}
         </Button>
+        )
+        }
       </div>
     </form>
   );

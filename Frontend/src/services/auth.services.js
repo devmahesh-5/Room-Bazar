@@ -87,9 +87,19 @@ class authServices {
         }
     }
 
-    async updateProfilePic({ avatar }) {
+    async updateProfilePic(formData) {
+        const newFormData = new FormData();
+        for(const [key, value] of formData.entries()) {
+            console.log(key);
+            if (key !== 'coverImage') {
+                newFormData.append(key, value);
+            }
+        }
+        
         try {
-            const response = await axios.patch("/api/v1/users/updateprofilepicture", { avatar });
+            const response = await axios.patch("/api/v1/users/updateprofilepicture", newFormData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
             if (!response) {
                 throw new Error("Error updating profile pic");
             }
@@ -98,9 +108,17 @@ class authServices {
             console.error("Error updating profile pic:", error);
         }
     }
-    async updateCoverImage({ coverImage }) {
+    async updateCoverImage(formData) {
+        const newFormData = new FormData();
+        for (const [key, value] of formData.entries()) {
+            if(key !== 'avatar') {
+                newFormData.append(key, value);
+            }
+        }
         try {
-            const response = await axios.patch("/api/v1/users/updatecoverimage", { coverImage });
+            const response = await axios.patch("/api/v1/users/updatecoverpicture", newFormData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
             if (!response) {
                 throw new Error("Error updating cover image");
             }

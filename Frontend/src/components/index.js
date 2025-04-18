@@ -18,6 +18,7 @@ import Messages from "./Messages.jsx";
 import Dashboard from "./Dashboard.jsx";
 import MyProfile from "./MyProfile.jsx";
 import RequestCard from "./RequestCard.jsx";
+import Profileform from "./forms/Profileform.jsx";
 export {
     Logo,
     Header,
@@ -38,5 +39,6 @@ export {
     Messages,
     Dashboard,
     MyProfile,
-    RequestCard
+    RequestCard,
+    Profileform
 }
