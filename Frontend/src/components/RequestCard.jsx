@@ -7,11 +7,13 @@ function RequestCard({
     job,
     location,
     haveRoom,
-    cardType=''
+    cardType='',
+    onUpdate
 }) {
     const acceptRequest = async() => {
         try {
           const acceptRequest = await roommateService.acceptRoommateRequest(_id);
+          onUpdate();
         } catch (error) {
           console.error(error);
         }
@@ -20,6 +22,7 @@ function RequestCard({
       const rejectRequest = () => {
         try {
           const rejectRequest = roommateService.rejectRoommateRequest(_id);
+          onUpdate();
         } catch (error) {
           console.error(error);
         }

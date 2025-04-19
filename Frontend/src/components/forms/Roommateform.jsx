@@ -69,7 +69,7 @@ const Roommateform = ({ roommate }) => {
     }
     return (
 
-        <div className="flex w-full max-w-4xl mx-auto bg-gray-200">
+        <div className="flex w-full max-w-4xl mx-auto bg-[#F2F4F7]">
     {/* Form Section (2/3 width) */}
     <form onSubmit={handleSubmit(submit)} className="w-full grid grid-cols-3 gap-4 p-4">
         {/* Left Section (2 columns) */}
@@ -123,7 +123,7 @@ const Roommateform = ({ roommate }) => {
         />
     </div>
 </div>
-            {roommate?.roomPhotos && (
+            {roommate?.roomPhotos?.length > 0 && (
                 <div className="w-full">
                     <img src={roommate?.roomPhotos[0]} alt={roommate.user.fullName} className="rounded-lg w-full" />
                 </div>

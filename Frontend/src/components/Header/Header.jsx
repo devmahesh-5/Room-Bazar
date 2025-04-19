@@ -5,7 +5,7 @@ import LogoutBtn from './LogoutBtn.jsx';
 import { Logo } from '../index.js';
 import { MdHome, MdGroup, MdAddBox, MdFavorite, MdPerson, MdMessage, MdNotifications } from "react-icons/md";
 
-function Header() {
+function Header({isNotification}) {
   const location = useLocation();
   const authStatus = useSelector((state) => state.auth.status);
   const userData = useSelector((state) => state.auth.userData);
@@ -18,7 +18,6 @@ function Header() {
     { name: 'List Room', slug: '/rooms/add', active: authStatus, icon: <MdAddBox /> },
     { name: 'Favourites', slug: '/favourites/myfavourites', active: authStatus, icon: <MdFavorite /> },
     { name: 'messages', slug: '/messages/ib', active: authStatus, icon: <MdMessage /> },
-    { name: 'notifications', slug: '/notifications', active: authStatus, icon: <MdNotifications /> },
     { name: 'Profile', slug: '/users/myprofile', active: authStatus, icon: <MdPerson /> },
   ];
 
@@ -50,6 +49,22 @@ function Header() {
                 </li>
               )
           )}
+          {
+            authStatus && (
+              <li>
+              <button
+                    title='Notifications' // Displays a tooltip on hover
+                    onClick={()=>(isNotification())}
+                    className={`inline-block px-4 py-2 duration-200 text-[#6C48E3] rounded-lg ${location.pathname === '/notifications'
+                        ? 'bg-[#6C48E3] text-white hover:bg-[#6C48E3] hover:text-white' // Active state
+                        : 'bg-[#F2F4F7] text-[#131038] hover:bg-[#6C48E3] hover:text-white' // Inactive state
+                      }`}
+                  >
+                    <MdNotifications />
+                  </button>
+            </li>
+            )
+          }
           {authStatus && (
             <li>
               <LogoutBtn />

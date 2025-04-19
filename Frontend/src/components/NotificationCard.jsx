@@ -25,7 +25,7 @@ const NotificationCard = ({ _id, message, isRead, timestamp }) => {
     <Link to={`/notifications/${_id}`}>
       <div
         className={`flex items-center p-3 border hover:border-[#6C48E3] rounded-lg bg-[#F2F4F7] my-2 transition-all duration-200 ${
-          !isRead ? 'border-[#6C48E3] shadow-sm' : 'border-gray-200'
+          !isRead ? 'shadow-sm' : 'border-gray-200'
         }`}
         key={_id}
       >

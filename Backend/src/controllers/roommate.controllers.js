@@ -646,6 +646,32 @@ const deleteRoommateAccount = asyncHandler(async (req, res) => {
 const searchRoomates = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, query, field } = req.query;
     const userId = req.user._id;
+
+    const myRoommateAccount = await getRoommateByUserId(userId);
+    const myRoommateId = myRoommateAccount._id;
+    const roommateRequests = await RoommateRequest.aggregate([
+        {
+            $match: {
+                $and: [
+                {$or: [
+                    { sender: new mongoose.Types.ObjectId(myRoommateId) },
+                    { receiver: new mongoose.Types.ObjectId(myRoommateId) }
+                ]},
+                { status:'Pending' }
+            ]
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                sender: 1,
+                receiver: 1//it is user Id
+            }
+        }
+    ])
+
+
+
     let searchQuery = {
         [field]: { $regex: query, $options: 'i' }
     }
@@ -709,7 +735,9 @@ const searchRoomates = asyncHandler(async (req, res) => {
                 $match: {
                     $and: [
                         searchQuery,
-                        { $expr: { $ne: ["$user._id", userId] } }
+                        { $expr: { $ne: ["$user._id", userId] } },
+                        { "_id": { $nin: roommateRequests.map(request => request.sender) } },
+                        { "_id": { $nin: roommateRequests.map(request => request.receiver) } }
                     ]
                 }
             },

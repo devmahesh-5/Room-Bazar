@@ -15,8 +15,8 @@ const Profiles = () => {
   const [error, setError] = useState(null);
   const [myRoommates, setMyRoommates] = useState([]);
   const [activeSection, setActiveSection] = useState('');
-
-  useEffect(() => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const fetchProfiles = () => {
     const isMounted = true;
     (async () => {
       try {
@@ -42,9 +42,11 @@ const Profiles = () => {
         if (isMounted) setLoading(false);
       }
     })();
-  }, []);
+  }
+  useEffect( fetchProfiles, []);
 
   const getSearchResults = useCallback(async (data) => {
+    setSearchQuery(data);
     try {
       setLoading(true);
       const [users, myRoommates] = await Promise.all([
@@ -65,6 +67,13 @@ const Profiles = () => {
     }
   }, [setUsers]);
 
+  const handleUpdate = () => {
+    if(searchQuery){
+      getSearchResults(searchQuery)
+    }else{
+      fetchProfiles()
+    }
+  }
   return !loading ? (
     <div className="flex-grow bg-[#F2F4F7] flex flex-col lg:flex-row-reverse">
       {/* Hidden on small screens, visible from lg breakpoint */}
@@ -145,6 +154,7 @@ const Profiles = () => {
                   location={user.location.address}
                   job={user.job}
                   alreadyRoommate={myRoommates.some((roommate) => roommate?.myRoommates?.user?._id === user?.user?._id)}
+                  onUpdate={handleUpdate}
                 />
               </div>
             ))

@@ -40,7 +40,13 @@ const ProfilePage = () => {
       })();
     
   }, [userData?._id]);
+  const handleReceivedRequestAccept = async () => {
+    fetchReceivedRequests();
+  }
 
+  const handleSentRequestCancel = async () => {
+    fetchSentRequests();
+  }
   const fetchSentRequests = useCallback(async () => {
     try {
       const sentRequest = await roommateService.getSentRoommateRequests();
@@ -50,7 +56,7 @@ const ProfilePage = () => {
     } catch (error) {
       setError(error);
     }
-  }, [setSentRequest]);
+  }, [setSentRequest,handleSentRequestCancel]);
   
   const fetchReceivedRequests = useCallback(async () => {
     try {
@@ -61,7 +67,7 @@ const ProfilePage = () => {
     } catch (error) {
       setError(error);
     }
-  }, [setReceivedRequest]);
+  }, [setReceivedRequest,handleReceivedRequestAccept]);
 
   
   useEffect(() => {
@@ -72,6 +78,7 @@ const ProfilePage = () => {
     }
   }, [activeSection, fetchSentRequests, fetchReceivedRequests]); // Re-run when `activeSection` changes
 
+ 
   if (loading) {
     return (
       <Authloader message="Loading Profile" />
@@ -278,6 +285,7 @@ const ProfilePage = () => {
                     job={request.job}
                     userId={request.user._id}
                     cardType="sent"
+                    onUpdate = {handleSentRequestCancel}
                   />
                 </div>
                 ))}
@@ -307,6 +315,7 @@ const ProfilePage = () => {
                     job={request.job}
                     userId={request.user._id}
                     cardType="received"
+                    onUpdate = {handleReceivedRequestAccept}
                   />
                 </div>
                 ))}
