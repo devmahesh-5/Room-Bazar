@@ -9,3 +9,11 @@ export default {
   },
   plugins: [],
 }
+
+// @keyframes progress {
+//   0% { transform: translateX(-100%); }
+//   100% { transform: translateX(200%); }
+// }
+// .animate-progress {
+//   animation: progress 1.5s ease-in-out infinite;
+// }

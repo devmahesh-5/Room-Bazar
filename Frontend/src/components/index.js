@@ -19,6 +19,7 @@ import Dashboard from "./Dashboard.jsx";
 import MyProfile from "./MyProfile.jsx";
 import RequestCard from "./RequestCard.jsx";
 import Profileform from "./forms/Profileform.jsx";
+import Authloader from "./Authloader.jsx";
 export {
     Logo,
     Header,
@@ -40,5 +41,6 @@ export {
     Dashboard,
     MyProfile,
     RequestCard,
-    Profileform
+    Profileform,
+    Authloader
 }

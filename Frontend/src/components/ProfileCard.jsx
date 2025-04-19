@@ -22,7 +22,7 @@ const ProfileCard = ({ avatar, _id, userId, fullName, location, haveRoom, job, a
   return (
     <div>
       {/* //roommate id */}
-      <div className="w-full max-w-sm bg-[#F2F4F7] shadow border hover:border-[#6C48E3] rounded-lg overflow-hidden p-4">
+      <div className="w-full max-w-sm bg-[#F2F4F7] shadow hover:opacity-80 transition duration-300 rounded-lg overflow-hidden p-4 cursor-pointer m-auto">
         {/* Top Section: Avatar and User Info */}
         <div className="flex items-center cursor-pointer">
           {avatar ? (

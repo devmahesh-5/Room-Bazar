@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import authService from "../services/auth.services.js";
 import { useDispatch } from "react-redux";
-import { Button, Input, Logo, Select } from "./index.js";
+import { Button, Input, Logo, Select, Authloader } from "./index.js";
 import { useForm } from "react-hook-form";
 import { login } from "../store/authslice.js";
 
@@ -11,8 +11,9 @@ function Signup() {
     const dispatch = useDispatch();
     const { register, handleSubmit } = useForm();
     const [error, setError] = useState(null);
-
+    const [loading, setLoading] = useState(false);
     const signUp = async (data) => {
+        setLoading(true);
         setError(null);
         const formData = new FormData();
         formData.append("fullName", data.fullName);
@@ -45,10 +46,12 @@ function Signup() {
             }
         } catch (error) {
             setError(error.response.data.error || "Signup failed");
+        }finally{
+            setLoading(false);
         }
     };
 
-    return (
+    return !loading ? (
         <div className="w-full min-h-screen flex items-center justify-center bg-[#F2F4F7]">
             <div className="w-full max-w-3xl p-10 bg-[#F2F4F7]">
                 <div className="mb-2 flex justify-center">
@@ -141,7 +144,9 @@ function Signup() {
                 </form>
             </div>
         </div>
-    );
+    ):(
+        <Authloader message="Signing up..." fullScreen />
+    )
 }
 
 export default Signup;

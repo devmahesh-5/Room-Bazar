@@ -7,7 +7,7 @@ import { login, logout } from './store/authslice.js'
 import { Outlet } from 'react-router-dom'
 import {Header} from './components/index.js'
 import {Footer} from './components/index.js'
-import {MessageProfile} from './components/index.js'
+import {Authloader} from './components/index.js'
 import { useSelector } from 'react-redux'
 
 function App() {
@@ -36,20 +36,13 @@ function App() {
   return !loading ? (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow bg-[#F2F4F7] flex flex-row-reverse"> {/* Added `flex-row-reverse` */}
-        {/* Sidebar (MessageProfile) - Moves to Right */}
-       {authStatus && <MessageProfile className="ml-4 w-1/3" /> 
-       } {/* Use `ml-4` for spacing from Outlet */}
-  
-        {/* Main Content (Outlet) - Takes Remaining Space */}
-        <div className="flex-grow">
+      <main className="flex-grow flex flex-col bg-[#F2F4F7]">
           <Outlet />
-        </div>
       </main>
       <Footer />
     </div>
   ) : (
-    <div>Loading...</div>
+    <Authloader message='connecting your account...' fullScreen={true} />
   );
   
 }

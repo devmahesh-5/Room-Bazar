@@ -4,15 +4,16 @@ import authService from '../services/auth.services.js'
 import { useDispatch } from 'react-redux'
 import { login as authLogin } from '../store/authslice.js'
 import { useForm} from 'react-hook-form'
-import { Button, Input, Logo } from './index.js'
+import { Button, Input, Logo,Authloader } from './index.js'
 
 function Login() {
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const {register, handleSubmit} = useForm()
     const [error, setError] = useState(null)
-
+    const [loading, setLoading] = useState(false)
     const login = async (data) => {
+        setLoading(true)
         setError(null)
         try {
             const userSession = await authService.loginUser(data);
@@ -25,9 +26,11 @@ function Login() {
             } 
         } catch (error) {
             setError(error.response.data.error)
-        }   
+        }finally{
+            setLoading(false)
+        }
     }
-    return (
+    return !loading ? (
         <div
         className='flex items-center justify-center w-full'
     >
@@ -81,6 +84,8 @@ function Login() {
             </form>
         </div>
     </div>   
+    ):(
+        <Authloader fullScreen={true} message='Connecting to server...'/>
     )
 }
 

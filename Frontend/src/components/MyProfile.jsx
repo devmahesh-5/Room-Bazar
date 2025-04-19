@@ -3,9 +3,7 @@ import authService from '../services/auth.services.js';
 import { FaUsers, FaEdit, FaHome,FaUserPlus } from 'react-icons/fa'; // Icons for navbar
 import RoomCard from './Roomcard.jsx';
 import roommateService from '../services/roommate.services.js';
-import { RequestCard } from '../components/index.js';
-import {Roommateform } from '../components/index.js';
-import {Profileform} from '../components/index.js';
+import { RequestCard,Roommateform,Profileform,Authloader } from '../components/index.js';
 const ProfilePage = () => {
   const [error, setError] = useState(null);
   const [userData, setUserData] = useState(null);
@@ -76,10 +74,7 @@ const ProfilePage = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#6C48E3]"></div>
-        <span className="ml-4 text-lg font-semibold">Loading profile...</span>
-      </div>
+      <Authloader message="Loading Profile" />
     );
   }
   return (
@@ -177,7 +172,7 @@ const ProfilePage = () => {
                 
                 <div
                   key={index}
-                  className="bg-white p-3 rounded-lg flex items-center space-x-3 hover:shadow-sm transition-all"
+                  className="bg-gray-200 p-3 rounded-lg flex items-center space-x-3 hover:shadow-sm transition-all"
                 >
                   <div className="flex-shrink-0">
                     <img
@@ -208,7 +203,7 @@ const ProfilePage = () => {
       )}
 
       {/* Payments Section */}
-      {activeSection === 'payments' && (
+      {/* {activeSection === 'payments' && (
         <div className="bg-[#F2F4F7] rounded-lg shadow-md p-6">
           {dashboardData.myPayments?.length > 0 ? (
             <ul>
@@ -223,7 +218,7 @@ const ProfilePage = () => {
             <p className="text-gray-500">No payments found.</p>
           )}
         </div>
-      )}
+      )} */}
 
       {/* Rooms Section */}
       {activeSection === 'rooms' && (
@@ -233,14 +228,14 @@ const ProfilePage = () => {
               {dashboardData.myRooms[0]?.rooms.map((room, index) => (
                 <div
                   key={index}
-                  className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden"
+                  className="bg-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden"
                 >
                   <RoomCard {...room} compact='true' />
                 </div>
               ))}
             </div>
           ) : (
-            <div className="bg-white rounded-lg p-6 text-center">
+            <div className="bg-gray-200 rounded-lg p-6 text-center">
               <p className="text-gray-500">No rooms found</p>
             </div>
           )}
@@ -248,7 +243,7 @@ const ProfilePage = () => {
       )}
 
       {/* Refunds Section */}
-      {activeSection === 'refunds' && (
+      {/* {activeSection === 'refunds' && (
         <div className="bg-[#F2F4F7] rounded-lg shadow-md p-6">
           {dashboardData.requestedRefunds?.length > 0 ? (
             <ul>
@@ -263,7 +258,7 @@ const ProfilePage = () => {
             <p className="text-gray-500">No refunds requested.</p>
           )}
         </div>
-      )}
+      )} */}
 
       {
         activeSection === 'sent_requests' && (
