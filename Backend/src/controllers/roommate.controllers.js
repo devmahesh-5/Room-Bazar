@@ -402,7 +402,9 @@ const getRoommateById = asyncHandler(async (req, res) => {
                                 fullName: 1,
                                 email: 1,
                                 phone: 1,
-                                address: 1
+                                address: 1,
+                                avatar: 1,
+                                coverImage: 1
                             }
                         },
                     ]

@@ -10,8 +10,9 @@ import Favourite from "../models/favourite.models.js";
 import Room from "../models/room.models.js";
 import Payment from "../models/payment.models.js";
 import Refund from "../models/refund.models.js";
-import { getRoommateByUserId } from "../constants.js";
+import { getRoommateByUserId,getUserByRoommateId } from "../constants.js";
 import RoommateRequest from "../models/roommateRequest.models.js";
+import { log } from "console";
 const generateAccessAndRefreshTokens = async (userId) => {
    const user = await User.findById(userId);
    const accessToken = user.generateAccessToken();
@@ -497,7 +498,13 @@ const getUserFavourites = asyncHandler(async (req, res) => {
 });
 
 const getDashboard = asyncHandler(async (req, res) => {
-   const userId = req.user?._id;
+   let userId;
+   if(isValidObjectId(req.params?.roommateId)){
+      const user = await getUserByRoommateId(req.params?.roommateId);
+      userId = user.userId;
+   }else{
+      userId = req.user?._id;
+   }
 
    if (!isValidObjectId(userId)) {
       throw new ApiError(400, 'Invalid user id');
@@ -766,6 +773,28 @@ const getUserById = asyncHandler(async (req, res) => {
          )
       )
 })
+
+const getUserIdByRoommateId = asyncHandler(async (req, res) => {
+   const roommateId = req.params?.roommateId;
+
+   if (!isValidObjectId(roommateId)) {
+      throw new ApiError(400, 'Invalid roommate id');
+   }
+
+   const user = getRoommateByUserId(roommateId);
+   if (!user) {
+      throw new ApiError(404, 'User not found');
+   }
+   res
+      .status(200)
+      .json(
+         new ApiResponse(
+            200,
+            user,
+            'User fetched successfully'
+         )
+      )
+})
 export {
    registerUser,
    loginUser,
@@ -779,5 +808,6 @@ export {
    updateCoverPicture,
    getUserFavourites,
    getDashboard,
-   getUserById
+   getUserById,
+   getUserIdByRoommateId
 };

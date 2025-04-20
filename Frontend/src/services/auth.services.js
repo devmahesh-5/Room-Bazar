@@ -160,13 +160,22 @@ class authServices {
         }
     } 
     
-    async getUserDashboard(){
+    async getUserDashboard(roommateId) {
         try {
-            const response = await axios.get("/api/v1/users/dashboard",
+            let response;
+            if (!roommateId) {
+                response = await axios.get("/api/v1/users/dashboard",
+                    {
+                        withCredentials: true
+                    }
+                );
+            }else{
+             response = await axios.get(`/api/v1/users/dashboard/${roommateId}`,
                 {
                     withCredentials: true
                 }
             );
+        }
             if (!response) {
                 throw new Error("Error getting user dashboard");
             }
@@ -176,6 +185,17 @@ class authServices {
         }
     }
 
+    async getUserByRoommateId({ roommateId }) {
+        try {
+            const response = await axios.get(`/api/v1/users/getroommatesuserid/${roommateId}`);
+            if (!response) {
+                throw new Error("Error getting user by roommate ID");
+            }
+            return response.data;
+        } catch (error) {
+            console.error("Error getting user by roommate ID:", error);
+        }
+    }
     async updateLocation({ address, latitude, longitude }) {
         try {
             const response = await axios.patch("/api/v1/users/mylocation", { address,latitude, longitude });

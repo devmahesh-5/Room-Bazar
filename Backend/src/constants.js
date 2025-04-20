@@ -79,3 +79,8 @@ export const getRoommateByUserId = async(userId) => {
 
     return roommate[0];
 }
+
+export const getUserByRoommateId = async(roommateId) => {
+    const user = await RoommateAccount.findById(roommateId);
+    return user;
+}

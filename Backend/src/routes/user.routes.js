@@ -13,7 +13,8 @@ import {
     updateCoverPicture,
     getUserFavourites,
     getDashboard,
-    getUserById
+    getUserById,
+    getUserIdByRoommateId
 } from '../controllers/user.controllers.js';
 
 import { getLocationByUser,updateUserLocation } from '../controllers/location.controllers.js';
@@ -48,7 +49,7 @@ router.route('/logout').post(
     logoutUser
 )
 
-router.route('/dashboard').get(
+router.route('/dashboard/:roommateId').get(
     verifyAuth,
     getDashboard
 )
@@ -66,6 +67,12 @@ router.route('/myprofile').get(
     verifyAuth,
     getUserProfile
 )
+
+router.route('/getroommatesuserid/:roommateId').get(
+    verifyAuth,
+    getUserIdByRoommateId
+)
+
 
 router.route('/:userId').get(
     verifyAuth,
@@ -119,5 +126,6 @@ router.route('/updatelocation').patch(
     verifyAuth,
     updateUserLocation
 )
+
 
 export default router

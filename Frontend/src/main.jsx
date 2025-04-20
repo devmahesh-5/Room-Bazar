@@ -18,6 +18,7 @@ import Message from './pages/Message.jsx'
 import HollowMessage from './pages/HollowMessage.jsx'
 import Favourites from './pages/Favourites.jsx'
 import Myprofile from './pages/Myprofile.jsx'
+import UserProfilePage from './pages/UserProfilePage.jsx'
 const router = createBrowserRouter([
   {
     path: "/",
@@ -41,7 +42,8 @@ const router = createBrowserRouter([
           {
             path: 'myprofile',
             element: <Myprofile />
-          }
+          },
+          
         ]
       },
       {
@@ -71,7 +73,11 @@ const router = createBrowserRouter([
           {
             path: 'add',
             element: <Addroommate />
-          }
+          },
+            {
+              path: ':roommateId',
+              element: <UserProfilePage />
+            }
         ]
 
       },

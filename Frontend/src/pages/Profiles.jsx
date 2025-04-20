@@ -145,6 +145,7 @@ const Profiles = () => {
           {Array.isArray(users) && users.length > 0 ? (
             users.map((user) => (
               <div key={user._id} className="w-full">
+                <Link to={`/roommates/${user._id}`}>
                 <ProfileCard
                   avatar={user.user.avatar}
                   _id={user._id}
@@ -156,6 +157,7 @@ const Profiles = () => {
                   alreadyRoommate={myRoommates.some((roommate) => roommate?.myRoommates?.user?._id === user?.user?._id)}
                   onUpdate={handleUpdate}
                 />
+                </Link>
               </div>
             ))
           ) : (
