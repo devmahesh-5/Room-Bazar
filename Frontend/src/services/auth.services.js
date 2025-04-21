@@ -162,20 +162,12 @@ class authServices {
     
     async getUserDashboard(roommateId) {
         try {
-            let response;
-            if (!roommateId) {
-                response = await axios.get("/api/v1/users/dashboard",
-                    {
-                        withCredentials: true
-                    }
-                );
-            }else{
-             response = await axios.get(`/api/v1/users/dashboard/${roommateId}`,
+            
+             const response = await axios.get(`/api/v1/users/dashboard/${roommateId}`,
                 {
                     withCredentials: true
                 }
             );
-        }
             if (!response) {
                 throw new Error("Error getting user dashboard");
             }
@@ -185,6 +177,23 @@ class authServices {
         }
     }
 
+    async getMyDashboard(){
+        try {
+            
+            const response = await axios.get(`/api/v1/users/get-my-dashboard`,
+               {
+                   withCredentials: true
+               }
+           );
+           if (!response) {
+               throw new Error("Error getting user dashboard");
+           }
+           return response.data;
+       } catch (error) {
+           console.error("Error getting user dashboard:", error);
+       }
+    }
+    
     async getUserByRoommateId({ roommateId }) {
         try {
             const response = await axios.get(`/api/v1/users/getroommatesuserid/${roommateId}`);

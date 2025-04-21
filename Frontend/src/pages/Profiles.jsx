@@ -82,11 +82,7 @@ const Profiles = () => {
       </div>
       
       <div className="flex flex-col bg-[#F2F4F7] w-full lg:w-3/4 px-4">
-        {flag && activeSection === 'edit' && (
-          <div className="bg-[#F2F4F7] rounded-lg shadow-md p-4 mb-4">
-            <Roommateform roommate={myAccount} />
-          </div>
-        )}
+        
         
         <div className="flex flex-col space-y-4">
           {flag ? (
@@ -96,7 +92,11 @@ const Profiles = () => {
                 alt="Profile"
                 className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-full shadow-sm"
               />
-              <p className="text-sm font-medium text-gray-700">{myAccount?.user?.fullName}</p>
+              <div className="flex flex-col">
+              <h1 className="text-sm font-medium text-gray-700">{myAccount?.user?.fullName}</h1>
+              <h3 className="text-sm font-medium text-gray-400">{myAccount?.location?.address}</h3>
+              <h3 className="text-sm font-medium text-gray-400">{myAccount?.job}</h3>
+              </div>
               <div className="ml-auto">
                 <Button
                   onClick={() => setActiveSection(prev => prev === 'edit' ? '' : 'edit')}
@@ -118,6 +118,12 @@ const Profiles = () => {
               </div>
             </div>
           )}
+
+{flag && activeSection === 'edit' && (
+          <div className="bg-[#F2F4F7] rounded-lg shadow-md p-4 mb-4">
+            <Roommateform roommate={myAccount} />
+          </div>
+        )}
 
           <form onSubmit={handleSubmit(getSearchResults)} className="bg-[#F2F4F7] p-3 rounded-lg">
             <div className="flex flex-col sm:flex-row gap-3 w-full">

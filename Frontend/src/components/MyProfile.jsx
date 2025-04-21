@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import authService from '../services/auth.services.js';
-import { FaUsers, FaEdit, FaHome,FaUserPlus } from 'react-icons/fa'; // Icons for navbar
+import { FaUsers, FaEdit, FaHome, FaUserPlus } from 'react-icons/fa';
 import RoomCard from './Roomcard.jsx';
 import roommateService from '../services/roommate.services.js';
-import { RequestCard,Roommateform,Profileform,Authloader } from '../components/index.js';
+import { RequestCard, Roommateform, Profileform, Authloader } from '../components/index.js';
+import { Link } from 'react-router-dom';
+
 const ProfilePage = () => {
   const [error, setError] = useState(null);
   const [userData, setUserData] = useState(null);
@@ -15,31 +17,32 @@ const ProfilePage = () => {
   });
   const [sentRequest, setSentRequest] = useState([]);
   const [receivedRequest, setReceivedRequest] = useState([]);
-  const [activeSection, setActiveSection] = useState('roommates'); // Default active section
+  const [activeSection, setActiveSection] = useState('roommates');
   const [loading, setLoading] = useState(!userData?._id);
   const [myRoommateAccount, setMyRoommateAccount] = useState(null);
+
   useEffect(() => {
     const isMounted = true;
     setLoading(true);
-      (async () => {
-        try {
-         const [myAccountResponse,myRoommatesResponse] = await Promise.all([
+    (async () => {
+      try {
+        const [myAccountResponse, myRoommatesResponse] = await Promise.all([
           authService.getCurrentUser(),
-          authService.getUserDashboard()
-          ])
+          authService.getMyDashboard(),
+        ]);
 
-          if (isMounted) {
-            setUserData(myAccountResponse.data[0]);
-            setDashboardData(myRoommatesResponse.data);
-          }
-        } catch (error) {
-          setError(error.message);
-        }finally{
-          isMounted && setLoading(false);
+        if (isMounted) {
+          setUserData(myAccountResponse.data[0]);
+          setDashboardData(myRoommatesResponse.data);
         }
-      })();
-    
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        isMounted && setLoading(false);
+      }
+    })();
   }, [userData?._id]);
+
   const handleReceivedRequestAccept = async () => {
     fetchReceivedRequests();
   }
@@ -47,6 +50,7 @@ const ProfilePage = () => {
   const handleSentRequestCancel = async () => {
     fetchSentRequests();
   }
+
   const fetchSentRequests = useCallback(async () => {
     try {
       const sentRequest = await roommateService.getSentRoommateRequests();
@@ -56,8 +60,8 @@ const ProfilePage = () => {
     } catch (error) {
       setError(error);
     }
-  }, [setSentRequest,handleSentRequestCancel]);
-  
+  }, [setSentRequest, handleSentRequestCancel]);
+
   const fetchReceivedRequests = useCallback(async () => {
     try {
       const receivedRequest = await roommateService.getReceivedRoommateRequests();
@@ -67,283 +71,266 @@ const ProfilePage = () => {
     } catch (error) {
       setError(error);
     }
-  }, [setReceivedRequest,handleReceivedRequestAccept]);
+  }, [setReceivedRequest, handleReceivedRequestAccept]);
 
-  
   useEffect(() => {
     if (activeSection === 'sent_requests') {
       fetchSentRequests();
     } else if (activeSection === 'received_requests') {
       fetchReceivedRequests();
     }
-  }, [activeSection, fetchSentRequests, fetchReceivedRequests]); // Re-run when `activeSection` changes
+  }, [activeSection, fetchSentRequests, fetchReceivedRequests]);
 
- 
   if (loading) {
-    return (
-      <Authloader message="Loading Profile" />
-    );
+    return <Authloader message="Loading Profile" />;
   }
+
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      {/* Profile Section */}
-      <div className="bg-[#F2F4F7] rounded-lg shadow-md overflow-hidden">
+    <div className="min-h-screen bg-[#F2F4F7]">
+      {/* Profile Header */}
+      <div className="bg-white rounded-b-lg shadow-md">
         {/* Cover Image */}
-        <div className="h-48 bg-gray-200 relative">
+        <div className="h-48 bg-gradient-to-r from-gray-200 to-gray-300 relative">
           {userData?.coverImage && (
             <img
-              src={userData?.coverImage}
+              src={userData.coverImage}
               alt="Cover"
               className="w-full h-full object-cover"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.className = "w-full h-full bg-gradient-to-r from-gray-200 to-gray-300";
+              }}
             />
           )}
         </div>
 
         {/* Profile Info */}
-        <div className="p-6">
-          <div className="flex items-center space-x-6">
-            <img
-              src={userData?.avatar}
-              alt={userData?.fullName}
-              className="w-24 h-24 rounded-full border-4 border-[#F2F4F7] -mt-16"
-            />
-            <div>
-              <h3 className="text-2xl font-bold">{userData?.fullName}</h3>
-              <p className="text-gray-500">{userData?.email}</p>
-              <p className="text-gray-500">{userData?.phone}</p>
-              <p className="text-gray-500">{userData?.address}</p>
+        <div className="px-6 pb-6 relative">
+          <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-12">
+            <div className="relative">
+              <img
+                src={userData?.avatar}
+                alt={userData?.fullName}
+                className="w-24 h-24 rounded-full border-4 border-white shadow-md object-cover"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.className = "w-24 h-24 rounded-full border-4 border-white shadow-md bg-gradient-to-r from-gray-200 to-gray-300";
+                }}
+              />
+            </div>
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-gray-800 pt-8">{userData?.fullName}</h1>
+              <div className="flex flex-wrap gap-2 mt-2">
+                <p className="text-gray-600 text-sm flex items-center">
+                  <span className="font-medium">Email:</span> {userData?.email}
+                </p>
+                {userData?.phone && (
+                  <p className="text-gray-600 text-sm flex items-center">
+                    <span className="font-medium">Phone:</span> {userData.phone}
+                  </p>
+                )}
+                {userData?.address && (
+                  <p className="text-gray-600 text-sm flex items-center">
+                    <span className="font-medium">Current Address:</span> {userData.address}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Navbar */}
-      <nav className="bg-[#F2F4F7] shadow-md p-4 flex space-x-6">
-        <button
-          onClick={() => setActiveSection('roommates')}
-          className={`flex items-center space-x-2 ${activeSection === 'roommates' ? 'text-[#6C48E3]' : 'text-gray-700'}`}
-        >
-          <FaUsers />
-          <span>Roommates</span>
-        </button>
-        {/* <button
-          onClick={() => setActiveSection('payments')}
-          className={`flex items-center space-x-2 ${activeSection === 'payments' ? 'text-[#6C48E3]' : 'text-gray-700'}`}
-        >
-          <FaMoneyBill />
-          <span>Payments</span>
-        </button> */}
-        <button
-          onClick={() => setActiveSection('rooms')}
-          className={`flex items-center space-x-2 ${activeSection === 'rooms' ? 'text-[#6C48E3]' : 'text-gray-700'}`}
-        >
-          <FaHome />
-          <span>Rooms</span>
-        </button>
-        {/* <button
-          onClick={() => setActiveSection('refunds')}
-          className={`flex items-center space-x-2 ${activeSection === 'refunds' ? 'text-[#6C48E3]' : 'text-gray-700'}`}
-        >
-          <FaUndo />
-          <span>Refunds</span>
-        </button> */}
-        <button onClick={() => setActiveSection('edit_profile')}
-          className={`flex items-center space-x-2 ${activeSection === 'edit_profile' ? 'text-[#6C48E3]' : 'text-gray-700'}`}>
-            <FaEdit />
-            <span>Edit</span>
-        </button>
+      {/* Navigation Tabs */}
+      <div className="sticky top-0 z-10 bg-white shadow-sm">
+        <div className="container mx-auto px-4">
+          <div className="flex overflow-x-auto scrollbar-hide">
+            <button
+              onClick={() => setActiveSection('roommates')}
+              className={`flex items-center px-4 py-3 border-b-2 ${activeSection === 'roommates' ? 'border-[#6C48E3] text-[#6C48E3]' : 'border-transparent text-gray-600 hover:text-[#6C48E3]'}`}
+            >
+              <FaUsers className="mr-2" />
+              <span>Roommates</span>
+            </button>
+            <button
+              onClick={() => setActiveSection('rooms')}
+              className={`flex items-center px-4 py-3 border-b-2 ${activeSection === 'rooms' ? 'border-[#6C48E3] text-[#6C48E3]' : 'border-transparent text-gray-600 hover:text-[#6C48E3]'}`}
+            >
+              <FaHome className="mr-2" />
+              <span>Rooms</span>
+            </button>
+            <button
+              onClick={() => setActiveSection('edit_profile')}
+              className={`flex items-center px-4 py-3 border-b-2 ${activeSection === 'edit_profile' ? 'border-[#6C48E3] text-[#6C48E3]' : 'border-transparent text-gray-600 hover:text-[#6C48E3]'}`}
+            >
+              <FaEdit className="mr-2" />
+              <span>Edit Profile</span>
+            </button>
+            <button
+              onClick={() => setActiveSection('sent_requests')}
+              className={`flex items-center px-4 py-3 border-b-2 ${activeSection === 'sent_requests' ? 'border-[#6C48E3] text-[#6C48E3]' : 'border-transparent text-gray-600 hover:text-[#6C48E3]'}`}
+            >
+              <FaUserPlus className="mr-2" />
+              <span>Sent Requests</span>
+            </button>
+            <button
+              onClick={() => setActiveSection('received_requests')}
+              className={`flex items-center px-4 py-3 border-b-2 ${activeSection === 'received_requests' ? 'border-[#6C48E3] text-[#6C48E3]' : 'border-transparent text-gray-600 hover:text-[#6C48E3]'}`}
+            >
+              <FaUserPlus className="mr-2" />
+              <span>Received Requests</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
-        <button
-          onClick={() => setActiveSection('sent_requests')}
-          className={`flex items-center space-x-2 ${activeSection === 'sent_requests' ? 'text-[#6C48E3]' : 'text-gray-700'}`}
-        >
-          <FaUserPlus />
-          <span>sent Requests</span>
-        </button>
-        <button
-          onClick={() => setActiveSection('received_requests')}
-          className={`flex items-center space-x-2 ${activeSection === 'received_requests' ? 'text-[#6C48E3]' : 'text-gray-700'}`}
-        >
-          <FaUserPlus />
-          <span>Received Requests</span>
-        </button>
-      </nav>
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-6">
+        {/* Roommates Section */}
+        {activeSection === 'roommates' && (
+          <div className="bg-white rounded-lg shadow-sm p-4">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">My Roommates</h2>
+            {dashboardData.myRoommates?.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {dashboardData.myRoommates?.map((roommate, index) => (
+                    <div
+                    key={index}
+                    className="bg-[#F2F4F7] rounded-lg p-4 flex items-center space-x-4 hover:shadow-md transition-shadow"
+                  >
+                    
+                  <Link to={`/roommates/${roommate.myRoommates?._id}`} key={index}>
+                    <div className="flex-shrink-0">
+                      <img
+                        src={roommate?.myRoommates?.user?.avatar || '/default-avatar.png'}
+                        alt={roommate?.myRoommates?.user?.fullName}
+                        className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = '/default-avatar.png';
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-gray-800">{roommate?.myRoommates?.user?.fullName}</h3>
+                      <p className="text-sm text-gray-600">{roommate?.myRoommates?.job}</p>
+                      <p className="text-xs text-[#6C48E3] truncate">{roommate?.myRoommates?.user?.email}</p>
+                    </div>
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-[#F2F4F7] rounded-lg p-8 text-center">
+                <p className="text-gray-500">No roommates found</p>
+              </div>
+            )}
+          </div>
+        )}
 
-      {/* Roommates Section */}
-      {activeSection === 'roommates' && (
-        <div className="bg-[#F2F4F7] rounded-lg p-4">
-          {dashboardData.myRoommates?.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              
-              {dashboardData.myRoommates?.map((roommate, index) => (
-                
-                <div
-                  key={index}
-                  className="bg-gray-200 p-3 rounded-lg flex items-center space-x-3 hover:shadow-sm transition-all"
-                >
-                  <div className="flex-shrink-0">
-                    <img
-                      src={roommate?.myRoommates?.user?.avatar || '/default-avatar.png'}
-                      alt={roommate?.myRoommates?.user?.fullName}
-                      className="w-10 h-10 rounded-full object-cover border border-gray-200"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = '/default-avatar.png'
-                      }}
+        {/* Rooms Section */}
+        {activeSection === 'rooms' && (
+          <div className="bg-white rounded-lg shadow-sm p-4">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">My Rooms</h2>
+            {dashboardData.myRooms?.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {dashboardData.myRooms[0]?.rooms.map((room, index) => (
+                  <div
+                    key={index}
+                    className="bg-[#F2F4F7] rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+                  >
+                    <RoomCard {...room} compact={true} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-[#F2F4F7] rounded-lg p-8 text-center">
+                <p className="text-gray-500">No rooms found</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Sent Requests Section */}
+        {activeSection === 'sent_requests' && (
+          <div className="bg-white rounded-lg shadow-sm p-4">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">Sent Requests</h2>
+            {sentRequest?.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {sentRequest[0].receiver.map((request, index) => (
+                  <div
+                    key={index}
+                    className="bg-[#F2F4F7] rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+                  >
+                    <RequestCard
+                      fullName={request.user.fullName}
+                      _id={request._id}
+                      avatar={request.user.avatar}
+                      email={request.user.email}
+                      job={request.job}
+                      userId={request.user._id}
+                      cardType="sent"
+                      onUpdate={handleSentRequestCancel}
                     />
                   </div>
-                  <div className="min-w-0">
-                    <p className="font-medium text-gray-800">{roommate?.myRoommates?.user?.fullName}</p>
-                    <p className="text-xs text-gray-500">{roommate?.myRoommates?.user?.email}</p>
-                    <p className="text-xs text-gray-500 truncate">{roommate?.myRoommates?.job}</p>
-
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="bg-white rounded-lg p-4 text-center">
-              <p className="text-gray-500">No roommates found</p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Payments Section */}
-      {/* {activeSection === 'payments' && (
-        <div className="bg-[#F2F4F7] rounded-lg shadow-md p-6">
-          {dashboardData.myPayments?.length > 0 ? (
-            <ul>
-              {dashboardData.myPayments.map((payment, index) => (
-                <li key={index} className="mb-4 p-4 bg-gray-50 rounded-lg">
-                  <p className="text-gray-700">Amount: ${payment?.amount}</p>
-                  <p className="text-sm text-gray-500">Date: {payment?.date}</p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-500">No payments found.</p>
-          )}
-        </div>
-      )} */}
-
-      {/* Rooms Section */}
-      {activeSection === 'rooms' && (
-        <div className="bg-[#F2F4F7] rounded-lg p-4">
-          {dashboardData.myRooms?.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {dashboardData.myRooms[0]?.rooms.map((room, index) => (
-                <div
-                  key={index}
-                  className="bg-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden"
-                >
-                  <RoomCard {...room} compact='true' />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="bg-gray-200 rounded-lg p-6 text-center">
-              <p className="text-gray-500">No rooms found</p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Refunds Section */}
-      {/* {activeSection === 'refunds' && (
-        <div className="bg-[#F2F4F7] rounded-lg shadow-md p-6">
-          {dashboardData.requestedRefunds?.length > 0 ? (
-            <ul>
-              {dashboardData.requestedRefunds[0].map((refund, index) => (
-                <li key={index} className="mb-4 p-4 bg-gray-50 rounded-lg">
-                  <p className="text-gray-700">Amount: ${refund.amount}</p>
-                  <p className="text-sm text-gray-500">Status: {refund.status}</p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-500">No refunds requested.</p>
-          )}
-        </div>
-      )} */}
-
-      {
-        activeSection === 'sent_requests' && (
-          <div className="bg-[#F2F4F7] rounded-lg shadow-md p-3">
-            {sentRequest?.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-
-                {sentRequest[0].receiver.map((request, index) => (<div
-                  key={index}
-                  className="bg-[#F2F4F7] rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden"
-                >
-                  <RequestCard
-                    fullName={request.user.fullName}
-                    _id={request._id}//it is roommate id
-                    avatar={request.user.avatar}
-                    email={request.user.email}
-                    job={request.job}
-                    userId={request.user._id}
-                    cardType="sent"
-                    onUpdate = {handleSentRequestCancel}
-                  />
-                </div>
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500">No sent requests found.</p>
+              <div className="bg-[#F2F4F7] rounded-lg p-8 text-center">
+                <p className="text-gray-500">No sent requests found</p>
+              </div>
             )}
           </div>
-        )
-      }
+        )}
 
-      {
-        activeSection === 'received_requests' && (
-          <div className="bg-[#F2F4F7] rounded-lg shadow-md p-3">
+        {/* Received Requests Section */}
+        {activeSection === 'received_requests' && (
+          <div className="bg-white rounded-lg shadow-sm p-4">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">Received Requests</h2>
             {receivedRequest?.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-
-                {receivedRequest[0].sender.map((request, index) => (<div
-                  key={index}
-                  className="bg-[#F2F4F7] rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden"
-                >
-                  <RequestCard
-                    fullName={request.user.fullName}
-                    _id={request._id}//it is roommate id
-                    avatar={request.user.avatar}
-                    email={request.user.email}
-                    job={request.job}
-                    userId={request.user._id}
-                    cardType="received"
-                    onUpdate = {handleReceivedRequestAccept}
-                  />
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {receivedRequest[0].sender.map((request, index) => (
+                  <div
+                    key={index}
+                    className="bg-[#F2F4F7] rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+                  >
+                    <RequestCard
+                      fullName={request.user.fullName}
+                      _id={request._id}
+                      avatar={request.user.avatar}
+                      email={request.user.email}
+                      job={request.job}
+                      userId={request.user._id}
+                      cardType="received"
+                      onUpdate={handleReceivedRequestAccept}
+                    />
+                  </div>
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500">No requests found.</p>
+              <div className="bg-[#F2F4F7] rounded-lg p-8 text-center">
+                <p className="text-gray-500">No received requests found</p>
+              </div>
             )}
           </div>
-        )
-      }
+        )}
 
-      {
-        activeSection ==='edit' && (
-          <div className="bg-[#F2F4F7] rounded-lg shadow-md p-3">
-            < Roommateform  roommate={myRoommateAccount}/>
+        {/* Edit Profile Section */}
+        {activeSection === 'edit_profile' && (
+          <div className="bg-white rounded-lg shadow-sm p-4">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">Edit Profile</h2>
+            <Profileform myProfile={userData} />
           </div>
-        )
-      }
+        )}
 
-      {
-        activeSection === 'edit_profile' && (
-          <div className="bg-[#F2F4F7] rounded-lg shadow-md p-3">
-            <Profileform myProfile={userData}/>
+        {/* Edit Roommate Section */}
+        {activeSection === 'edit' && (
+          <div className="bg-white rounded-lg shadow-sm p-4">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">Edit Roommate Profile</h2>
+            <Roommateform roommate={myRoommateAccount} />
           </div>
-        )
-      }
+        )}
+      </div>
     </div>
   );
 };
-// remember edit is on user profile not user roommate profile
+
 export default ProfilePage;

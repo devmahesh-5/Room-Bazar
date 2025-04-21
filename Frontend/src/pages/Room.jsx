@@ -295,7 +295,7 @@ function Room() {
     <div key={index} className="bg-gray-50 p-4 rounded-lg shadow-sm">
       <div className="flex items-start space-x-4 mb-3">
         {/* Avatar */}
-         <Link to={`/profile/${review.user?._id}`}>{/*define this path for any user profile */}
+         <Link to={`/roommates/${review.user?._id}`}>{/*define this path for any user profile */}
         <img
           src={review.user?.avatar} 
           alt="User Avatar"

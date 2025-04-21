@@ -3,13 +3,25 @@ import { useForm } from 'react-hook-form';
 import messageService from '../../services/message.services';
 import { MdSend, MdAttachFile } from 'react-icons/md';
 import authServices from '../../services/auth.services';
-
+import { useRef } from 'react';
 function InboxForm({ userId }) {
     const { register, handleSubmit, reset, setValue } = useForm();
     const [messages, setMessages] = useState([]);
     const [receiver, setReceiver] = useState(null);
     const [selectedFiles, setSelectedFiles] = useState([]); // Track selected files
     const [loading, setLoading] = useState(false);
+
+    const messagesEndRef = useRef(null);
+
+  // Scroll to bottom whenever messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]); // Dependency array includes messages
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
     useEffect(() => {
         async function fetchMessages() {
             try {
@@ -76,54 +88,60 @@ function InboxForm({ userId }) {
                 </div>
             )}
 
-            {/* Messages List */}
-            <div className="flex-1 overflow-y-auto space-y-1">
-                {
-                    Array.isArray(messages) && messages.length > 0 ?
-                        (messages.map((msg) => {
-                            const isSentByUser = msg.sender?._id === userId;
-                            return (
-                                <div key={msg._id} className={`flex ${isSentByUser ? 'justify-start' : 'justify-end'}`}>
-                                    {isSentByUser && msg.sender?.avatar && (
-                                        <img src={msg.sender.avatar} alt={msg.sender.fullName} className="w-8 h-8 rounded-full" />
-                                    )}
-                                    <div className={`max-w-xs p-2 rounded-xl shadow-md ${isSentByUser ? 'bg-blue-500 text-[#F2F4F7]' : 'bg-[#6C48E3] text-[#F2F4F7]'}`}>
-                                        <p className="mt-2">{msg.message}</p>
-
-                                        {/* Display Attached Files */}
-                                        {msg.messageFiles?.length > 0 && (
-                                            <div className="mt-2 space-y-2 ">
-                                                {msg.messageFiles.map((file, index) => {
-                                                    const fileType = file.split('.').pop();
-                                                    if (['jpg', 'jpeg', 'png', 'gif'].includes(fileType)) {
-                                                        return <img key={index} src={file} alt="Attachment" className="w-32 h-32 rounded-lg" />;
-                                                    } else if (['mp4', 'webm', 'ogg'].includes(fileType)) {
-                                                        return (
-                                                            <video key={index} controls className="w-32 h-32 rounded-lg">
-                                                                <source src={file} type={`video/${fileType}`} />
-                                                            </video>
-                                                        );
-                                                    } else if (fileType === 'pdf') {
-                                                        return <embed key={index} src={file} type="application/pdf" className="w-32 h-40 rounded-lg" />;
-                                                    } else {
-                                                        return (
-                                                            <a key={index} href={file} target="_blank" rel="noopener noreferrer" className="text-blue-200 underline block">
-                                                                {file.split('/').pop()}
-                                                            </a>
-                                                        );
-                                                    }
-                                                })}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            );
-                        })) : (
-                            <div className="flex justify-center items-center" style={{ height: '50vh' }}>
-                                <p className="text-lg font-semibold">Start a conversation</p>
-                            </div>
-                        )}
+<div className="flex-1 overflow-y-auto space-y-1">
+      {Array.isArray(messages) && messages.length > 0 ? (
+        messages.map((msg) => {
+          const isSentByUser = msg.sender?._id === userId;
+          return (
+            <div key={msg._id} className={`flex ${isSentByUser ? 'justify-start' : 'justify-end'}`}>
+              {isSentByUser && msg.sender?.avatar && (
+                <img src={msg.sender.avatar} alt={msg.sender.fullName} className="w-8 h-8 rounded-full" />
+              )}
+              <div className={`max-w-xs p-2 rounded-xl shadow-md ${isSentByUser ? 'bg-blue-500 text-[#F2F4F7]' : 'bg-[#6C48E3] text-[#F2F4F7]'}`}>
+                <p className="mt-2">{msg.message}</p>
+                {/* Display Attached Files */}
+                {msg.messageFiles?.length > 0 && (
+                  <div className="mt-2 space-y-2">
+                    {msg.messageFiles.map((file, index) => {
+                      const fileType = file.split('.').pop();
+                      if (['jpg', 'jpeg', 'png', 'gif'].includes(fileType)) {
+                        return <img key={index} src={file} alt="Attachment" className="w-32 h-32 rounded-lg" />;
+                      } else if (['mp4', 'webm', 'ogg'].includes(fileType)) {
+                        return (
+                          <video key={index} controls className="w-32 h-32 rounded-lg">
+                            <source src={file} type={`video/${fileType}`} />
+                          </video>
+                        );
+                      } else if (fileType === 'pdf') {
+                        return <embed key={index} src={file} type="application/pdf" className="w-32 h-40 rounded-lg" />;
+                      } else {
+                        return (
+                          <a key={index} href={file} target="_blank" rel="noopener noreferrer" className="text-blue-200 underline block">
+                            {file.split('/').pop()}
+                          </a>
+                        );
+                      }
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
+          );
+        }
+        
+    )
+
+      ) : (
+        <div className="flex justify-center items-center" style={{ height: '50vh' }}>
+          <p className="text-lg font-semibold">Start a conversation</p>
+        </div>
+      )}
+
+      
+          {/* This empty div will be our scroll target */}
+          <div ref={messagesEndRef} />
+      
+    </div>
 
             {/* Selected Files Preview */}
             {selectedFiles.length > 0 && (

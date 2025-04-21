@@ -59,7 +59,7 @@ const UserProfile = () => {
             {/* Profile Section */}
             <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
                 {/* Cover Image */}
-                <div className="h-48 bg-gradient-to-r from-purple-400 to-indigo-600 relative">
+                <div className="h-48 bg-gray-200 relative">
                     {userData?.user?.coverImage ? (
                         <img
                             src={userData?.user?.coverImage}
@@ -71,16 +71,16 @@ const UserProfile = () => {
                             }}
                         />
                     ) : (
-                        <div className="w-full h-full bg-gradient-to-r from-purple-400 to-indigo-600"></div>
+                        <div className="w-full h-full bg-gray-200"></div>
                     )}
                 </div>
 
                 {/* Profile Info */}
                 <div className="p-4 md:p-6">
                     <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
-                        <div className="relative -mt-16 md:-mt-20">
+                        <div className="relative -mt-16 md:-mt-32">
                             <img
-                                src={userData?.user?.avatar || '/default-avatar.png'}
+                                src={userData?.user?.avatar}
                                 alt={userData?.user?.fullName}
                                 className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white object-cover shadow-md"
                                 onError={(e) => {

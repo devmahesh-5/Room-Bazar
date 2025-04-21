@@ -54,6 +54,11 @@ router.route('/dashboard/:roommateId').get(
     getDashboard
 )
 
+router.route('/get-my-dashboard').get(
+    verifyAuth,
+    getDashboard
+)
+
 router.route('/refresh-token').post(
     refreshAccessToken
 )
