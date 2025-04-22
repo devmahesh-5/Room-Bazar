@@ -1,18 +1,19 @@
 import mongoose, { isValidObjectId } from "mongoose";
-import {asyncHandler} from "../utils/asyncHandler.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import User from "../models/user.models.js";
-import {ApiResponse} from "../utils/ApiResponse.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 import uploadOnCloudinary, { deleteImageFromCloudinary } from "../utils/Cloudinary.js";
-import {ApiError} from "../utils/ApiError.js";
-import {options} from '../constants.js';
+import { ApiError } from "../utils/ApiError.js";
+import { options } from '../constants.js';
 import Location from "../models/location.models.js";
 import Favourite from "../models/favourite.models.js";
 import Room from "../models/room.models.js";
 import Payment from "../models/payment.models.js";
 import Refund from "../models/refund.models.js";
-import { getRoommateByUserId,getUserByRoommateId } from "../constants.js";
+import { getRoommateByUserId, getUserByRoommateId } from "../constants.js";
 import RoommateRequest from "../models/roommateRequest.models.js";
-import { log } from "console";
+import { sendOtp, generateOtp } from "../constants.js";
+import cron from "node-cron";
 const generateAccessAndRefreshTokens = async (userId) => {
    const user = await User.findById(userId);
    const accessToken = user.generateAccessToken();
@@ -23,11 +24,11 @@ const generateAccessAndRefreshTokens = async (userId) => {
 }
 
 const registerUser = asyncHandler(async (req, res) => {
-   const { fullName, email, password, username, phone, address, gender,latitude,longitude } = req.body;
+   const { fullName, email, password, username, phone, address, gender, latitude, longitude } = req.body;
    if ([fullName, email, password, username, phone, address, gender].some((field) => !field || String(field.trim()) === '')) {
       throw new ApiError(400, 'All fields are required');
    }
-   
+
    const existingUser = await User.findOne({
       $or: [
          { email },
@@ -41,13 +42,14 @@ const registerUser = asyncHandler(async (req, res) => {
 
    const avatarLocalPath = req.files?.avatar[0]?.path;
    const coverImagePath = req.files?.coverImage[0]?.path;
-   
+
    const avatarCloudinaryPath = await uploadOnCloudinary(avatarLocalPath);
    const coverImageCloudinaryPath = await uploadOnCloudinary(coverImagePath);
 
    if (!avatarCloudinaryPath || !coverImageCloudinaryPath) {
       throw new ApiError(500, 'Failed to upload image');
    }
+
    const user = await User.create(
       {
          fullName,
@@ -58,9 +60,23 @@ const registerUser = asyncHandler(async (req, res) => {
          address,
          avatar: avatarCloudinaryPath?.url,
          coverImage: coverImageCloudinaryPath?.url,
-         gender
+         gender,
       }
    );
+
+   const otp = await generateOtp();
+
+   const otpExpiry = new Date(Date.now() + 3 * 60 * 1000);// 3 minutes
+   if (!otp) {
+      throw new ApiError(500, 'Failed to generate OTP');
+   }
+
+   const isVerified = await sendOtp(user.email, otp);
+
+   if (!isVerified) {
+      throw new ApiError(500, 'Failed to send OTP');
+   }
+
    const location = await Location.create({
       latitude,
       longitude,
@@ -76,7 +92,9 @@ const registerUser = asyncHandler(async (req, res) => {
       user._id,
       {
          $set: {
-            location: location._id
+            location: location._id,
+            otp,
+            otpExpiry
          }
       },
       {
@@ -87,7 +105,7 @@ const registerUser = asyncHandler(async (req, res) => {
    if (!user) {
       throw new ApiError(500, 'Failed to create user');
    }
-   const createdUser = await User.findById(user._id).select('-password -refreshToken');
+   const createdUser = await User.findById(user._id).select('-password -refreshToken -otp -otpExpiry -verificationAttempts -unVerified_at -is_verified -__v');
    res
       .status(201)
       .json(
@@ -97,6 +115,132 @@ const registerUser = asyncHandler(async (req, res) => {
             'User created successfully'
          )
       )
+});
+
+const verifyOtp = asyncHandler(async (req, res) => {
+   const { otp, email } = req.body;
+   if (!otp || !email) {
+      throw new ApiError(400, 'OTP and email is required');
+   }
+   const user = await User.findOne({ email: email });
+
+   if (!user) {
+      throw new ApiError(500, 'User not found');
+   }
+
+   if(user.verificationAttempts >= 2){
+      await User.findByIdAndDelete(user._id);
+      await Location.findOneAndDelete({ user: user._id });
+      throw new ApiError(400, 'Too many attempts please Register again');
+   }
+
+   if (user.otpExpiry < Date.now() || user.otp !== otp.toString()) {
+      await User.findByIdAndUpdate(user._id, {
+         $set: {
+            is_verified: false,
+            unVerified_at: Date.now(),
+            verificationAttempts: user.verificationAttempts + 1
+         }
+       },
+       {
+         new: true
+       });
+      throw new ApiError(400, 'Invalid OTP');
+   }
+
+   const verifiedUser = await User.findOneAndUpdate(
+      {
+         otp: otp,
+         email: email
+      },
+      {
+         $set: {
+            is_verified: true,
+            verificationAttempts: 0,
+            unVerified_at: null,
+            otp: null
+         }
+      },
+      {
+         new: true
+      }
+   );
+
+   if (!verifiedUser) {
+      await User.findByIdAndUpdate(user._id, {
+         $set: {
+            is_verified: false
+         }
+       },
+       {
+         new: true
+       });
+      throw new ApiError(500, 'Failed to verify user');
+   }
+
+   res
+      .status(200)
+      .json(
+         new ApiResponse(
+            200,
+            verifiedUser,
+            'User verified successfully'
+         )
+      )
+
+})
+
+const resendOtp = asyncHandler(async (req, res) => {
+   const { email } = req.body;
+   if (!email) {
+      throw new ApiError(400, 'Email is required');
+   }
+   console.log(email.email);
+   const user = await User.findOne({ email: email.email });
+
+   if (!user) {
+      throw new ApiError(500, 'User not found');
+   }
+
+   const otp = await generateOtp();
+
+   const otpExpiry = new Date(Date.now() + 3 * 60 * 1000);// 3 minutes
+   if (!otp) {
+      throw new ApiError(500, 'Failed to generate OTP');
+   }
+
+   const isVerified = await sendOtp(user.email, otp);
+   console.log(isVerified);
+   if (!isVerified) {
+      throw new ApiError(500, 'Failed to send OTP');
+   }
+
+   const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      {
+         $set: {
+            otp,
+            otpExpiry
+         }
+      },
+      {
+         new: true
+      }
+   ).select('-password -refreshToken -otp');
+
+   if (!updatedUser) {
+      throw new ApiError(500, 'Failed to update user');
+   }
+
+   res
+      .status(200)
+      .json(
+         new ApiResponse(
+            200,
+            updatedUser,
+            'OTP sent successfully'
+      )
+   )
 });
 
 const loginUser = asyncHandler(async (req, res) => {
@@ -122,8 +266,14 @@ const loginUser = asyncHandler(async (req, res) => {
    }
 
    const isPasswordCorrect = await user.isPasswordCorrect(password);
+
    if (!isPasswordCorrect) {
       throw new ApiError(401, 'Invalid password');
+   }
+   const isVerified = user?.is_verified;
+   
+   if (!isVerified) {
+      throw new ApiError(400, 'User is not verified');
    }
 
    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
@@ -309,7 +459,7 @@ const deleteUser = asyncHandler(async (req, res) => {
 const refreshAccessToken = asyncHandler(async (req, res) => {
    const refreshToken = req.cookies.refreshToken || req.headers.authorization.replace("Bearer ", "");
    // console.log(refreshToken);
-   
+
    if (!refreshToken) {
       throw new ApiError(401, 'User not authenticated');
    }
@@ -339,8 +489,8 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 });
 
 const updateProfilePicture = asyncHandler(async (req, res) => {
-   const userId = req.user?._id; 
-   
+   const userId = req.user?._id;
+
    if (!isValidObjectId(userId)) {
       throw new ApiError(400, 'Invalid user id');
    }
@@ -355,17 +505,17 @@ const updateProfilePicture = asyncHandler(async (req, res) => {
    }
 
    const profileCloudinaryPath = await uploadOnCloudinary(profileLocalPath);
-  
-   
+
+
    const oldAvatarPublicId = user.avatar.split('/').pop().split('.')[0];
-   
-   
+
+
    if (!profileCloudinaryPath) {
       throw new ApiError(500, 'Error uploading profile picture');
    }
 
-   
-   
+
+
    const updatedUser = await User.findByIdAndUpdate(userId,
       {
          $set: {
@@ -389,7 +539,7 @@ const updateProfilePicture = asyncHandler(async (req, res) => {
             'Profile picture updated successfully'
          )
       )
-  
+
 });
 
 const updateCoverPicture = asyncHandler(async (req, res) => {
@@ -407,14 +557,14 @@ const updateCoverPicture = asyncHandler(async (req, res) => {
       throw new ApiError(400, 'Cover picture is required');
    }
 
-   const coverCloudinaryPath = await uploadOnCloudinary(coverLocalPath);   
+   const coverCloudinaryPath = await uploadOnCloudinary(coverLocalPath);
    const oldCoverPublicId = user.coverImage.split('/').pop().split('.')[0];
 
    if (!coverCloudinaryPath) {
       throw new ApiError(500, 'Error uploading cover picture');
    }
 
-  
+
 
    const updatedUser = await User.findByIdAndUpdate(userId,
       {
@@ -427,7 +577,7 @@ const updateCoverPicture = asyncHandler(async (req, res) => {
    if (!updatedUser) {
       throw new ApiError(500, 'Error updating cover picture');
    }
-    await deleteImageFromCloudinary(oldCoverPublicId);
+   await deleteImageFromCloudinary(oldCoverPublicId);
    res
       .status(200)
       .json(
@@ -437,7 +587,7 @@ const updateCoverPicture = asyncHandler(async (req, res) => {
             'Cover picture updated successfully'
          )
       )
-  
+
 });
 
 const getUserFavourites = asyncHandler(async (req, res) => {
@@ -499,13 +649,13 @@ const getUserFavourites = asyncHandler(async (req, res) => {
 
 const getDashboard = asyncHandler(async (req, res) => {
    let userId;
-   if(isValidObjectId(req.params?.roommateId)){
+   if (isValidObjectId(req.params?.roommateId)) {
       const user = await getUserByRoommateId(req.params?.roommateId);
       userId = user.userId;
-   }else{
+   } else {
       userId = req.user?._id;
    }
-   
+
    if (!isValidObjectId(userId)) {
       throw new ApiError(400, 'Invalid user id');
    }
@@ -542,13 +692,13 @@ const getDashboard = asyncHandler(async (req, res) => {
          },
 
          {
-            $group :{
-               _id : null,
-               rooms : {
-                  $push : '$room'
+            $group: {
+               _id: null,
+               rooms: {
+                  $push: '$room'
                },
-               totalRooms : {
-                  $sum : 1
+               totalRooms: {
+                  $sum: 1
                }
             }
          }
@@ -558,28 +708,28 @@ const getDashboard = asyncHandler(async (req, res) => {
    const myRooms = await Room.aggregate(
       [
          {
-            $match : {
-               owner : userId
+            $match: {
+               owner: userId
             }
          },
          {
-            $project : {
-               _id : 1,
-               name : 1,
-               category : 1,
-               price : 1,
-               thumbnail : 1,
-               rentPerMonth : 1
+            $project: {
+               _id: 1,
+               name: 1,
+               category: 1,
+               price: 1,
+               thumbnail: 1,
+               rentPerMonth: 1
             }
          },
          {
-            $group : {
-               _id : null,
-               rooms : {
-                  $push : '$$ROOT'
+            $group: {
+               _id: null,
+               rooms: {
+                  $push: '$$ROOT'
                },
-               totalRooms : {
-                  $sum : 1
+               totalRooms: {
+                  $sum: 1
                }
             }
          }
@@ -592,143 +742,143 @@ const getDashboard = asyncHandler(async (req, res) => {
 
    const myRoommateAccount = await getRoommateByUserId(userId);
 
-    if(!myRoommateAccount){
-        throw new ApiError(404, 'Roommate not found');
-    }
-    
-    const myRoommates = await RoommateRequest.aggregate(
-        [
-            {
-                $match:{
-                   $or:[
-                        {sender: myRoommateAccount._id},
-                        {receiver: myRoommateAccount._id}
-                    ],
-                    status:'Accepted'
-                }
-                
-                },
-            {
-                $lookup: {
-                    from : 'roommateaccounts',
-                    localField : 'sender',
-                    foreignField : '_id',
-                    as : 'sender',
-                    pipeline: [
-                        {
-                            $lookup:{
-                                from : 'users',
-                                localField : 'userId',
-                                foreignField : '_id',
-                                as : 'user',
-                                pipeline: [
-                                    {
-                                        $project: {
-                                            _id: 1,
-                                            fullName: 1,
-                                            email: 1,
-                                            phone: 1,
-                                            address: 1,
-                                            avatar: 1,
-                                            gender: 1
-                                        }
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            $addFields:{
-                                user:{$arrayElemAt:['$user',0]}
-                            }
-                        },
-                        {
-                            $project: {
-                                _id: 1,
-                                user: 1,
-                                job: 1,
-                                smoking: 1,
-                                pets: 1,
-                            }
-                        }
-                    ]
-                }
-            },
-            {
-                $lookup: {
-                    from : 'roommateaccounts',
-                    localField : 'receiver',
-                    foreignField : '_id',
-                    as : 'receiver',
-                    pipeline: [
-                        {
-                            $lookup:{
-                                from : 'users',
-                                localField : 'userId',
-                                foreignField : '_id',
-                                as : 'user',
-                                pipeline: [
-                                    {
-                                        $project: {
-                                            _id: 1,
-                                            fullName: 1,
-                                            email: 1,
-                                            phone: 1,
-                                            address: 1,
-                                            avatar: 1,
-                                            gender: 1
-                                        }
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            $addFields:{
-                                user:{$arrayElemAt:['$user',0]}
-                            }
-                        },
-                        {
-                            $project: {
-                                _id: 1,
-                                user: 1,
-                                job: 1,
-                                smoking: 1,
-                                pets: 1,
-                        }
-                        }
-                    ]
-                }         
-            },
-            {
-                $addFields: {
-                    sender: { $arrayElemAt: ['$sender', 0] },
-                    receiver: { $arrayElemAt: ['$receiver', 0] }
-                }
-            },
-            // {
-            //    sort: {
-            //       createdAt: -1
-            //    }
-            // },
-            // {
-            //    limit: 6//check functionality later
-            // },
-            {
-                $project:{
-                    myRoommates:{
-                        $cond: {
-                            if: { $eq: ["$sender._id", myRoommateAccount._id] },
-                            then: "$receiver",
-                            else: "$sender"
-                        }
-                    }
-                }
+   if (!myRoommateAccount) {
+      throw new ApiError(404, 'Roommate not found');
+   }
+
+   const myRoommates = await RoommateRequest.aggregate(
+      [
+         {
+            $match: {
+               $or: [
+                  { sender: myRoommateAccount._id },
+                  { receiver: myRoommateAccount._id }
+               ],
+               status: 'Accepted'
             }
-        ]
-    )
-    
-    if(!myRoommates){
-        throw new ApiError(404, 'Roommates not found');
-    }
+
+         },
+         {
+            $lookup: {
+               from: 'roommateaccounts',
+               localField: 'sender',
+               foreignField: '_id',
+               as: 'sender',
+               pipeline: [
+                  {
+                     $lookup: {
+                        from: 'users',
+                        localField: 'userId',
+                        foreignField: '_id',
+                        as: 'user',
+                        pipeline: [
+                           {
+                              $project: {
+                                 _id: 1,
+                                 fullName: 1,
+                                 email: 1,
+                                 phone: 1,
+                                 address: 1,
+                                 avatar: 1,
+                                 gender: 1
+                              }
+                           }
+                        ]
+                     }
+                  },
+                  {
+                     $addFields: {
+                        user: { $arrayElemAt: ['$user', 0] }
+                     }
+                  },
+                  {
+                     $project: {
+                        _id: 1,
+                        user: 1,
+                        job: 1,
+                        smoking: 1,
+                        pets: 1,
+                     }
+                  }
+               ]
+            }
+         },
+         {
+            $lookup: {
+               from: 'roommateaccounts',
+               localField: 'receiver',
+               foreignField: '_id',
+               as: 'receiver',
+               pipeline: [
+                  {
+                     $lookup: {
+                        from: 'users',
+                        localField: 'userId',
+                        foreignField: '_id',
+                        as: 'user',
+                        pipeline: [
+                           {
+                              $project: {
+                                 _id: 1,
+                                 fullName: 1,
+                                 email: 1,
+                                 phone: 1,
+                                 address: 1,
+                                 avatar: 1,
+                                 gender: 1
+                              }
+                           }
+                        ]
+                     }
+                  },
+                  {
+                     $addFields: {
+                        user: { $arrayElemAt: ['$user', 0] }
+                     }
+                  },
+                  {
+                     $project: {
+                        _id: 1,
+                        user: 1,
+                        job: 1,
+                        smoking: 1,
+                        pets: 1,
+                     }
+                  }
+               ]
+            }
+         },
+         {
+            $addFields: {
+               sender: { $arrayElemAt: ['$sender', 0] },
+               receiver: { $arrayElemAt: ['$receiver', 0] }
+            }
+         },
+         // {
+         //    sort: {
+         //       createdAt: -1
+         //    }
+         // },
+         // {
+         //    limit: 6//check functionality later
+         // },
+         {
+            $project: {
+               myRoommates: {
+                  $cond: {
+                     if: { $eq: ["$sender._id", myRoommateAccount._id] },
+                     then: "$receiver",
+                     else: "$sender"
+                  }
+               }
+            }
+         }
+      ]
+   )
+
+   if (!myRoommates) {
+      throw new ApiError(404, 'Roommates not found');
+   }
 
    const dashboard = {
       myRooms,
@@ -795,8 +945,12 @@ const getUserIdByRoommateId = asyncHandler(async (req, res) => {
          )
       )
 })
+
+
 export {
    registerUser,
+   verifyOtp,
+   resendOtp,
    loginUser,
    logoutUser,
    getUserProfile,

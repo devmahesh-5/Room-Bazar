@@ -4,7 +4,6 @@ import authService from "../services/auth.services.js";
 import { useDispatch } from "react-redux";
 import { Button, Input, Logo, Select, Authloader } from "./index.js";
 import { useForm } from "react-hook-form";
-import { login } from "../store/authslice.js";
 
 function Signup() {
     const navigate = useNavigate();
@@ -35,16 +34,11 @@ function Signup() {
         try {
             const userSession = await authService.registerUser(formData);
             if (userSession) {
-                const loginUser = await authService.loginUser(data);
-                if (loginUser) {
-                    const userData = await authService.getCurrentUser();
-                    if (userData) {
-                        dispatch(login({ userData }));
+                        setLoading(false);
+                        navigate(`/users/verify-otp/${userSession.data.email}`);
                     }
-                    navigate("/rooms");
-                }
-            }
-        } catch (error) {
+                    
+                }catch (error) {
             setError(error.response.data.error || "Signup failed");
         }finally{
             setLoading(false);

@@ -19,6 +19,29 @@ class authServices {
         }
     }
     
+    async verifyOTP(data) {
+        try {
+            const response = await axios.post("/api/v1/users/verify-otp", data);
+            if (!response) {
+                throw new Error("Error verifying OTP");
+            }
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async resendOTP(email) {
+        try {
+            const response = await axios.post("/api/v1/users/resend-otp", { email });
+            if (!response) {
+                throw new Error("Error resending OTP");
+            }
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
     async loginUser(data) {
         try {
             const response = await axios.post("/api/v1/users/login", data);

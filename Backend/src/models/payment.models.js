@@ -44,7 +44,7 @@ paymentSchema.pre('save', async function (next) {
      const room = await Room.findById(this.roomId);
      if(!room) throw new ApiError(500, 'Room not found');
      
-     const booking = await Booking.findOne({ roomId: room._id });
+     const booking = await Booking.findOne({ roomId: this.roomId });
      if(!booking) throw new ApiError(500, 'Booking not found');
 
      booking.payment = this._id;
@@ -53,11 +53,13 @@ paymentSchema.pre('save', async function (next) {
          room.status = 'Booked';
          booking.status = 'Booked';
          await room.save({ validateBeforeSave: false });
+         await booking.save({ validateBeforeSave: false });
          next();
      } else if (this.status === 'Failed') {
          room.status = 'Available';
          booking.status = 'Reserved';
          await room.save({ validateBeforeSave: false });
+         await booking.save({ validateBeforeSave: false });
          next();
      }
    } catch (error) {

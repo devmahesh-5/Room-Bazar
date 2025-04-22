@@ -19,6 +19,7 @@ import HollowMessage from './pages/HollowMessage.jsx'
 import Favourites from './pages/Favourites.jsx'
 import Myprofile from './pages/Myprofile.jsx'
 import UserProfilePage from './pages/UserProfilePage.jsx'
+import VerifyOtp from './pages/VerifyOtp.jsx'
 const router = createBrowserRouter([
   {
     path: "/",
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
           {
             path: 'signup',
             element: <Signup />
+          },
+          {
+            path:'verify-otp/:email',
+            element: <VerifyOtp />
           },
           {
             path: 'login',
