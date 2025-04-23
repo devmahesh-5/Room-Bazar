@@ -2,8 +2,7 @@ import express from "express";
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import { handleFailure} from "./controllers/payment.controllers.js";
-
-import { unVerifiedUserRemoval } from "./constants.js";
+import { unVerifiedUserRemoval,notifyUnVerifiedUser, emailValidator } from "./constants.js";
 const app = express();
 
 //cors setup to allow cross origin request
@@ -25,9 +24,9 @@ app.use(express.urlencoded(
 app.use(express.json({limit:"10mb"}))
 app.use(cookieParser());//to parse cookies
 
+notifyUnVerifiedUser();
 unVerifiedUserRemoval()
 // app.post('/payment/success/:transaction_uuid', handleFailure)
-
 
 //import routes
 import userRouter from "./routes/user.routes.js";

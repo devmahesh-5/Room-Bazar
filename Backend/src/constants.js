@@ -4,6 +4,12 @@ import RoommateAccount from "./models/roommateAccount.models.js";
 import otpGenerator from "otp-generator";
 import nodemailer from "nodemailer";
 import cron from "node-cron";
+import User from "./models/user.models.js";
+
+import emailExistence from "email-existence";
+import validator from 'validator';
+import axios from "axios";
+import { ApiError } from "./utils/ApiError.js";
 export const DB_NAME = "Room-Bazar";
 
 export const options = {
@@ -135,7 +141,85 @@ const otpEmailTemplate = (otp) => ({
         </div>
       </div>
     `
-  });
+});
+
+const accountDeletionWarningTemplate = (username, verificationLink) => ({
+    subject: '⚠️ Verify Your Room-Bazar Account Within 1 Hour',
+    text: `
+      Important Account Notice - Action Required
+      
+      Dear ${username || 'User'},
+      
+      Your Room-Bazar account is still unverified. To protect our community, 
+      we'll need to delete unverified accounts after 1 hour.
+      
+      Please verify your email immediately to keep your account active.
+
+      Login and verify your Account by visiting my Profile Page:
+      
+      Login Link: ${verificationLink}
+      
+      If you encounter any issues, please contact our support team immediately.
+      
+      After 1 hour, all data associated with unverified accounts will be 
+      permanently deleted and cannot be recovered.
+      
+      The Room-Bazar Team
+    `,
+    html: `
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #F2F4F7; border-radius: 8px; overflow: hidden;">
+        <div style="background-color: #FF3B30; padding: 20px; text-align: center;">
+          <h1 style="color: white; margin: 0;">⚠️ Account Verification Required</h1>
+        </div>
+        
+        <div style="padding: 30px;">
+          <h2 style="color: #333; margin-top: 0;">Dear ${username || 'User'},</h2>
+          <p style="font-size: 16px; line-height: 1.5; color: #555;">
+            Your Room-Bazar account is still unverified. To maintain the security of our community,
+            we automatically delete unverified accounts after <strong style="color: #FF3B30;">1 hour</strong>.
+          </p>
+          
+          <div style="background-color: #FFF8F8; border-left: 4px solid #FF3B30; padding: 15px; margin: 20px 0;">
+            <p style="font-size: 15px; margin: 0; color: #D70000;">
+              <strong>Action required:</strong> Verify your email within 1 hour to prevent account deletion.
+            </p>
+          </div>
+          
+          <a href="${verificationLink}" 
+             style="display: inline-block; background-color: #6C48E3; color: white; 
+                    padding: 12px 24px; text-decoration: none; border-radius: 6px; 
+                    font-weight: bold; margin: 15px 0;">
+            Verify My Account Now
+          </a>
+          
+          <p style="font-size: 14px; color: #777;">
+            <strong>Note:</strong> This link will expire when the deadline passes. 
+            If the button doesn't work, copy and paste this link into your browser:
+          </p>
+          
+          <div style="word-break: break-all; font-size: 12px; color: #666; padding: 10px; background-color: #F2F4F7; border-radius: 4px;">
+            ${verificationLink}
+          </div>
+          
+          <hr style="border: none; border-top: 1px solid #eee; margin: 25px 0;">
+          
+          <p style="font-size: 14px; color: #999;">
+            If you don't verify your account within 1 hour, all your information will be 
+            <strong>permanently deleted</strong> and cannot be recovered.
+          </p>
+          
+          <p style="font-size: 14px; color: #999; margin-bottom: 0;">
+            Need help? Contact our support team at 
+            <a href="mailto:support@room-bazar.com" style="color: #6C48E3;">support@room-bazar.com</a>.
+          </p>
+        </div>
+        
+        <div style="background-color: #F2F4F7; padding: 15px; text-align: center; font-size: 12px; color: #777;">
+          © ${new Date().getFullYear()} Room-Bazar. All rights reserved.
+        </div>
+      </div>
+    `
+});
 
 export const sendOtp = async (email, otp) => {
     const transporter = nodemailer.createTransport({
@@ -165,6 +249,40 @@ export const sendOtp = async (email, otp) => {
     }
 }
 
+export const sendEmail = async (email) => {
+    const transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 587, // SSL
+        secure: false,
+        auth: {
+            user: process.env.EMAIL,
+            pass: process.env.EMAIL_PASSWORD
+        }
+    });
+
+    try {
+        const user = await User.findOne({ email });
+        const { subject, text, html } = accountDeletionWarningTemplate(user.fullName);
+        await transporter.sendMail(
+            {
+                from: `Room-Bazar <${process.env.EMAIL}>`,
+                to: email,
+                subject,
+                text,
+                html
+            }
+        )
+        return true
+
+    } catch (error) {
+        console.error('Error sending email:', error);
+        return false
+
+    }
+
+
+}
+
 export const generateOtp = async () => {
     const otp = otpGenerator.generate(6, {
         digits: true,
@@ -174,12 +292,57 @@ export const generateOtp = async () => {
     });
     return otp
 }
-
+export const notifyUnVerifiedUser = async () => {
+    cron.schedule('0 3 * * *', async () => {
+        const unVerifiedUsers = await User.find({
+            is_verified: false,
+            unVerified_at: { $lt: new Date(Date.now()) }
+        });
+        if (unVerifiedUsers.length > 0) {
+            unVerifiedUsers.forEach(async (user) => {
+                try {
+                    await sendEmail(user.email);
+                } catch (error) {
+                    console.error('Error sending email to unverified user:', error);
+                }
+            });
+        }
+    },
+        {
+            timezone: 'Asia/Kathmandu'
+        });
+}
 export const unVerifiedUserRemoval = async () => {
     cron.schedule('0 3 * * *', async () => {
-        await User.deleteMany({ 
-          is_verified: false,
-          unVerified_at: { $lt: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+        await User.deleteMany({
+            is_verified: false,
+            unVerified_at: { $lt: new Date(Date.now() - 24 * 60 * 60 * 1000) }
         });
-      });
+    },
+        {
+            timezone: 'Asia/Kathmandu'
+        });
 }
+
+export const emailValidator = async (email) => {
+    if (!validator.isEmail(email)) {
+        return false;
+    }
+
+    try {
+        const exists = await new Promise((resolve, reject) => {
+            emailExistence.check(email, (error, response) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(response);
+                }
+            });
+        });
+
+        return exists; // true if email exists, false otherwise
+    } catch (error) {
+        console.error('Email existence check failed:', error);
+        return false; // Fail-safe: assume invalid if check fails
+    }
+};

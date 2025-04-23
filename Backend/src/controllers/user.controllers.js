@@ -10,7 +10,7 @@ import Favourite from "../models/favourite.models.js";
 import Room from "../models/room.models.js";
 import Payment from "../models/payment.models.js";
 import Refund from "../models/refund.models.js";
-import { getRoommateByUserId, getUserByRoommateId } from "../constants.js";
+import { getRoommateByUserId, getUserByRoommateId,emailValidator } from "../constants.js";
 import RoommateRequest from "../models/roommateRequest.models.js";
 import { sendOtp, generateOtp } from "../constants.js";
 const generateAccessAndRefreshTokens = async (userId) => {
@@ -38,7 +38,12 @@ const registerUser = asyncHandler(async (req, res) => {
    if (existingUser) {
       throw new ApiError(400, 'User already exists');
    }
+   const validEmail = await emailValidator(email);
 
+   if (!validEmail) {
+      throw new ApiError(400, 'Invalid email');
+   }
+   
    const avatarLocalPath = req.files?.avatar[0]?.path;
    const coverImagePath = req.files?.coverImage[0]?.path;
 
@@ -194,7 +199,6 @@ const resendOtp = asyncHandler(async (req, res) => {
    if (!email) {
       throw new ApiError(400, 'Email is required');
    }
-   console.log(email.email);
    const user = await User.findOne({ email: email.email });
 
    if (!user) {
