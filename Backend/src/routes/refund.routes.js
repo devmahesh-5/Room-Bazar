@@ -9,10 +9,11 @@ import {
 } from '../controllers/refund.controllers.js';
 
 import {verifyAuth} from '../middlewares/auth.middlewares.js';
+import { checkVerified } from "../middlewares/checkVerify.middlewares.js";
 import { upload } from "../middlewares/multer.middlewares.js";
 const router = Router();
 
-router.use(verifyAuth);
+router.use(verifyAuth,checkVerified);
 //create refund from room route
 
 router.route('/:refundId').patch(updateRefund);

@@ -24,7 +24,7 @@ import { getLocationByUser,updateUserLocation } from '../controllers/location.co
 import { addOwnerReport, getOwnerReport } from "../controllers/report.controllers.js";
 
 import { verifyAuth } from '../middlewares/auth.middlewares.js';
-import { checkVerified } from "../middlewares/checkVerify.middleware.js";
+import { checkVerified } from "../middlewares/checkVerify.middlewares.js";
 import { upload } from "../middlewares/multer.middlewares.js";
 const router = Router();
 
@@ -66,7 +66,6 @@ router.route('/dashboard/:roommateId').get(
 
 router.route('/get-my-dashboard').get(
     verifyAuth,
-    checkVerified,
     getDashboard
 )
 
@@ -82,7 +81,6 @@ router.route('/change-password').patch(
 
 router.route('/myprofile').get(
     verifyAuth,
-    checkVerified,
     getUserProfile
 )
 
@@ -101,7 +99,6 @@ router.route('/:userId').get(
 
 router.route('/myfavourites').get(  
     verifyAuth,
-    checkVerified,
     getUserFavourites
 )
 

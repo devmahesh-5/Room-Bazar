@@ -7,10 +7,10 @@ import {
 } from '../controllers/payment.controllers.js';
 
 import {verifyAuth} from '../middlewares/auth.middlewares.js';
-
+import { checkVerified } from "../middlewares/checkVerify.middlewares.js";
 const router = Router();
 
-router.use(verifyAuth);
+router.use(verifyAuth,checkVerified);
 //create payment from room route
 // router.route()
 

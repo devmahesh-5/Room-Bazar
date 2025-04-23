@@ -8,9 +8,10 @@ import {
 } from '../controllers/review.controllers.js';
 
 import {verifyAuth} from '../middlewares/auth.middlewares.js';
+import { checkVerified } from "../middlewares/checkVerify.middlewares.js";
 const router = Router();
 
-router.use(verifyAuth);
+router.use(verifyAuth,checkVerified);
 
 //review from room route
 

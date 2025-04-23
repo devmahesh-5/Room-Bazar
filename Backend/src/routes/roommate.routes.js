@@ -22,10 +22,12 @@ import {
 } from '../controllers/roommate.controllers.js';
 
 import { upload } from "../middlewares/multer.middlewares.js";
+
+import { checkVerified } from "../middlewares/checkVerify.middlewares.js";
 import {verifyAuth} from '../middlewares/auth.middlewares.js';
 const router = Router();
 
-router.use(verifyAuth); 
+router.use(verifyAuth,checkVerified); 
 
 router.route('/register').post(
     upload.fields([

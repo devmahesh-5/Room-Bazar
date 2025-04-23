@@ -24,7 +24,8 @@ const userSchema = new mongoose.Schema({
         default: 0
     },
     unVerified_at:{
-        type: Date
+        type: Date,
+        default: Date.now
     },
     otp: {
         type: String

@@ -13,7 +13,6 @@ import Refund from "../models/refund.models.js";
 import { getRoommateByUserId, getUserByRoommateId } from "../constants.js";
 import RoommateRequest from "../models/roommateRequest.models.js";
 import { sendOtp, generateOtp } from "../constants.js";
-import cron from "node-cron";
 const generateAccessAndRefreshTokens = async (userId) => {
    const user = await User.findById(userId);
    const accessToken = user.generateAccessToken();
@@ -210,7 +209,6 @@ const resendOtp = asyncHandler(async (req, res) => {
    }
 
    const isVerified = await sendOtp(user.email, otp);
-   console.log(isVerified);
    if (!isVerified) {
       throw new ApiError(500, 'Failed to send OTP');
    }
@@ -270,11 +268,11 @@ const loginUser = asyncHandler(async (req, res) => {
    if (!isPasswordCorrect) {
       throw new ApiError(401, 'Invalid password');
    }
-   const isVerified = user?.is_verified;
+   // const isVerified = user?.is_verified;
    
-   if (!isVerified) {
-      throw new ApiError(400, 'User is not verified');
-   }
+   // if (!isVerified) {
+   //    throw new ApiError(400, 'User is not verified');
+   // }
 
    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
 
@@ -359,7 +357,9 @@ const getUserProfile = asyncHandler(async (req, res) => {
             avatar: 1,
             coverImage: 1,
             gender: 1,
-            location: 1
+            location: 1,
+            is_verified: 1,
+            role: 1
          }
       }
    ]);

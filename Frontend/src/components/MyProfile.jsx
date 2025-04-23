@@ -4,9 +4,11 @@ import { FaUsers, FaEdit, FaHome, FaUserPlus } from 'react-icons/fa';
 import RoomCard from './Roomcard.jsx';
 import roommateService from '../services/roommate.services.js';
 import { RequestCard, Roommateform, Profileform, Authloader } from '../components/index.js';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+
 
 const ProfilePage = () => {
+  const navigate = useNavigate();
   const [error, setError] = useState(null);
   const [userData, setUserData] = useState(null);
   const [dashboardData, setDashboardData] = useState({
@@ -20,7 +22,7 @@ const ProfilePage = () => {
   const [activeSection, setActiveSection] = useState('roommates');
   const [loading, setLoading] = useState(!userData?._id);
   const [myRoommateAccount, setMyRoommateAccount] = useState(null);
-
+  const [verifyLoading, setVerifyLoading] = useState(false);
   useEffect(() => {
     const isMounted = true;
     setLoading(true);
@@ -81,64 +83,135 @@ const ProfilePage = () => {
     }
   }, [activeSection, fetchSentRequests, fetchReceivedRequests]);
 
+
+  const handleVerifyNow = async () => {
+    try {
+      setVerifyLoading(true);
+      const response = await authService.resendOTP({ email: userData.email });
+      if (response) {
+        navigate(`/users/verify-otp/${userData.email}`);
+      }
+    } catch (error) {
+      setError(error);
+  }finally{
+    setVerifyLoading(false);
+  }
+  }
+
+
   if (loading) {
     return <Authloader message="Loading Profile" />;
   }
 
   return (
     <div className="min-h-screen bg-[#F2F4F7]">
-      {/* Profile Header */}
-      <div className="bg-white rounded-b-lg shadow-md">
-        {/* Cover Image */}
-        <div className="h-48 bg-gradient-to-r from-gray-200 to-gray-300 relative">
-          {userData?.coverImage && (
-            <img
-              src={userData.coverImage}
-              alt="Cover"
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.className = "w-full h-full bg-gradient-to-r from-gray-200 to-gray-300";
-              }}
-            />
-          )}
-        </div>
-
-        {/* Profile Info */}
-        <div className="px-6 pb-6 relative">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-12">
-            <div className="relative">
+    {/* Profile Header */}
+    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      {/* Cover Image */}
+      <div className="h-48 bg-gradient-to-r from-purple-100 to-blue-100 relative">
+        {userData?.coverImage ? (
+          <img
+            src={userData.coverImage}
+            alt="Cover"
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.className = "w-full h-full bg-gradient-to-r from-purple-100 to-blue-100";
+            }}
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-r from-purple-100 to-blue-100"></div>
+        )}
+      </div>
+  
+      {/* Profile Info */}
+      <div className="px-6 pb-6 relative">
+        <div className="flex flex-col sm:flex-row items-start sm:items-end gap-6 -mt-16">
+          {/* Avatar */}
+          <div className="relative">
+            <div className="w-32 h-32 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white">
               <img
                 src={userData?.avatar}
                 alt={userData?.fullName}
-                className="w-24 h-24 rounded-full border-4 border-white shadow-md object-cover"
+                className="w-full h-full object-cover"
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.className = "w-24 h-24 rounded-full border-4 border-white shadow-md bg-gradient-to-r from-gray-200 to-gray-300";
+                  e.target.className = "w-full h-full bg-gradient-to-r from-gray-200 to-gray-300";
                 }}
               />
             </div>
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-800 pt-8">{userData?.fullName}</h1>
-              <div className="flex flex-wrap gap-2 mt-2">
-                <p className="text-gray-600 text-sm flex items-center">
-                  <span className="font-medium">Email:</span> {userData?.email}
-                </p>
-                {userData?.phone && (
-                  <p className="text-gray-600 text-sm flex items-center">
-                    <span className="font-medium">Phone:</span> {userData.phone}
-                  </p>
+          </div>
+  
+          {/* Profile Details */}
+          <div className="flex-1 space-y-2 mt-10">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-800">{userData?.fullName}</h1>
+                <div className={`text-[#6C48E3] px-1 py-1 text-sm font-medium rounded-full flex items-center}`}>
+                {userData?.is_verified ? (
+                  <span className="flex items-center">
+                    <svg className="w-4 h-4 mr-1" fill="#6C48E3" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    Verified Account
+                  </span>
+                ) : verifyLoading ? ( <button disabled className="cursor-not-allowed bg-[#6C48E3] text-white px-3 py-1 rounded-full text-sm font-medium">Sending OTP...</button>) : (
+                    <button 
+                      onClick={handleVerifyNow}
+                      className="bg-[#6C48E3] text-white px-3 py-1 rounded-full text-sm font-medium"
+                    >
+                      Verify Now
+                    </button>
                 )}
-                {userData?.address && (
-                  <p className="text-gray-600 text-sm flex items-center">
-                    <span className="font-medium">Current Address:</span> {userData.address}
+              </div>
+                <p className="text-gray-600 px-3">{userData?.role || 'Member'}</p>
+              </div>
+              
+              {/* Verification Status - Highlighted */}
+             
+  
+            {/* Contact Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="text-sm font-medium text-gray-500 mb-1">Contact Information</h3>
+                <div className="space-y-2">
+                  <p className="flex items-center text-gray-700">
+                    <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    {userData?.email}
                   </p>
+                  {userData?.phone && (
+                    <p className="flex items-center text-gray-700">
+                      <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      </svg>
+                      {userData.phone}
+                    </p>
+                  )}
+                </div>
+              </div>
+  
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="text-sm font-medium text-gray-500 mb-1">Location</h3>
+                {userData?.address ? (
+                  <p className="flex items-center text-gray-700">
+                    <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    {userData.address}
+                  </p>
+                ) : (
+                  <p className="text-gray-500 text-sm">No address provided</p>
                 )}
               </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
 
       {/* Navigation Tabs */}
       <div className="sticky top-0 z-10 bg-white shadow-sm">

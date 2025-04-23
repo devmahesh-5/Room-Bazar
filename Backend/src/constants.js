@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import RoommateAccount from "./models/roommateAccount.models.js";
 import otpGenerator from "otp-generator";
 import nodemailer from "nodemailer";
-import corn from "node-cron";
+import cron from "node-cron";
 export const DB_NAME = "Room-Bazar";
 
 export const options = {

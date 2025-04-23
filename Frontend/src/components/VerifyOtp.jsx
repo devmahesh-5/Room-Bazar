@@ -23,7 +23,12 @@ function VerifyOTP() {
         try {
             const response = await authService.verifyOTP({ email, otp });
             if (response) {
+                const userData = await authService.getCurrentUser();
+                if (userData && userData.status === "Verified") {
+                    navigate("/users/myprofile");
+                }else{
                 navigate("/users/login");
+                }
             }
         } catch (error) {
             setError(error.response?.data?.error || "Verification failed");
