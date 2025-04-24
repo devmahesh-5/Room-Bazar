@@ -43,60 +43,12 @@ const addBooking = asyncHandler(async (req, res) => {
    const room = await Room.findByIdAndUpdate(roomId, {
         $set: {
             booking: booking._id,
-            status: 'Reserved'
+            status: 'Reserved',
+            reservedAt: Date.now()
         }
     },
     { new: true }
 );
-
-
-    const total_amount = room.price;
-    const amount = total_amount - total_amount * 0.1;
-    const transaction_uuid = uuidv4();
-    const product_code = process.env.PRODUCT_CODE;
-    const product_service_charge = total_amount * 0.1;
-    const success_url = `${process.env.BASE_URL}/payment/success`;
-    const failure_url = `${process.env.BASE_URL}/payment/failure`;
-    const signed_field_names = 'total_amount,transaction_uuid,product_code';
-    const dataToSign = `${total_amount},${transaction_uuid},${product_code}`;
-    
-    const signature = generateSignature(dataToSign);
-        const htmlForm = `
-        <html>
-            <body>
-                <form action="https://rc-epay.esewa.com.np/api/epay/main/v2/form" method="POST">
-                    <input type="hidden" name="amount" value="${amount}">
-                    <input type="hidden" name="tax_amount" value="0">
-                    <input type="hidden" name="total_amount" value="${total_amount}">
-                    <input type="hidden" name="transaction_uuid" value="${transaction_uuid}">
-                    <input type="hidden" name="product_code" value="${product_code}">
-                    <input type="hidden" name="product_service_charge" value="${product_service_charge}"}>
-                    <input type="hidden" name="product_delivery_charge" value="0">
-                    <input type="hidden" name="success_url" value="${success_url}">
-                    <input type="hidden" name="failure_url" value="${failure_url}">
-                    <input type="hidden" name="signed_field_names" value="${signed_field_names}">
-                    <input type="hidden" name="signature" value="${signature}">
-                    <input type="submit" value = "Pay Now"></input>
-                </form>
-                
-            </body>
-        </html>
-    `;
-
-    const payment = await Payment.create({
-        userId: req.user?._id,
-        roomId,
-        amount: total_amount,
-        status : 'Pending',
-        paymentGateway: 'Esewa',
-        transaction_uuid,
-        booking: booking._id
-      })
-
-    if (!payment) {
-        throw new ApiError(500, 'Failed to create payment');
-    }
-
 
     const user = await User.findById(userId);
     if (!user) {
@@ -105,7 +57,7 @@ const addBooking = asyncHandler(async (req, res) => {
     const notification = await Notification.create({
         receiver : room.owner,
         roomId : room._id,
-        message : `${user.fullName} have booked your room`,
+        message : `${user.fullName} have Reservd your room`,
         bookingId : Booking._id,
         roomId : room._id,
      });
@@ -117,7 +69,10 @@ const addBooking = asyncHandler(async (req, res) => {
     res.
     status(200)
     .json(
-        new ApiResponse(200, 'Booking added successfully', {Booking, htmlForm}
+        new ApiResponse(
+            200,
+            room,
+            'Booking added successfully'
 
         ));
 });

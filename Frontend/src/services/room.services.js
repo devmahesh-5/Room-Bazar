@@ -79,7 +79,7 @@ class roomServices {
 
     async bookRoom(roomId) {
         try {
-            const response = await axios.patch(`/api/v1/rooms/booking/${roomId}`);
+            const response = await axios.post(`/api/v1/rooms/booking/${roomId}`);
             if (!response) {
                 throw new Error("Error booking room");
             }

@@ -28,6 +28,9 @@ const paymentSchema = new mongoose.Schema({
     transaction_uuid: {
         type: String
     },
+    paidAt: {
+        type: Date
+    },
     refund :{
         type : mongoose.Schema.Types.ObjectId,
         ref : 'Refund'
@@ -38,34 +41,34 @@ const paymentSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-paymentSchema.pre('save', async function (next) {
-   try {
-     if (!this.isModified('status')) next();
-     const room = await Room.findById(this.roomId);
-     if(!room) throw new ApiError(500, 'Room not found');
+// paymentSchema.pre('save', async function (next) {
+//    try {
+//      if (!this.isModified('status')) next();
+//      const room = await Room.findById(this.roomId);
+//      if(!room) throw new ApiError(500, 'Room not found');
      
-     const booking = await Booking.findOne({ roomId: this.roomId });
-     if(!booking) throw new ApiError(500, 'Booking not found');
+//      const booking = await Booking.findOne({ roomId: this.roomId });
+//      if(!booking) throw new ApiError(500, 'Booking not found');
 
-     booking.payment = this._id;
-     await booking.save({ validateBeforeSave: false });
-     if (this.status === 'Success') {
-         room.status = 'Booked';
-         booking.status = 'Booked';
-         await room.save({ validateBeforeSave: false });
-         await booking.save({ validateBeforeSave: false });
-         next();
-     } else if (this.status === 'Failed') {
-         room.status = 'Available';
-         booking.status = 'Reserved';
-         await room.save({ validateBeforeSave: false });
-         await booking.save({ validateBeforeSave: false });
-         next();
-     }
-   } catch (error) {
-     throw new ApiError(500, error.message);
-   }
-});
+//      booking.payment = this._id;
+//      await booking.save({ validateBeforeSave: false });
+//      if (this.status === 'Success') {
+//          room.status = 'Booked';
+//          booking.status = 'Booked';
+//          await room.save({ validateBeforeSave: false });
+//          await booking.save({ validateBeforeSave: false });
+//          next();
+//      } else if (this.status === 'Failed') {
+//          room.status = 'Available';
+//          booking.status = 'Reserved';
+//          await room.save({ validateBeforeSave: false });
+//          await booking.save({ validateBeforeSave: false });
+//          next();
+//      }
+//    } catch (error) {
+//      throw new ApiError(500, error.message);
+//    }
+// });
 
 const Payment = mongoose.model('Payment', paymentSchema);
 

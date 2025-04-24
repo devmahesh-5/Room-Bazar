@@ -150,16 +150,16 @@ const Profiles = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 py-4">
           {Array.isArray(users) && users.length > 0 ? (
             users.map((user) => (
-              <div key={user._id} className="w-full">
-                <Link to={`/roommates/${user._id}`}>
+              <div key={user?._id} className="w-full">
+                <Link to={`/roommates/${user?._id}`}>
                 <ProfileCard
-                  avatar={user.user.avatar}
-                  _id={user._id}
-                  userId={user.user._id}
-                  haveRoom={user.haveRoom}
-                  fullName={user.user.fullName}
-                  location={user.location.address}
-                  job={user.job}
+                  avatar={user?.user?.avatar}
+                  _id={user?._id}
+                  userId={user?.user?._id}
+                  haveRoom={user?.haveRoom}
+                  fullName={user?.user?.fullName}
+                  location={user?.location?.address}
+                  job={user?.job}
                   alreadyRoommate={myRoommates.some((roommate) => roommate?.myRoommates?.user?._id === user?.user?._id)}
                   onUpdate={handleUpdate}
                 />

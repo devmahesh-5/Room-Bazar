@@ -54,6 +54,9 @@ const roomSchema = new mongoose.Schema({
         enum: ['Available', 'Booked', 'Reserved','CheckedIn'],
         default: 'Available',
       },
+     reservedAt: {
+        type: Date
+      },
     booking :{
         type : mongoose.Schema.Types.ObjectId,
         ref : "Booking"

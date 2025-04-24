@@ -9,6 +9,8 @@ import reviewService from "../services/review.services.js";
 import { useForm } from "react-hook-form";
 
 function Room() {
+    const [bookingLoading, setBookingLoading] = useState(false);
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
     const slug = useParams();
     const [reviews, setReviews] = useState([]);
@@ -19,7 +21,7 @@ function Room() {
     const [averageRating, setAverageRating] = useState(0); // State for average room rating
     const userData = useSelector((state) => state.auth.userData);
     const isOwner = room && userData ? room.owner._id === userData._id : false;
-
+    const [htmlContent, setHtmlContent] = useState(null);
     const { register, handleSubmit, reset } = useForm();
 
     useEffect(() => {
@@ -97,8 +99,21 @@ function Room() {
         }
     };
 
-    const handleBook = () => {
-        // Handle booking logic here
+    const handleBook = async () => {
+        setBookingLoading(true);
+        try {
+            const bookingResponse = await roomServices.bookRoom(room._id);
+            if (bookingResponse) {
+                console.log(bookingResponse.data.price);
+                navigate(`/rooms/payment/${room._id}/${bookingResponse.data.price}`);
+            }
+        } catch (error) {
+            console.log(error);
+            setError(error.response.data.error);
+        }finally{
+            setBookingLoading(false);
+        }
+            
     };
 
     const handleFavourite = () => {
@@ -212,7 +227,7 @@ function Room() {
                 {/* Book, Favourite, and Comment Buttons (for non-owners) */}
                 {!isOwner && (
                     <div className="flex space-x-4">
-                        <Button
+                       <Button
                             bgColor="bg-[#6C48E3] border border-[#6C48E3] hover:bg-blue-700 text-white"
                             onClick={handleBook}
                             className="px-6 py-2 rounded-md flex items-center space-x-2"

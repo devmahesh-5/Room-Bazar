@@ -20,6 +20,10 @@ import MyProfile from "./MyProfile.jsx";
 import RequestCard from "./RequestCard.jsx";
 import Profileform from "./forms/Profileform.jsx";
 import Authloader from "./Authloader.jsx";
+import PaymentCard from "./PaymentCard.jsx";
+import PaymentFailed from "./PaymentFailed.jsx";
+import PaymentSuccess from "./PaymentSuccess.jsx";
+import MyBookings from "./MyBookings.jsx";
 export {
     Logo,
     Header,
@@ -42,5 +46,9 @@ export {
     MyProfile,
     RequestCard,
     Profileform,
-    Authloader
+    Authloader,
+    PaymentCard,
+    PaymentFailed,
+    PaymentSuccess,
+    MyBookings
 }

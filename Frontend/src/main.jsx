@@ -20,6 +20,10 @@ import Favourites from './pages/Favourites.jsx'
 import Myprofile from './pages/Myprofile.jsx'
 import UserProfilePage from './pages/UserProfilePage.jsx'
 import VerifyOtp from './pages/VerifyOtp.jsx'
+import Payment from './pages/Payment.jsx'
+import PaymentSuccess from './pages/PaymentSuccess.jsx'
+import PaymentFailed from './pages/PaymentFailed.jsx'
+import MyBooking from './pages/MyBooking.jsx'
 const router = createBrowserRouter([
   {
     path: "/",
@@ -48,6 +52,10 @@ const router = createBrowserRouter([
             path: 'myprofile',
             element: <Myprofile />
           },
+          {
+            path: 'my-bookings',
+            element: <MyBooking />
+          }
           
         ]
       },
@@ -65,6 +73,10 @@ const router = createBrowserRouter([
           {
             path: ':id',
             element: <Room />
+          },
+          {
+            path: 'payment/:roomId/:amount',
+            element:<Payment />
           }
         ]
       },
@@ -105,6 +117,20 @@ const router = createBrowserRouter([
           {
             path: 'myfavourites',
             element: <Favourites />
+          }
+        ]
+      },
+      {
+        path: 'payments',
+        children: [
+          {
+            path: 'failed',
+            element: <PaymentFailed />
+
+          },
+          {
+            path: 'success',
+            element: <PaymentSuccess />
           }
         ]
       }

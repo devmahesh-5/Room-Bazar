@@ -15,6 +15,6 @@ router.use(verifyAuth,checkVerified);
 // router.route('/add/:roomId').post(addBooking);
 router.route('/checkin/:id').patch(updateBooking);
 router.route('/all').get(getAllBookings);
-router.route('/myBookings').get(getBookingsByUser);
+router.route('/my-bookings').get(getBookingsByUser);
 export default router;
 
