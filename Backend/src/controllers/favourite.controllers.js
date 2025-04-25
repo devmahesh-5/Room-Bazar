@@ -84,8 +84,17 @@ const getUserFavourites = asyncHandler(async (req, res) => {
                                 }
                             },
                             {
+                                $lookup : {
+                                    from : 'users',
+                                    localField : 'owner',
+                                    foreignField : '_id',
+                                    as : 'owner'
+                                }
+                            },
+                            {
                                 $addFields : {
-                                    location : { $arrayElemAt : ['$location', 0] }
+                                    location : { $arrayElemAt : ['$location', 0] },
+                                    owner : { $arrayElemAt : ['$owner', 0] }
                                 }
                             },
                             {
@@ -96,7 +105,9 @@ const getUserFavourites = asyncHandler(async (req, res) => {
                                 thumbnail: 1,
                                 location : 1,
                                 rentPerMonth : 1,
-                                price : 1
+                                price : 1,
+                                owner : 1,
+                                status : 1
                             }
                         }
                     ]

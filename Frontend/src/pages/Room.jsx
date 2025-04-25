@@ -4,7 +4,7 @@ import roomServices from "../services/room.services.js";
 import favouriteService from "../services/favourite.services.js";
 import { Button } from "../components";
 import { useSelector } from "react-redux";
-import { FaHeart, FaBook, FaStar, FaComment } from "react-icons/fa"; // Import icons from react-icons
+import { FaHeart, FaBook, FaStar, FaComment, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
 import reviewService from "../services/review.services.js";
 import { useForm } from "react-hook-form";
 
@@ -104,7 +104,6 @@ function Room() {
         try {
             const bookingResponse = await roomServices.bookRoom(room._id);
             if (bookingResponse) {
-                console.log(bookingResponse.data.price);
                 navigate(`/rooms/payment/${room._id}/${bookingResponse.data.price}`);
             }
         } catch (error) {
@@ -137,63 +136,93 @@ function Room() {
         return <div className="flex justify-center items-center h-screen">Loading...</div>;
     }
 
-    // Fallback for missing thumbnail or roomPhotos
     const thumbnail = room.thumbnail || (room.roomPhotos && room.roomPhotos[0]);
 
     return (
-        <div className="py-10 px-6 max-w-6xl mx-auto">
-            {/* Room Image */}
-            <div className="w-full mb-8 relative rounded-2xl overflow-hidden shadow-lg">
-                <img
-                    src={thumbnail}
-                    alt={room.title}
-                    className="w-full h-96 object-cover transition-transform duration-500 ease-in-out hover:scale-105"
-                />
-                {isOwner && (
-                    <div className="absolute right-6 top-6 flex space-x-4">
-                        <Link to={`/rooms/update/${room._id}`}>
-                            <Button bgColor="bg-green-600 hover:bg-green-700 text-white" className="px-5 py-2 rounded-md">
-                                Edit
+        <div className="py-10 px-4 max-w-6xl mx-auto">
+            {/* Room Image and Owner Info Section */}
+            <div className="flex flex-col lg:flex-row gap-8 mb-8">
+                {/* Room Image */}
+                <div className="lg:w-2/3 relative rounded-2xl overflow-hidden shadow-lg">
+                    <img
+                        src={thumbnail}
+                        alt={room.title}
+                        className="w-full h-96 object-cover transition-transform duration-500 ease-in-out hover:scale-105"
+                    />
+                    {isOwner && (
+                        <div className="absolute right-6 top-6 flex space-x-4">
+                            <Link to={`/rooms/update/${room._id}`}>
+                                <Button bgColor="bg-green-600 hover:bg-green-700 text-white" className="px-5 py-2 rounded-md">
+                                    Edit
+                                </Button>
+                            </Link>
+                            <Button
+                                bgColor="bg-red-600 hover:bg-red-700 text-white"
+                                onClick={deleteRoom}
+                                className="px-5 py-2 rounded-md"
+                            >
+                                Delete
                             </Button>
-                        </Link>
-                        <Button
-                            bgColor="bg-red-600 hover:bg-red-700 text-white"
-                            onClick={deleteRoom}
-                            className="px-5 py-2 rounded-md"
-                        >
-                            Delete
-                        </Button>
+                        </div>
+                    )}
+                </div>
+
+                {/* Owner Information Card */}
+                <div className="lg:w-1/3 bg-white rounded-xl shadow-md p-6 h-fit sticky top-4">
+                    <h2 className="text-xl font-bold text-gray-800 mb-4">Property Owner</h2>
+                    <div className="flex items-center space-x-4 mb-6">
+                        <img
+                            src={room.owner?.avatar || "https://via.placeholder.com/150"}
+                            alt="Owner"
+                            className="w-16 h-16 rounded-full object-cover border-2 border-[#6C48E3]"
+                        />
+                        <div>
+                            <h3 className="text-lg font-semibold text-gray-800">{room.owner?.fullName || "Owner"}</h3>
+                            <p className="text-gray-600 flex items-center">
+                                <FaMapMarkerAlt className="mr-1 text-[#6C48E3]" />
+                                {room.location.address}
+                            </p>
+                        </div>
                     </div>
-                )}
+                    
+                    <div className="space-y-3">
+                        <div className="flex items-center space-x-2">
+                            <FaPhone className="text-[#6C48E3]" />
+                            <span className="text-gray-700">{room.owner?.phone || "Not provided"}</span>
+                        </div>
+                        
+                        <div className="pt-4 border-t border-gray-200">
+                            <h4 className="font-medium text-gray-800 mb-2">Room Details</h4>
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="bg-[#F2F4F7] p-2 rounded">
+                                    <p className="text-xs text-gray-500">Price</p>
+                                    <p className="font-semibold">Rs. {room.price}</p>
+                                </div>
+                                <div className="bg-[#F2F4F7] p-2 rounded">
+                                    <p className="text-xs text-gray-500">Rent/Month</p>
+                                    <p className="font-semibold">Rs. {room.rentPerMonth}</p>
+                                </div>
+                                <div className="bg-[#F2F4E3] p-2 rounded">
+                                    <p className="text-xs text-gray-500">Rooms</p>
+                                    <p className="font-semibold">{room.totalRooms}</p>
+                                </div>
+                                <div className="bg-[#F2F4E3] p-2 rounded">
+                                    <p className="text-xs text-gray-500">Capacity</p>
+                                    <p className="font-semibold">{room.capacity}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Room Details */}
-            <div className="space-y-6">
-                {/* Title, Price, and Category */}
+            <div className="space-y-6 bg-white rounded-xl shadow-md p-6 mb-8">
+                {/* Title and Category */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
                     <h1 className="text-3xl font-bold text-gray-800">{room.title}</h1>
-                    <div className="flex space-x-4">
-                        <span className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-semibold">
-                            Rent: Rs.{room.rentPerMonth}
-                        </span>
-                        <span className="bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-semibold">
-                            Category: {room.category}
-                        </span>
-                    </div>
-                </div>
-
-                {/* Location */}
-                <div className="text-[#6C48E3]">
-                    <p className="text-lg"><span className="font-semibold">Location:</span> {room.location.address}</p>
-                </div>
-
-                {/* Capacity and Total Rooms */}
-                <div className="flex space-x-4">
-                    <span className="bg-purple-100 text-[#6C48E3] px-4 py-2 rounded-full text-sm font-semibold">
-                        Capacity: {room.capacity}
-                    </span>
-                    <span className="bg-[#789DBC] text-white px-4 py-2 rounded-full text-sm font-semibold">
-                        Total Rooms: {room.totalRooms}
+                    <span className="bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-semibold">
+                        Category: {room.category}
                     </span>
                 </div>
 
@@ -203,143 +232,134 @@ function Room() {
                 </div>
 
                 {/* Room Photos */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                     {room.roomPhotos.map((photo, index) => (
                         <img
                             key={index}
                             src={photo}
                             alt={`Room Photo ${index + 1}`}
-                            className="w-full h-48 object-cover rounded-lg"
+                            className="w-full h-64 object-cover rounded-lg shadow-sm"
                         />
                     ))}
                 </div>
 
                 {/* Video (if available) */}
                 {room.video && (
-                    <div className="w-full">
-                        <video controls className="w-full rounded-lg">
+                    <div className="w-full mt-6">
+                        <video controls className="w-full rounded-lg shadow-sm">
                             <source src={room.video} type="video/mp4" />
                             Your browser does not support the video tag.
                         </video>
                     </div>
                 )}
+            </div>
 
-                {/* Book, Favourite, and Comment Buttons (for non-owners) */}
-                {!isOwner && (
-                    <div className="flex space-x-4">
-                       <Button
-                            bgColor="bg-[#6C48E3] border border-[#6C48E3] hover:bg-blue-700 text-white"
-                            onClick={handleBook}
-                            className="px-6 py-2 rounded-md flex items-center space-x-2"
-                        >
-                            <FaBook className="text-lg" />
-                            <span>Book</span>
-                        </Button>
-                        <Button
-                            bgColor={`${isFavourite ? "bg-red-600 hover:bg-red-700" : "bg-blue-700 border border-[#6C48E3] hover:bg-[#6C48E3]"} text-white`}
-                            onClick={handleFavourite}
-                            className="px-6 py-2 rounded-md flex items-center space-x-2"
-                        >
-                            <FaHeart className="text-lg" />
-                            <span>{isFavourite ? "Unfavourite" : "Favourite"}</span>
-                        </Button>
-                        <Button
-                            bgColor="bg-[#6C48E3] hover:bg-blue-700 text-white"
-                            onClick={toggleCommentBox}
-                            className="px-6 py-2 rounded-md flex items-center space-x-2"
-                        >
-                            <FaComment className="text-lg" />
-                            <span>Comment</span>
-                        </Button>
-                    </div>
-                )}
+            {/* Action Buttons (for non-owners) */}
+            {!isOwner && room.status === "Available" && (
+                <div className="flex flex-wrap gap-4 mb-8">
+                    <Button
+                        bgColor="bg-[#6C48E3] border border-[#6C48E3] hover:bg-blue-700 text-white"
+                        onClick={handleBook}
+                        className="px-6 py-3 rounded-lg flex items-center space-x-2"
+                    >
+                        <FaBook className="text-lg" />
+                        <span>Book Now</span>
+                    </Button>
+                    <Button
+                        bgColor={`${isFavourite ? "bg-red-600 hover:bg-red-700" : "bg-[#F2F4F7] border border-[#6C48E3] text-[#6C48E3] hover:bg-[#6C48E3] hover:text-white"} `}
+                        onClick={handleFavourite}
+                        className="px-6 py-3 rounded-lg flex items-center space-x-2"
+                    >
+                        <FaHeart className="text-lg text-red-600" />
+                        <span>{isFavourite ? "Remove Favorite" : "Add to Favorites"}</span>
+                    </Button>
+                    <Button
+                        bgColor="bg-white border border-[#6C48E3] text-[#6C48E3] hover:bg-[#6C48E3] hover:text-white"
+                        onClick={toggleCommentBox}
+                        className="px-6 py-3 rounded-lg flex items-center space-x-2"
+                    >
+                        <FaComment className="text-lg" />
+                        <span>Leave a Review</span>
+                    </Button>
+                </div>
+            )}
 
-                {/* Rating Section */}
-                <div className="mt-8">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-4">Rating</h2>
+            {/* Rating and Reviews Section */}
+            <div className="bg-white rounded-xl shadow-md p-6">
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold text-gray-800">Reviews</h2>
                     <div className="flex items-center space-x-2">
-                        <span className="text-lg font-semibold">Average Rating: {averageRating}</span>
-                        <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => (
-                                <FaStar
-                                    key={index}
-                                    className={`text-xl ${index < averageRating ? 'text-yellow-400' : 'text-gray-300'}`}
-                                />
-                            ))}
-
+                        <div className="flex items-center">
+                            <FaStar className="text-yellow-400 text-xl mr-1" />
+                            <span className="font-semibold">{averageRating}</span>
+                            <span className="text-gray-500 ml-1">({reviews.length} reviews)</span>
                         </div>
                     </div>
                 </div>
 
-                {/* Comment Section */}
-                <div className="mt-8">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-4">Comments</h2>
+                {/* Comment Box (Conditionally Rendered) */}
+                {showCommentBox && (
+                    <form onSubmit={handleSubmit(handleCommentPost)} className="mb-8 bg-[#F2F4F7] p-4 rounded-lg">
+                        <h3 className="text-lg font-semibold mb-3">Write a Review</h3>
+                        <div className="flex space-x-1 mb-4">
+                            {[...Array(5)].map((_, index) => (
+                                <FaStar
+                                    key={index}
+                                    className={`text-2xl cursor-pointer ${index < rating ? "text-yellow-400" : "text-gray-300"}`}
+                                    onClick={() => setRating(index + 1)}
+                                />
+                            ))}
+                        </div>
+                        <textarea
+                            {...register("comment", { required: true })}
+                            placeholder="Share your experience..."
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6C48E3]"
+                            rows="4"
+                        ></textarea>
+                        <Button
+                            type="submit"
+                            bgColor="bg-[#6C48E3] hover:bg-blue-700 text-white"
+                            className="mt-3 px-6 py-2 rounded-lg"
+                        >
+                            Submit Review
+                        </Button>
+                    </form>
+                )}
 
-                    {/* Comment Box (Conditionally Rendered) */}
-                    {showCommentBox && (
-                        <form onSubmit={handleSubmit(handleCommentPost)} className="mb-6">
-                            {/* Rating Input */}
-                            <div className="flex space-x-1 mb-4">
-                                {[...Array(5)].map((_, index) => (
-                                    <FaStar
-                                        key={index}
-                                        className={`text-${index < rating ? "yellow-400" : "gray-300"} text-xl cursor-pointer`}
-                                        onClick={() => setRating(index + 1)}
+                {/* Reviews List */}
+                <div className="space-y-4">
+                    {reviews.map((review, index) => (
+                        <div key={index} className="border-b border-gray-200 pb-4 last:border-0">
+                            <div className="flex items-start space-x-4">
+                                <Link to={`/roommates/${review.user?._id}`}>
+                                    <img
+                                        src={review.user?.avatar || "https://via.placeholder.com/150"}
+                                        alt="User"
+                                        className="w-12 h-12 rounded-full object-cover"
                                     />
-                                ))}
+                                </Link>
+                                <div className="flex-1">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <h4 className="font-semibold text-gray-800">{review.user?.fullName || "Anonymous"}</h4>
+                                            <div className="flex space-x-1 mt-1">
+                                                {[...Array(5)].map((_, i) => (
+                                                    <FaStar
+                                                        key={i}
+                                                        className={`text-sm ${i < review.rating ? "text-yellow-400" : "text-gray-300"}`}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <span className="text-sm text-gray-500">
+                                            {new Date(review.createdAt).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                    <p className="mt-2 text-gray-700">{review.comment}</p>
+                                </div>
                             </div>
-                            <textarea
-                                {...register("comment", { required: true })}
-                                placeholder="Write your comment..."
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6C48E3]"
-                                rows="4"
-                            ></textarea>
-                            <Button
-                                type="submit"
-                                bgColor="bg-[#6C48E3] hover:bg-blue-700 text-white"
-                                className="mt-2 px-6 py-2 rounded-md"
-                            >
-                                Post Comment
-                            </Button>
-                        </form>
-                    )}
-
-                    {/* Display Comments */}
-                    <div className="space-y-4">
-  {reviews.map((review, index) => (
-    <div key={index} className="bg-gray-50 p-4 rounded-lg shadow-sm">
-      <div className="flex items-start space-x-4 mb-3">
-        {/* Avatar */}
-         <Link to={`/roommates/${review.user?._id}`}>{/*define this path for any user profile */}
-        <img
-          src={review.user?.avatar} 
-          alt="User Avatar"
-          className="w-10 h-10 rounded-full object-cover"
-        />
-    </Link>
-        {/* Rating stars */}
-        <div className="flex space-x-1">
-          {[...Array(5)].map((_, i) => (
-            <FaStar
-              key={i}
-              className={`text-${i < review.rating ? "yellow-400" : "gray-300"} text-lg`}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Comment */}
-      <p className="text-gray-700">{review.comment}</p>
-
-      {/* User Info */}
-      <p className="text-sm text-gray-500 mt-2">
-        <span className="font-semibold">{review.user?.fullName || "Anonymous"}</span> on{" "}
-        {new Date(review.createdAt).toLocaleDateString()}
-      </p>
-    </div>
-  ))}
-</div>
-
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>

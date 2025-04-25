@@ -300,7 +300,10 @@ const getAllRooms = asyncHandler(async (req, res) => {
     const rooms = await Room.aggregate([
         {
             $match: {
-                status: 'Available'
+                $or: [
+                    { status: 'Available' },
+                    { status: 'Reserved' }
+                ]
             }
         },
         {
@@ -444,7 +447,10 @@ const searchRooms = asyncHandler(async (req, res) => {
                     $and: [
                         searchQuery,
                         {
-                            status: 'Available'
+                            $or: [
+                                { status: 'Available' },
+                                { status: 'Reserved' }
+                            ]
                         }
                     ]
                 }
@@ -493,7 +499,7 @@ const searchRooms = asyncHandler(async (req, res) => {
                     rentPerMonth: 1,
                     location: 1,
                     owner: 1,
-                    roomPhotos: 1
+                    roomPhotos: 1,
                 }
             }
         ]
@@ -524,7 +530,15 @@ const getRoomsByCategory = asyncHandler(async (req, res) => {
         [
             {
                 $match: {
-                    category: category
+                    $and: [
+                        { category: category },
+                        {
+                            $or: [
+                                { status: 'Available' },
+                                { status: 'Reserved' }
+                            ]
+                        }
+                    ]
                 }
             },
             {
@@ -630,7 +644,15 @@ const getRoomsByLocation = asyncHandler(async (req, res) => {
             },
             {
                 $match: {
-                    'location.address': location
+                    $and: [
+                        { 'location.address': location },
+                        {
+                            $or: [
+                                { status: 'Available' },
+                                { status: 'Reserved' }
+                            ]
+                        }
+                    ]
                 }
             },
             {

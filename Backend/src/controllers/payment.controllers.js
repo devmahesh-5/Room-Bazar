@@ -29,9 +29,9 @@ const createPayment = asyncHandler(async (req, res) => {
     Room.findById(roomId),
     User.findById(req.user._id)
   ]);
+  if (!booking) throw new ApiError(404, 'Booking Session Ended');
 
   if (!room) throw new ApiError(404, 'Room not found');
-  if (!booking) throw new ApiError(404, 'No reserved booking found');
 
   const transaction_uuid = uuidv4();
   const total_amount = room.price;
@@ -57,11 +57,14 @@ const createPayment = asyncHandler(async (req, res) => {
       const amount = total_amount - total_amount * 0.1;
       const product_code = process.env.PRODUCT_CODE;
       const product_service_charge = total_amount * 0.1;
-      const success_url = `${process.env.BASE_URL}/payment/success?paymentId=${payment._id}`;
-      const failure_url = `${process.env.BASE_URL}/payment/failure?paymentId=${payment._id}`;
+      const success_url = `${process.env.BASE_URL}/payments/esewa/success/${payment._id}`;
+      const failure_url = `${process.env.BASE_URL}/payments/esewa/failure/${payment._id}`;
       const signed_field_names = 'total_amount,transaction_uuid,product_code';
-      const dataToSign = `${total_amount},${transaction_uuid},${product_code}`;
+      const dataToSign = `total_amount=${total_amount},transaction_uuid=${transaction_uuid},product_code=${product_code}`;
       const signature = generateSignature(dataToSign);
+
+      console.log('from me:',signature,total_amount,transaction_uuid,product_code);
+      
 
       const htmlForm = `
     <html>
@@ -140,23 +143,23 @@ const createPayment = asyncHandler(async (req, res) => {
             <!-- Amount Fields -->
             <div class="form-group">
               <label>Amount (NPR)</label>
-              <input name="amount" value="100" readonly class="amount-highlight">
+              <input name="amount" value="${amount}" readonly class="amount-highlight">
             </div>
             
             <div class="form-group">
               <label>Tax Amount</label>
-              <input name="tax_amount" value="10" readonly>
+              <input name="tax_amount" value="0" readonly>
             </div>
             
             <div class="form-group">
               <label>Total Amount</label>
-              <input name="total_amount" value="110" readonly class="amount-highlight">
+              <input name="total_amount" value="${total_amount}" readonly class="amount-highlight">
             </div>
             
             <!-- Transaction Details -->
             <div class="form-group">
               <label>Transaction ID</label>
-              <input name="transaction_uuid" value="241028" readonly>
+              <input name="transaction_uuid" value="${transaction_uuid}" readonly>
             </div>
             
             <div class="form-group">
@@ -174,7 +177,7 @@ const createPayment = asyncHandler(async (req, res) => {
             <input type="hidden" name="success_url" value="${success_url}">
             <input type="hidden" name="failure_url" value="${failure_url}">
             <input type="hidden" name="signed_field_names" value="${signed_field_names}">
-            <input type="hidden" name="signature" value="i94zsd3oXF6ZsSr/kGqT4sSzYQzjj1W/waxjWyRwaME=">
+            <input type="hidden" name="signature" value="${signature}">
             
             <button type="submit" class="submit-btn">Pay Now</button>
           </form>
@@ -214,7 +217,7 @@ const createPayment = asyncHandler(async (req, res) => {
           }
         }
       );
-      
+
       // Update payment with Khalti reference
       payment.paymentGateway = JSON.stringify(khaltiResponse.data);
       await payment.save({ validateBeforeSave: false });
@@ -241,97 +244,68 @@ const createPayment = asyncHandler(async (req, res) => {
   }
 });
 
-const handleSuccess = asyncHandler(async (req, res) => {
-  const esewaData = req.query.data;//decode the data and store in paymentGatewayDetail
-  const decodedData = Buffer.from(esewaData, 'base64').toString('utf-8');
-  const paymentGatewayDetail = JSON.parse(decodedData);
-  const dataToSign = `${paymentGatewayDetail.total_amount},${paymentGatewayDetail.transaction_uuid},${paymentGatewayDetail.product_code}`;
-
-  const signature = generateSignature(dataToSign);
-
-  if (signature !== paymentGatewayDetail.signature) {
-    throw new ApiError(400, 'Invalid signature');
+const handleEsewaSuccess = asyncHandler(async (req, res) => {
+  try {
+    const payment_id = req.params.paymentId;
+    const esewaData = req.query.data;//decode the data and store in paymentGatewayDetail
+    const decodedData = Buffer.from(esewaData, 'base64').toString('utf-8');
+    const paymentGatewayDetail = JSON.parse(decodedData);
+  
+    const fieldsToSign = paymentGatewayDetail.signed_field_names.split(',');
+    
+    // 2. Create the signing string
+    const dataToSign = fieldsToSign
+      .map(field => `${field}=${paymentGatewayDetail[field]}`)
+      .join(',');
+    
+    const signature = generateSignature(dataToSign);
+    
+    if (signature !== paymentGatewayDetail.signature) {
+      throw new ApiError(400, 'Invalid signature');
+      
+    }
+    const payment = await Payment.findByIdAndUpdate(payment_id, {
+      $set: {
+        status: 'Success',
+        paymentGateway: JSON.stringify(paymentGatewayDetail)
+      },
+    },
+      {
+        new: true
+      })
+    const updatedPayment = await Payment.findById(payment._id);
+    const room = await Room.findByIdAndUpdate(payment.roomId, {
+      $set: { status: 'Booked', }
+    },
+      {
+        new: true
+      })
+    const booking = await Booking.findByIdAndUpdate(payment.booking, {
+      $set: { status: 'Booked' }
+    },
+      {
+        new: true
+      });
+    const notification = await Notification.create({
+      receiver: payment.userId,
+      message: 'Payment for booking with Rs ' + payment.total_amount + ' success with esewa',
+      paymentId: payment._id,
+      roomId: payment.roomId,
+    });
+  
+    if (!notification) {
+      throw new ApiError(500, 'Failed to create notification');
+    }
+  
+    return res.redirect(`${process.env.FRONTEND_URL}/payments/success`);
+  } catch (error) {
+    return res.redirect(`${process.env.FRONTEND_URL}/payments/failed`);
   }
-  const transaction_uuid = paymentGatewayDetail.transaction_uuid;
-  if (!transaction_uuid) {
-    throw new ApiError(400, 'Invalid transaction uuid');
-  }
-
-  const payment = await Payment.findOne({ transaction_uuid });
-  if (!payment) {
-    throw new ApiError(404, 'Payment not found');
-  }
-
-  payment.status = 'Success';
-  payment.paymentGateway = paymentGatewayDetail;
-  // payment.paymentGateway = //get payment gateway response from esewa
-
-  await payment.save({ validateBeforeSave: false });
-  const updatedPayment = await Payment.findById(payment._id);
-
-  const notification = await Notification.create({
-    receiver: payment.userId,
-    message: 'Payment success',
-    paymentId: payment._id,
-    roomId: payment.roomId,
-  });
-
-  if (!notification) {
-    throw new ApiError(500, 'Failed to create notification');
-  }
-
-  res
-    .status(200)
-    .json(
-      new ApiResponse(
-        200,
-        updatedPayment,
-        'Payment success'
-      )
-    );
-});
-
-const handleFailure = asyncHandler(async (req, res) => {
-  const transaction_uuid = req.query.transaction_uuid;
-
-  if (!transaction_uuid) {
-    throw new ApiError(400, 'Invalid transaction uuid');
-  }
-
-  const payment = await Payment.findOne({ transaction_uuid });
-
-  if (!payment) {
-    throw new ApiError(404, 'Payment not found');
-  }
-  payment.status = 'Failed';
-  await payment.save({ validateBeforeSave: false });
-  const updatedPayment = await Payment.findById(payment._id);
-
-  const Notification = await Notification.create({
-    receiver: payment.userId,
-    message: 'Payment failed',
-    paymentId: payment._id,
-    roomId: payment.roomId,
-  });
-
-  if (!Notification) {
-    throw new ApiError(500, 'Failed to create notification');
-  }
-
-  res
-    .status(200)
-    .json(
-      new ApiResponse(
-        200,
-        updatedPayment,
-        'Payment failed'
-      )
-    );
 });
 
 const handleKhaltiSuccess = asyncHandler(async (req, res) => {
   const paymentId = req.params.paymentId;
-  const { pidx} = req.query;
+  const { pidx } = req.query;
   try {
     const verification = await axios.post(
       'https://dev.khalti.com/api/v2/epayment/lookup/',
@@ -344,57 +318,57 @@ const handleKhaltiSuccess = asyncHandler(async (req, res) => {
     );
 
     // 2. Update database if payment is successful
-  if (verification.data.status === 'Completed') {
-    
-    const updatedPayment = await Payment.findByIdAndUpdate(
-      paymentId,
-      {
-        status: 'Success',
-        gatewayResponse: verification.data,
-        paidAt: Date.now()
-      },
-      { new: true }
-    );
-    
-    if (!updatedPayment) {
-      return res.redirect(`${process.env.FRONTEND_URL}/payment/failed`);
-    }
-    
-    const updatedRoom = await Room.findByIdAndUpdate(
-      updatedPayment.roomId,
-      { status: 'Booked' },
-      { new: true }
-    );
-    
-    const updatedBooking = await Booking.findByIdAndUpdate(
-      updatedPayment.booking,
-      { status: 'Booked' },
-      { new: true }
-    );
-    
-    if (!updatedRoom || !updatedBooking) {
-      return res.redirect(`${process.env.FRONTEND_URL}/payment/failed`);
+    if (verification.data.status === 'Completed') {
+
+      const updatedPayment = await Payment.findByIdAndUpdate(
+        paymentId,
+        {
+          status: 'Success',
+          gatewayResponse: verification.data,
+          paidAt: Date.now()
+        },
+        { new: true }
+      );
+
+      if (!updatedPayment) {
+        return res.redirect(`${process.env.FRONTEND_URL}/payments/failed`);
+      }
+
+      const updatedRoom = await Room.findByIdAndUpdate(
+        updatedPayment.roomId,
+        { status: 'Booked' },
+        { new: true }
+      );
+
+      const updatedBooking = await Booking.findByIdAndUpdate(
+        updatedPayment.booking,
+        { status: 'Booked' },
+        { new: true }
+      );
+
+      if (!updatedRoom || !updatedBooking) {
+        return res.redirect(`${process.env.FRONTEND_URL}/payment/failed`);
+      }
+
+      const notification = await Notification.create({
+        receiver: updatedPayment.userId,
+        message: 'Payment success',
+        paymentId: updatedPayment._id,
+        roomId: updatedPayment.roomId,
+      });
+
+      if (!notification) {
+        throw new ApiError(500, 'Failed to create notification');
+      }
+
+      return res.redirect(`${process.env.FRONTEND_URL}/payments/success`);
+
     }
 
-    const notification = await Notification.create({
-      receiver: updatedPayment.userId,
-      message: 'Payment success',
-      paymentId: updatedPayment._id,
-      roomId: updatedPayment.roomId,
-    });
-
-    if (!notification) {
-      throw new ApiError(500, 'Failed to create notification');
-    }
-
-    return res.redirect(`${process.env.FRONTEND_URL}/payments/success`);
-    
-  }
-    
   } catch (error) {
     return res.redirect(`${process.env.FRONTEND_URL}/payments/failed`);
   }
 })
 
-export { createPayment,handleSuccess, handleFailure, handleKhaltiSuccess };
+export { createPayment, handleEsewaSuccess, handleKhaltiSuccess };
 

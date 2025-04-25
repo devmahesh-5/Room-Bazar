@@ -1,26 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
-import messageService from '../../services/message.services';
 import { MdSend, MdAttachFile } from 'react-icons/md';
+import messageService from '../../services/message.services';
 import authServices from '../../services/auth.services';
-import { useRef } from 'react';
+
 function InboxForm({ userId }) {
     const { register, handleSubmit, reset, setValue } = useForm();
     const [messages, setMessages] = useState([]);
     const [receiver, setReceiver] = useState(null);
-    const [selectedFiles, setSelectedFiles] = useState([]); // Track selected files
+    const [selectedFiles, setSelectedFiles] = useState([]);
     const [loading, setLoading] = useState(false);
-
     const messagesEndRef = useRef(null);
 
-  // Scroll to bottom whenever messages change
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]); // Dependency array includes messages
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
 
     useEffect(() => {
         async function fetchMessages() {
@@ -29,7 +27,7 @@ function InboxForm({ userId }) {
                 const user = await authServices.getUserById({ userId });
                 const fetchedMessages = await messageService.getMessages(userId);
                 setMessages(fetchedMessages.data);
-                setReceiver(user.data); // Set receiver profile
+                setReceiver(user.data);
             } catch (error) {
                 console.error('Error fetching messages:', error);
                 setMessages([]);
@@ -44,8 +42,8 @@ function InboxForm({ userId }) {
 
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);
-        setSelectedFiles(files.map(file => file.name)); // Store file names
-        setValue('messageFiles', files); // Register files in the form
+        setSelectedFiles(files.map(file => file.name));
+        setValue('messageFiles', files);
     };
 
     const handleSendMessage = async (data) => {
@@ -60,123 +58,131 @@ function InboxForm({ userId }) {
             }
 
             const sentMessage = await messageService.sendMessage(userId, formData);
-
             if (sentMessage) {
-                setMessages((prevMessages) => [...prevMessages, sentMessage.data]);
+                setMessages(prev => [...prev, sentMessage.data]);
                 reset();
-                setSelectedFiles([]); // Clear file selection
+                setSelectedFiles([]);
             }
         } catch (error) {
             console.error('Error sending message:', error);
         }
     };
 
-    return !loading ? (
-        <div className="flex flex-col h-screen p-4">
-            {/* Receiver Profile Section */}
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-full">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#6C48E3]"></div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex flex-col h-full bg-[#F2F4F7]">
+            {/* Header */}
             {receiver && (
-                <div className="flex items-center p-4 bg-[#F2F4F7] rounded-lg mb-2">
+                <div className="flex items-center p-4 bg-gray-200 rounded-xl border-b border-gray-200">
                     <img
                         src={receiver.avatar}
                         alt={receiver.fullName}
-                        className="w-12 h-12 rounded-full"
+                        className="w-10 h-10 rounded-full object-cover"
                     />
-                    <div className="ml-4">
-                        <h2 className="text-lg font-semibold text-gray-800">{receiver.fullName}</h2>
-                        <p className="text-sm text-gray-600">{receiver.username}</p>
+                    <div className="ml-3">
+                        <h3 className="font-medium text-gray-900">{receiver.fullName}</h3>
+                        <p className="text-xs text-gray-500">Online</p>
                     </div>
                 </div>
             )}
 
-<div className="flex-1 overflow-y-auto space-y-1">
-      {Array.isArray(messages) && messages.length > 0 ? (
-        messages.map((msg) => {
-          const isSentByUser = msg.sender?._id === userId;
-          return (
-            <div key={msg._id} className={`flex ${isSentByUser ? 'justify-start' : 'justify-end'}`}>
-              {isSentByUser && msg.sender?.avatar && (
-                <img src={msg.sender.avatar} alt={msg.sender.fullName} className="w-8 h-8 rounded-full" />
-              )}
-              <div className={`max-w-xs p-2 rounded-xl shadow-md ${isSentByUser ? 'bg-blue-500 text-[#F2F4F7]' : 'bg-[#6C48E3] text-[#F2F4F7]'}`}>
-                <p className="mt-2">{msg.message}</p>
-                {/* Display Attached Files */}
-                {msg.messageFiles?.length > 0 && (
-                  <div className="mt-2 space-y-2">
-                    {msg.messageFiles.map((file, index) => {
-                      const fileType = file.split('.').pop();
-                      if (['jpg', 'jpeg', 'png', 'gif'].includes(fileType)) {
-                        return <img key={index} src={file} alt="Attachment" className="w-32 h-32 rounded-lg" />;
-                      } else if (['mp4', 'webm', 'ogg'].includes(fileType)) {
+            {/* Messages */}
+            <div className="flex-1 p-4 overflow-y-auto space-y-3">
+                {messages.length > 0 ? (
+                    messages.map((msg) => {
+                        const isSentByUser = msg.sender?._id === userId;
                         return (
-                          <video key={index} controls className="w-32 h-32 rounded-lg">
-                            <source src={file} type={`video/${fileType}`} />
-                          </video>
+                            <div key={msg._id} className={`flex ${isSentByUser ? 'justify-start' : 'justify-end'}`}>
+                                <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${isSentByUser ? 'bg-white' : 'bg-[#6C48E3] text-white'}`}>
+                                    {msg.sender?.avatar && isSentByUser && (
+                                        <div className="flex items-center mb-1">
+                                            <img src={msg.sender.avatar} alt={msg.sender.fullName} className="w-6 h-6 rounded-full mr-2" />
+                                            <span className="text-xs font-medium">{msg.sender.fullName}</span>
+                                        </div>
+                                    )}
+                                    <p className="text-sm">{msg.message}</p>
+                                    
+                                    {msg.messageFiles?.length > 0 && (
+                                        <div className="mt-2 space-y-2">
+                                            {msg.messageFiles.map((file, index) => {
+                                                const fileType = file.split('.').pop().toLowerCase();
+                                                return (
+                                                    <div key={index} className="bg-black bg-opacity-10 rounded p-2">
+                                                        {['jpg', 'jpeg', 'png', 'gif'].includes(fileType) ? (
+                                                            <img src={file} alt="Attachment" className="max-w-full h-auto rounded" />
+                                                        ) : ['mp4', 'webm', 'ogg'].includes(fileType) ? (
+                                                            <video controls className="max-w-full h-auto rounded">
+                                                                <source src={file} type={`video/${fileType}`} />
+                                                            </video>
+                                                        ) : fileType === 'pdf' ? (
+                                                            <embed src={file} type="application/pdf" className="w-full h-40 rounded" />
+                                                        ) : (
+                                                            <a href={file} target="_blank" rel="noopener noreferrer" 
+                                                               className="text-[#6C48E3] underline text-sm">
+                                                                {file.split('/').pop()}
+                                                            </a>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         );
-                      } else if (fileType === 'pdf') {
-                        return <embed key={index} src={file} type="application/pdf" className="w-32 h-40 rounded-lg" />;
-                      } else {
-                        return (
-                          <a key={index} href={file} target="_blank" rel="noopener noreferrer" className="text-blue-200 underline block">
-                            {file.split('/').pop()}
-                          </a>
-                        );
-                      }
-                    })}
-                  </div>
+                    })
+                ) : (
+                    <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                        <p>No messages yet</p>
+                        <p className="text-sm">Send a message to start the conversation</p>
+                    </div>
                 )}
-              </div>
+                <div ref={messagesEndRef} />
             </div>
-          );
-        }
-        
-    )
 
-      ) : (
-        <div className="flex justify-center items-center" style={{ height: '50vh' }}>
-          <p className="text-lg font-semibold">Start a conversation</p>
-        </div>
-      )}
-
-      
-          {/* This empty div will be our scroll target */}
-          <div ref={messagesEndRef} />
-      
-    </div>
-
-            {/* Selected Files Preview */}
+            {/* File Preview */}
             {selectedFiles.length > 0 && (
-                <div className="mt-2 p-2 bg-gray-200 rounded-lg">
-                    <p className="text-sm font-medium">Selected Files:</p>
-                    <ul className="text-sm text-gray-700">
+                <div className="px-4 py-2 bg-white border-t border-gray-200">
+                    <div className="flex items-center overflow-x-auto space-x-2">
                         {selectedFiles.map((file, index) => (
-                            <li key={index} className="mt-1">{file}</li>
+                            <div key={index} className="flex items-center bg-gray-100 rounded px-2 py-1 text-xs">
+                                <span className="truncate max-w-xs">{file}</span>
+                            </div>
                         ))}
-                    </ul>
+                    </div>
                 </div>
             )}
 
-            {/* Message Input */}
-
-            <form className="flex flex-row bg-white p-2 rounded-lg shadow-md mt-4" onSubmit={handleSubmit(handleSendMessage)}>
-                <textarea
-                    {...register('message')}
-                    placeholder="Write a message..."
-                    className="flex-1 border-none outline-none p-2 rounded-lg bg-gray-200 resize-none"
-                />
-
-                {/* File Upload Section */}
-                <div className="flex items-center mt-2 space-x-2">
-                    <input type="file" multiple className="hidden" id="file-input" onChange={handleFileChange} />
-                    <label htmlFor="file-input" className="cursor-pointer bg-gray-300 px-3 py-1 rounded-lg text-gray-700 flex items-center space-x-2">
-                        <MdAttachFile />
+            {/* Input Area */}
+            <form onSubmit={handleSubmit(handleSendMessage)} className="rounded-xl p-3 bg-gray-300 border-t border-gray-200">
+                <div className="flex items-center">
+                    <label className="cursor-pointer p-2 text-gray-500 hover:text-[#6C48E3]">
+                        <MdAttachFile size={20} />
+                        <input type="file" multiple className="hidden" onChange={handleFileChange} />
                     </label>
-                    <button type="submit" className="bg-[#6C48E3] text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 transition flex items-center space-x-2">
-                        <MdSend />
+                    <textarea
+                        {...register('message')}
+                        placeholder="Type a message..."
+                        className="flex-1 border border-gray-200 rounded-full px-4 py-2 mx-2 focus:outline-none focus:ring-1 focus:ring-[#6C48E3] resize-none"
+                        rows="1"
+                    />
+                    <button
+                        type="submit"
+                        className="bg-[#6C48E3] text-white p-2 rounded-full hover:bg-[#5a3ac9] transition"
+                    >
+                        <MdSend size={20} />
                     </button>
                 </div>
             </form>
         </div>
-    ) : (<div className='flex justify-center items-center h-screen'>No Message Selected</div>);
+    );
 }
 
 export default InboxForm;

@@ -1,29 +1,59 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-const RoomCard = ({ _id,thumbnail, price, title, location, rentPerMonth,className='',compact=false }) => {
+
+const RoomCard = ({ _id, thumbnail, price, title, location, rentPerMonth, status, owner, className = '', compact = false }) => {
+  const statusColors = {
+    Available: 'bg-[#6C48E3] text-[#6C48E3] border border-[#6C48E3]',
+    Reserved: 'bg-[#F2F4F7] text-red-800 border border-red-800',
+  };
 
   return (
-    <Link to={`/rooms/${_id}`} className="block group">
-      <div className={`w-full max-w-sm bg-[#F2F4F7] shadow-md rounded-xl overflow-hidden hover:shadow-lg transition-shadow duration-300 p-4 cursor-pointer border hover:border-[#6C48E3] ${className}`}>
-        {/* Thumbnail */}
-        <img
-          src={thumbnail}
-          alt={`Thumbnail for ${title}`}
-          className="w-full h-48 object-cover rounded-lg mb-4"
-          loading="lazy"
-        />
+    <Link 
+      to={`/rooms/${_id}`} 
+      className={`block group ${status === 'Reserved' ? 'opacity-50 pointer-events-none cursor-not-allowed' : ''}`}
+    >
+      <div className={`relative w-full max-w-sm bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 ${className}`}>
+        {/* Status Badge */}
+        <div className={`z-10 absolute top-3 left-3 px-1 py-1 rounded-full text-xs font-semibold ${statusColors[status] || 'bg-gray-100 text-gray-800'}`}>
+        </div>
+
+        {/* Thumbnail with subtle overlay */}
+        <div className="relative h-48 w-full overflow-hidden">
+          <img
+            src={thumbnail}
+            alt={`Thumbnail for ${title}`}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+          />
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
+            <p className="text-sm text-white font-medium">Posted by: {owner?.fullName || 'Owner'}</p>
+          </div>
+        </div>
 
         {/* Room Details */}
-        <div className="space-y-2">
-          <h3 className="text-xl font-semibold text-gray-800 truncate" title={title}>
-            {title}
-          </h3>
-          <p className="text-gray-500 truncate" title={location}>
-            {location}
-          </p>
-          <div className="flex items-center justify-between text-gray-700">
-            <span className={compact ? 'text-sm' : 'text-lg'}>Broker Price: Rs.{price}</span>
-            <span className="text-sm text-green-500">Rent/Month: Rs.{rentPerMonth}</span>
+        <div className="p-4 space-y-2.5">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 truncate" title={title}>
+              {title}
+            </h3>
+            <p className="text-sm text-gray-500 flex items-center">
+              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              {location}
+            </p>
+          </div>
+
+          <div className="flex justify-between items-center pt-2 border-t border-gray-100">
+            <div>
+              <p className="text-xs text-gray-500">Total Price</p>
+              <p className="font-medium text-gray-900">Rs. {price}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-xs text-gray-500">Monthly Rent</p>
+              <p className="font-medium text-[#6C48E3]">Rs. {rentPerMonth}</p>
+            </div>
           </div>
         </div>
       </div>

@@ -2,8 +2,7 @@ import {Router} from "express";
 
 import {
     createPayment,
-    handleSuccess,
-    handleFailure,
+    handleEsewaSuccess,
     handleKhaltiSuccess
 } from '../controllers/payment.controllers.js';
 
@@ -15,5 +14,5 @@ router.use(verifyAuth,checkVerified);
 //create payment from room route
 router.route('/:roomId').post(createPayment);
 router.route('/khalti/success/:paymentId').get(handleKhaltiSuccess);
-
+router.route('/esewa/success/:paymentId').get(handleEsewaSuccess);
 export default router

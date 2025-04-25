@@ -19,6 +19,9 @@ const bookingSchema = new mongoose.Schema({
         type : String,
         enum : ['Reserved', 'Booked', 'CheckedIn'],
         default : 'Reserved'
+    },
+    reservedAt: {
+        type: Date
     }
 },{timestamps : true});
 

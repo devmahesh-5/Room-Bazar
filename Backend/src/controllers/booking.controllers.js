@@ -6,9 +6,6 @@ import Booking from "../models/booking.models.js";
 import User from "../models/user.models.js";
 import Notification from "../models/notification.models.js";
 import { isValidObjectId } from "mongoose";
-import {v4 as uuidv4} from 'uuid';
-import Payment from "../models/payment.models.js";
-import { generateSignature } from "../constants.js";
 
 const addBooking = asyncHandler(async (req, res) => {
     const roomId  = req.params?.roomId;
@@ -34,6 +31,7 @@ const addBooking = asyncHandler(async (req, res) => {
     const booking = await Booking.create({
         roomId,
         userId,
+        reservedAt: Date.now()
     });
 
     if (!booking) {
@@ -78,7 +76,7 @@ const addBooking = asyncHandler(async (req, res) => {
 });
 
 const updateBooking = asyncHandler(async (req, res) => {
-    const bookingId = req.params?.id;
+    const bookingId = req.params?.bookingId;
 
     if (!isValidObjectId(bookingId)) {
         throw new ApiError(400, 'Invalid booking id');
@@ -109,7 +107,11 @@ const updateBooking = asyncHandler(async (req, res) => {
     if (!updatedBooking) {
         throw new ApiError(500, 'Failed to update booking');
     }
-   const room = await Room.findById(updatedBooking.roomId);
+   const room = await Room.findByIdAndUpdate(updatedBooking.roomId,{
+    $set: {
+        status: 'CheckedIn'
+    }
+   });
 
    if (!room) {
     throw new ApiError(500, 'Failed to find room');
@@ -194,6 +196,7 @@ const getBookingsByUser = asyncHandler(async (req, res) => {
                             owner: 1,
                             status: 1,
                             thumbnail: 1,
+                            rentPerMonth: 1
                         }
                     }   
                 ]

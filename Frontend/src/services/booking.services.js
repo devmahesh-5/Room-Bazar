@@ -12,6 +12,18 @@ class bookingServices {
             throw error
         }
     }
+
+    async updateBooking(bookingId) {
+        try {
+            const response = await axios.patch(`/api/v1/bookings/checkin/${bookingId}`);
+            if (!response) {
+                throw new Error("Error updating booking");
+            }
+            return response.data;
+        } catch (error) {
+            throw error
+        }
+    }
 }
 
 const bookingService = new bookingServices();

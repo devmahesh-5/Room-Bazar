@@ -13,7 +13,7 @@ const router = Router();
 router.use(verifyAuth,checkVerified);
 
 // router.route('/add/:roomId').post(addBooking);
-router.route('/checkin/:id').patch(updateBooking);
+router.route('/checkin/:bookingId').patch(updateBooking);
 router.route('/all').get(getAllBookings);
 router.route('/my-bookings').get(getBookingsByUser);
 export default router;

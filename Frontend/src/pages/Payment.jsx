@@ -10,12 +10,18 @@ function Payment() {
     const [error,setError] = useState(null)
     const amount = useParams().amount
     const roomId = useParams().roomId
+    const [htmlContent,sethtmlContent] = useState(null)
     const onPayment = async (type)=>{
         try {
             setLoading(true)
             const paymentResponse = await paymentService.createPayment({roomId,paymentGateway:type})
             if(paymentResponse){
-                window.location.href = paymentResponse.data.payment_url;
+                if(type === 'Khalti'){
+                    window.location.href = paymentResponse.data.payment_url;
+                }else{
+                    sethtmlContent(paymentResponse.data.htmlForm)
+                }
+                
             }
         } catch (error) {
             setError(error)
@@ -26,11 +32,12 @@ function Payment() {
         
     }
 
-    return !loading? (
-
-        <PaymentCard amount={amount} onPayment={onPayment} />
-    ):(
+    return loading? (
         <Authloader message='making payment...' fullScreen={false} inline={false} size='md' color='primary' />
+    ):htmlContent?(
+        <div dangerouslySetInnerHTML={{ __html: htmlContent }}></div>
+    ):(
+        <PaymentCard amount={amount} onPayment={onPayment} />
     )
 }
 

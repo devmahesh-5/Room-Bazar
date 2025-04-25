@@ -97,6 +97,8 @@ function Rooms() {
                 title={room?.title}
                 location={room?.location?.address}
                 rentPerMonth={room?.rentPerMonth}
+                status = {room?.status}
+                owner = {room?.owner}
               />
             </div>
           ))}

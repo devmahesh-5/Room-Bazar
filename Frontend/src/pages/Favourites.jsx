@@ -44,7 +44,10 @@ function Favourites() {
                                   title={favourite?.room[0]?.title}
                                   location={favourite?.room[0]?.location?.address}
                                   rentPerMonth={favourite?.room[0]?.rentPerMonth}
+                                  status={favourite?.room[0]?.status}
+                                  owner={favourite?.room[0]?.owner}
                                 />
+                                
                               </div>
                             ))}
             </div>

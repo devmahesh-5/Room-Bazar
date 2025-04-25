@@ -5,8 +5,8 @@ import otpGenerator from "otp-generator";
 import nodemailer from "nodemailer";
 import cron from "node-cron";
 import User from "./models/user.models.js";
-
-import emailExistence from "email-existence";
+import Room from "./models/room.models.js";
+import Booking from "./models/booking.models.js";
 import validator from 'validator';
 import axios from "axios";
 import { ApiError } from "./utils/ApiError.js";
@@ -18,7 +18,7 @@ export const options = {
 }//this ensures that cookie is not modifiable from frontend
 
 export const generateSignature = (dataToSign) => {
-    const signature = crypto.createHmac('sha512', process.env.ESEWA_SECRET_KEY).update(dataToSign)
+    const signature = crypto.createHmac('sha256', process.env.ESEWA_SECRET_KEY).update(dataToSign)
         .digest('base64');
     return signature;
 };
@@ -345,4 +345,26 @@ export const emailValidator = async (email) => {
         console.error('Email existence check failed:', error);
         return false; // Fail-safe: assume invalid if check fails
     }
+};
+
+export const makeRoomAvailable = async () => {
+    cron.schedule('* * * * *', async () => {
+        try {
+            const [updatedRooms, deletedBookings] = await Promise.all([
+                Room.updateMany(
+                    {
+                        status: 'Reserved',
+                        reservedAt: { $lt: new Date(Date.now() - 10 * 60 * 1000) }
+                    },
+                    { $set: { status: 'Available' } }
+                ),
+                Booking.deleteMany({
+                    status: 'Reserved',
+                    reservedAt: { $lt: new Date(Date.now() - 10 * 60 * 1000) }
+                })
+            ]);
+        } catch (error) {
+            console.error('Room availability cron job failed:', error);
+        }
+    });
 };
