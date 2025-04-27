@@ -4,11 +4,11 @@ import authService from "../services/auth.services.js";
 import { useDispatch } from "react-redux";
 import { Button, Input, Logo, Select, Authloader } from "./index.js";
 import { useForm } from "react-hook-form";
-
+import { generateFromEmail, generateUsername } from "unique-username-generator";
 function Signup() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { register, handleSubmit } = useForm();
+    const { register, handleSubmit,formState: { errors } } = useForm({ defaultValues: { username: generateUsername() } });
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
     const signUp = async (data) => {
@@ -30,117 +30,177 @@ function Signup() {
         if (data.coverImage[0]) {
             formData.append("coverImage", data.coverImage[0]);
         }
-        
+
         try {
             const userSession = await authService.registerUser(formData);
             if (userSession) {
-                        setLoading(false);
-                        navigate(`/users/verify-otp/${userSession.data.email}`);
-                    }
-                    
-                }catch (error) {
+                setLoading(false);
+                navigate(`/users/verify-otp/${userSession.data.email}`);
+            }
+
+        } catch (error) {
             setError(error.response.data.error || "Signup failed");
-        }finally{
+        } finally {
             setLoading(false);
         }
     };
 
     return !loading ? (
-        <div className="w-full min-h-screen flex items-center justify-center bg-[#F2F4F7]">
-            <div className="w-full max-w-3xl p-10 bg-[#F2F4F7]">
-                <div className="mb-2 flex justify-center">
-                    <span className="inline-block w-full max-w-[100px]">
+        <div className="w-full min-h-screen flex items-center justify-center bg-[#F2F4F7] p-4">
+            <div className="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-8">
+                <div className="mb-6 flex justify-center">
+                    <span className="inline-block w-24">
                         <Logo width="100%" />
                     </span>
                 </div>
 
-                {error && <p className="text-red-600 mt-2 text-center">{error}</p>}
-
-                <h2 className="text-center text-2xl font-bold leading-tight text-[#6C48E3]">
-                    Sign up to create an account
+                <h2 className="text-center text-3xl font-bold text-[#6C48E3] mb-2">
+                    Create Your Account
                 </h2>
 
-                <p className="mt-2 text-center text-base text-black/60">
+                <p className="text-center text-gray-600 mb-8">
+                    Join our community and start your journey
+                </p>
+
+                {error && <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-center">{error}</div>}
+
+                <form onSubmit={handleSubmit(signUp)}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Left Column */}
+                        <div className="space-y-5">
+                            <Input
+                                type="text"
+                                label="Full Name"
+                                placeholder="Ram Bahadur"
+                                {...register("fullName", { required: true })}
+                            />
+
+                            <Input
+                                type="email"
+                                label="Email Address"
+                                placeholder="rambhadur@gmail.com"
+                                {...register("email", { required: true })}
+                            />
+
+                            <Input
+                                type="text"
+                                label="Username"
+                                placeholder="ram_bahadur"
+                                {...register("username", { required: true })}
+                            />
+
+
+<Input
+    type="password"
+    label="Password"
+    placeholder="••••••••"
+    {...register("password", {
+        required: "Password is required",
+        validate: (value) => {
+            if (value.length < 8) return "At least 8 characters";
+            if (value.length > 20) return "Maximum 20 characters";
+            if (!/[A-Za-z]/.test(value)) return "Must include a letter";
+            if (!/\d/.test(value)) return "Must include a number";
+            return true;
+        }
+    })}
+    error={errors.password?.message}
+/>
+
+{errors.password && (
+    <div className="mt-1 text-sm text-red-600">
+        {errors.password.message}
+    </div>
+)}
+
+<div className="mt-2 text-sm text-gray-600">
+    <p>Password must contain:</p>
+    <ul className="list-disc pl-5 space-y-1">
+        <li>8-20 characters</li>
+        <li>At least one letter</li>
+        <li>At least one number</li>
+    </ul>
+</div>
+                        </div>
+
+                        {/* Right Column */}
+                        <div className="space-y-5">
+                            <Input
+                                type="text"
+                                label="Address"
+                                placeholder="City"
+                                {...register("address", { required: true })}
+                            />
+
+                            <Input
+                                type="number"
+                                label="Phone Number"
+                                placeholder="9800000000"
+                                {...register("phone", { required: true })}
+                            />
+
+                            <Select
+                                options={["Male", "Female", "Other"]}
+                                label="Gender"
+                                {...register("gender", { required: true })}
+                                className="w-full"
+                            />
+
+                            <div className="space-y-4">
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-sm font-medium text-gray-700">Profile Picture</label>
+                                    <input
+                                        type="file"
+                                        className="block w-full text-sm text-gray-500
+                                            file:mr-4 file:py-2 file:px-4
+                                            file:rounded-full file:border-0
+                                            file:text-sm file:font-semibold
+                                            file:bg-[#6C48E3] file:text-white
+                                            hover:file:bg-[#5a3acf]"
+                                        {...register("avatar", { required: true })}
+                                    />
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-sm font-medium text-gray-700">Cover Image</label>
+                                    <input
+                                        type="file"
+                                        className="block w-full text-sm text-gray-500
+                                            file:mr-4 file:py-2 file:px-4
+                                            file:rounded-full file:border-0
+                                            file:text-sm file:font-semibold
+                                            file:bg-[#6C48E3] file:text-white
+                                            hover:file:bg-[#5a3acf]"
+                                        {...register("coverImage", { required: true })}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <Button
+                        type="submit"
+                        className="w-full mt-8 py-3 text-lg font-semibold rounded-lg transition-all
+                            bg-[#6C48E3] hover:bg-[#5a3acf] focus:ring-2 focus:ring-[#6C48E3] focus:ring-offset-2"
+                    >
+                        Create Account
+                    </Button>
+                </form>
+
+                <p className="mt-6 text-center text-gray-600">
                     Already have an account?{" "}
                     <Link
                         to="/users/login"
-                        className="font-medium text-[#6C48E3] transition-all duration-200 hover:underline"
+                        className="font-semibold text-[#6C48E3] hover:text-[#5a3acf] transition-colors"
                     >
                         Sign In
                     </Link>
                 </p>
-
-                <form onSubmit={handleSubmit(signUp)} className="mt-6">
-                    <div className="space-y-5">
-                        <Input type="text" label="Full Name" placeholder="Name" {...register("fullName", { required: true })} />
-                        <Input
-                            type="email"
-                            label="Email"
-                            placeholder="Enter your email"
-                            {...register("email", {
-                                required: true,
-                                validate: {
-                                    matchPattern: (value) =>
-                                        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value) || "Invalid email address",
-                                },
-                            })}
-                        />
-                        <Input
-                            type="text"
-                            label="Username"
-                            placeholder="Username"
-                            {...register("username", {
-                                required: "Username is required", // Add a custom error message for required
-                                minLength: { value: 6, message: "Username must be at least 6 characters" },
-                                maxLength: { value: 20, message: "Username must be at most 20 characters" },
-                                pattern: {
-                                    value: /^[a-z0-9_]{6,20}$/,
-                                    message: "Username must contain only lowercase letters, numbers, and underscores"
-                                },
-                            })}
-                        />
-
-
-                        <Input
-                            type="password"
-                            label="Password"
-                            placeholder="Password"
-                            {...register("password", {
-                                required: true,
-                                minLength: { value: 6, message: "Password must be at least 6 characters" },
-                                maxLength: { value: 20, message: "Password must be at most 20 characters" },
-                            })}
-                        />
-                        <Input type="text" label="Address" placeholder="Address" {...register("address", { required: true })} />
-                        <Input
-                            type="number"
-                            label="Phone"
-                            placeholder="Phone"
-                            {...register("phone", {
-                                required: "Phone number is required",
-                                minLength: { value: 10, message: "Phone number must be 10 digits" },
-                                maxLength: { value: 10, message: "Phone number must be 10 digits" },
-                                pattern: { value: /^[0-9]{10}$/, message: "Phone number must contain only digits" },
-                            })}
-                        />
-                        <Select
-                            options={["Male", "Female", "Other"]}
-                            label="Gender"
-                            {...register("gender", { required: "Gender is required" })}
-                        />
-                        <Input type="file" label="Profile Picture" {...register("avatar", { required: true })} />
-                        <Input type="file" label="Cover Image" {...register("coverImage", { required: true })} />
-
-                        <Button type="submit" className="w-full">
-                            Create Account
-                        </Button>
-                    </div>
-                </form>
             </div>
         </div>
-    ):(
-        <Authloader message="Signing up..." fullScreen />
+    ) : (
+        <Authloader message="Creating your account..." fullScreen />
     )
 }
 
-export default Signup;
+export default Signup

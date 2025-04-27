@@ -2,6 +2,7 @@ import React,{forwardRef,useId} from 'react'
 
 function Input({
     label,
+    error,
     className="",
     type="text",
     ...props
