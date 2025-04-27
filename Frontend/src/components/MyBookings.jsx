@@ -8,14 +8,14 @@ const BookingCard = ({ booking, handleCheckIn }) => {
   const statusStyles = {
     Booked: 'bg-[#E8F5E9] text-[#2E7D32]', // Green variant
     Reserved: 'bg-[#FFF8E1] text-[#FF8F00]', // Yellow variant
-    CheckedIn: 'bg-[#6C48E3] text-[#C62828]' // Red variant
+    CheckedIn: 'bg-[#E8F5E9] text-[#2E7D32]' // Red variant
   };
 
   return (
     <div className="bg-white rounded-xl border border-[#F2F4F7] overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
       {/* Card Header with Status */}
       <div className={`px-4 py-2 ${status === 'Booked' ? 'bg-[#6C48E3]' : 'bg-[#F2F4F7]'}`}>
-        <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusStyles[status]}`}>
+        <span className={`px-3 py-1 text-xs font-medium ${statusStyles[status]}`}>
           {status}
         </span>
       </div>
@@ -57,8 +57,8 @@ const BookingCard = ({ booking, handleCheckIn }) => {
             >
               View Room
             </Link>
-            <button className="flex-1 bg-[#6C48E3] hover:bg-[#5a3acf] text-white px-4 py-2 rounded-lg transition-colors duration-200" onClick={() => {handleCheckIn(bookingId)}}>
-              {status === 'Booked' ? 'Check In' : 'Complete Payment'}
+            <button className={`flex-1 bg-[#6C48E3] hover:bg-[#5a3acf] text-white px-4 py-2 rounded-lg transition-colors duration-200 ${status === 'CheckedIn' ? 'opacity-50 cursor-not-allowed' : '' }`}onClick={() => {handleCheckIn(bookingId)}}>
+              {status === 'Booked' ? 'Check In' : 'Checked In'}
             </button>
           </div>
         </div>

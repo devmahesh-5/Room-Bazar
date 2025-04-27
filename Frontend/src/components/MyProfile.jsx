@@ -1,16 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import authService from '../services/auth.services.js';
-import { FaUsers, FaEdit, FaHome, FaUserPlus } from 'react-icons/fa';
+import { FaUsers, FaEdit, FaHome, FaUserPlus,FaBook,FaCalendar } from 'react-icons/fa';
 import RoomCard from './Roomcard.jsx';
 import roommateService from '../services/roommate.services.js';
-import { RequestCard, Roommateform, Profileform, Authloader } from '../components/index.js';
+import { RequestCard, Roommateform, Profileform, Authloader,MyBookings } from '../components/index.js';
 import { Link, useNavigate } from 'react-router-dom';
-
+import bookingService from '../services/booking.services.js';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
   const [error, setError] = useState(null);
   const [userData, setUserData] = useState(null);
+  const [myBookings, setMyBookings] = useState([]);
   const [dashboardData, setDashboardData] = useState({
     myRoommates: [],
     myPayments: [],
@@ -75,11 +76,33 @@ const ProfilePage = () => {
     }
   }, [setReceivedRequest, handleReceivedRequestAccept]);
 
+  const handleMyBookings = async (bookingId) => {
+    try {
+      const checkInBooking = await bookingService.updateBooking(bookingId);
+      fetchMyBookings();
+    } catch (error) {
+      setError(error);
+    }
+  }
+
+  const fetchMyBookings = useCallback(async () => {
+    try {
+      const myBookings = await bookingService.getMyBookings();
+      if (myBookings) {
+        setMyBookings(myBookings.data);
+      }
+    } catch (error) {
+      setError(error);
+    }
+  }, [setMyBookings, handleMyBookings]);
+
   useEffect(() => {
     if (activeSection === 'sent_requests') {
       fetchSentRequests();
     } else if (activeSection === 'received_requests') {
       fetchReceivedRequests();
+    }else if (activeSection === 'my_bookings') {
+      fetchMyBookings();
     }
   }, [activeSection, fetchSentRequests, fetchReceivedRequests]);
 
@@ -252,6 +275,13 @@ const ProfilePage = () => {
               <FaUserPlus className="mr-2" />
               <span>Received Requests</span>
             </button>
+            <button
+              onClick={() => setActiveSection('my_bookings')}
+              className={`flex items-center px-4 py-3 border-b-2 ${activeSection === 'my_bookings' ? 'border-[#6C48E3] text-[#6C48E3]' : 'border-transparent text-gray-600 hover:text-[#6C48E3]'}`}
+            >
+              <FaCalendar className="mr-2" />
+              <span>My Bookings</span>
+            </button>
           </div>
         </div>
       </div>
@@ -394,13 +424,29 @@ const ProfilePage = () => {
           </div>
         )}
 
-        {/* Edit Roommate Section */}
-        {activeSection === 'edit' && (
-          <div className="bg-white rounded-lg shadow-sm p-4">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800">Edit Roommate Profile</h2>
-            <Roommateform roommate={myRoommateAccount} />
-          </div>
-        )}
+        {
+          activeSection === 'my_bookings' && (
+            <div className="bg-white rounded-lg shadow-sm p-4">
+              <h2 className="text-xl font-semibold mb-4 text-gray-800">My Bookings</h2>
+              {myBookings?.length > 0 ? (
+                <div>
+                  {myBookings?.map((booking, index) => (
+                    <div
+                      key={index}
+                      className="bg-[#F2F4F7] rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+                    >
+                      <MyBookings booking={booking} handleCheckIn={handleMyBookings} />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-[#F2F4F7] rounded-lg p-8 text-center">
+                  <p className="text-gray-500">No bookings found</p>
+                </div>
+              )}
+            </div>
+              )
+        }
       </div>
     </div>
   );
