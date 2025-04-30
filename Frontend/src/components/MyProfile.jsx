@@ -110,9 +110,9 @@ const ProfilePage = () => {
   const handleVerifyNow = async () => {
     try {
       setVerifyLoading(true);
-      const response = await authService.resendOTP({ email: userData.email });
+      const response = await authService.resendOTP({ email: userData?.email });
       if (response) {
-        navigate(`/users/verify-otp/${userData.email}`);
+        navigate(`/users/verify-otp/${userData?.email}`);
       }
     } catch (error) {
       setError(error);
@@ -120,6 +120,9 @@ const ProfilePage = () => {
     setVerifyLoading(false);
   }
   }
+
+  console.log(userData);
+  
 
 
   if (loading) {
@@ -131,19 +134,19 @@ const ProfilePage = () => {
     {/* Profile Header */}
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       {/* Cover Image */}
-      <div className="h-48 bg-gradient-to-r from-purple-100 to-blue-100 relative">
+      <div className="h-48 bg-[#F2F4F7] relative">
         {userData?.coverImage ? (
           <img
-            src={userData.coverImage}
+            src={userData?.coverImage}
             alt="Cover"
             className="w-full h-full object-cover"
             onError={(e) => {
               e.target.onerror = null;
-              e.target.className = "w-full h-full bg-gradient-to-r from-purple-100 to-blue-100";
+              e.target.className = "w-full h-full bg-[#F2F4F7]";
             }}
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-r from-purple-100 to-blue-100"></div>
+          <div className="w-full h-full bg-[#F2F4F7] "></div>
         )}
       </div>
   
@@ -292,15 +295,15 @@ const ProfilePage = () => {
         {activeSection === 'roommates' && (
           <div className="bg-white rounded-lg shadow-sm p-4">
             <h2 className="text-xl font-semibold mb-4 text-gray-800">My Roommates</h2>
-            {dashboardData.myRoommates?.length > 0 ? (
+            {dashboardData?.myRoommates?.length > 0 ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                {dashboardData.myRoommates?.map((roommate, index) => (
+                {dashboardData?.myRoommates?.map((roommate, index) => (
                     <div
                     key={index}
                     className="bg-[#F2F4F7] rounded-lg p-4 flex items-center space-x-4 hover:shadow-md transition-shadow"
                   >
                     
-                  <Link to={`/roommates/${roommate.myRoommates?._id}`} key={index}>
+                  <Link to={`/roommates/${roommate?.myRoommates?._id}`} key={index}>
                     <div className="flex-shrink-0">
                       <img
                         src={roommate?.myRoommates?.user?.avatar || '/default-avatar.png'}
@@ -313,7 +316,7 @@ const ProfilePage = () => {
                       />
                     </div>
                     <div>
-                      <h3 className="font-medium text-gray-800">{roommate?.myRoommates?.user?.fullName}</h3>
+                      <h3 className="font-medium text-gray-800">{roommate?.myRoommates?.user?.fullName || 'User'}</h3>
                       <p className="text-sm text-gray-600">{roommate?.myRoommates?.job}</p>
                       <p className="text-xs text-[#6C48E3] truncate">{roommate?.myRoommates?.user?.email}</p>
                     </div>
@@ -333,7 +336,7 @@ const ProfilePage = () => {
         {activeSection === 'rooms' && (
           <div className="bg-white rounded-lg shadow-sm p-4">
             <h2 className="text-xl font-semibold mb-4 text-gray-800">My Rooms</h2>
-            {dashboardData.myRooms?.length > 0 ? (
+            {dashboardData?.myRooms?.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {dashboardData.myRooms[0]?.rooms.map((room, index) => (
                   <div
@@ -358,18 +361,18 @@ const ProfilePage = () => {
             <h2 className="text-xl font-semibold mb-4 text-gray-800">Sent Requests</h2>
             {sentRequest?.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {sentRequest[0].receiver.map((request, index) => (
+                {sentRequest[0]?.receiver?.map((request, index) => (
                   <div
                     key={index}
                     className="bg-[#F2F4F7] rounded-lg overflow-hidden hover:shadow-md transition-shadow"
                   >
                     <RequestCard
-                      fullName={request.user.fullName}
-                      _id={request._id}
-                      avatar={request.user.avatar}
-                      email={request.user.email}
-                      job={request.job}
-                      userId={request.user._id}
+                      fullName={request?.user?.fullName}
+                      _id={request?._id}
+                      avatar={request?.user?.avatar}
+                      email={request?.user?.email}
+                      job={request?.job}
+                      userId={request?.user?._id}
                       cardType="sent"
                       onUpdate={handleSentRequestCancel}
                     />
@@ -390,18 +393,18 @@ const ProfilePage = () => {
             <h2 className="text-xl font-semibold mb-4 text-gray-800">Received Requests</h2>
             {receivedRequest?.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {receivedRequest[0].sender.map((request, index) => (
+                {receivedRequest[0]?.sender?.map((request, index) => (
                   <div
                     key={index}
                     className="bg-[#F2F4F7] rounded-lg overflow-hidden hover:shadow-md transition-shadow"
                   >
                     <RequestCard
-                      fullName={request.user.fullName}
-                      _id={request._id}
-                      avatar={request.user.avatar}
-                      email={request.user.email}
-                      job={request.job}
-                      userId={request.user._id}
+                      fullName={request?.user?.fullName || 'Deleted User'}
+                      _id={request?._id}
+                      avatar={request?.user?.avatar}
+                      email={request?.user?.email}
+                      job={request?.job}
+                      userId={request?.user?._id}
                       cardType="received"
                       onUpdate={handleReceivedRequestAccept}
                     />

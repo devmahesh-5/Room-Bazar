@@ -17,9 +17,9 @@ function Payment() {
             const paymentResponse = await paymentService.createPayment({roomId,paymentGateway:type})
             if(paymentResponse){
                 if(type === 'Khalti'){
-                    window.location.href = paymentResponse.data.payment_url;
+                    window.location.href = paymentResponse?.data?.payment_url;
                 }else{
-                    sethtmlContent(paymentResponse.data.htmlForm)
+                    sethtmlContent(paymentResponse?.data?.htmlForm)
                 }
                 
             }

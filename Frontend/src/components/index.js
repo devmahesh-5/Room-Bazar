@@ -4,7 +4,7 @@ import Footer from "./Footer/Footer.jsx";
 import Input from "./Input.jsx";
 import Button from "./Button.jsx";
 import Select from "./Select.jsx";
-import Signup from "./SignUp.jsx";
+import Signup from "./Signup.jsx";
 import Login from "./Login.jsx";
 import Home from "./Home.jsx";
 import Roomform from "./forms/Roomform.jsx";
@@ -24,6 +24,7 @@ import PaymentCard from "./PaymentCard.jsx";
 import PaymentFailed from "./PaymentFailed.jsx";
 import PaymentSuccess from "./PaymentSuccess.jsx";
 import MyBookings from "./MyBookings.jsx";
+import OAuth from "./OAuth.jsx";
 export {
     Logo,
     Header,
@@ -33,6 +34,7 @@ export {
     Select,
     Signup,
     Login,
+    OAuth,
     Home,
     Roomform,
     MessageProfile,

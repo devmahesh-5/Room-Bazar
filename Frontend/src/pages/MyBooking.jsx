@@ -37,7 +37,7 @@ function MyBooking() {
     }
 
     return !loading && Array.isArray(myBookings) && myBookings.length > 0 ?(
-        myBookings.map((booking) =><div key={booking._id}> <MyBookings booking={booking} handleCheckIn={handleCheckIn} /></div>)
+        myBookings.map((booking) =><div key={booking?._id}> <MyBookings booking={booking} handleCheckIn={handleCheckIn} /></div>)
     ):loading?(
         <Authloader message='Fetching your bookings...' fullScreen={false} inline={false} size='md' color='primary' />
     ):(

@@ -54,6 +54,20 @@ class authServices {
         }
     }
 
+    // async continueWithGoogle() {
+    //     try {
+    //         const response = await axios.get("/api/v1/users/auth/google",{
+    //             withCredentials: true
+    //         });
+    //         if (!response) {
+    //             throw new Error("Error logging in user");
+    //         }
+    //         return response.data;
+    //     } catch (error) {
+    //         throw error;
+    //     }
+    // }
+
     async logoutUser() {
         try {
             const response = await axios.post("/api/v1/users/logout",
@@ -73,6 +87,22 @@ class authServices {
     async getCurrentUser() {
         try {
             const response = await axios.get("/api/v1/users/myprofile",
+                {
+                    withCredentials: true
+                }
+            );
+            if (!response) {
+                throw new Error("Error getting current user");
+            }
+            return response.data;
+        } catch (error) {
+            console.error("Error getting current user:", error);
+        }
+    }
+
+    async getOauthCurrentUser() {
+        try {
+            const response = await axios.get("/api/v1/users/oauth-callback",
                 {
                     withCredentials: true
                 }

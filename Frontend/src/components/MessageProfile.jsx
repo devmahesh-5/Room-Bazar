@@ -11,7 +11,7 @@ function MessageProfile() {
       try {
         const messageProfile = await messageService.getMessageProfile();
         if (messageProfile) {
-          setProfiles(messageProfile.data);
+          setProfiles(messageProfile?.data);
         }
       } catch (error) {
         console.error('Error fetching message profiles:', error);
@@ -38,10 +38,10 @@ function MessageProfile() {
       <h2 className="text-lg font-semibold mb-4">Contacts</h2>
       {profiles.map((profile) => (
         <MessageCard
-          key={profile.user._id}
-          _id={profile.user._id}
-          avatar={profile.user.avatar}
-          fullName={profile.user.fullName}
+          key={profile?.user?._id}
+          _id={profile?.user?._id}
+          avatar={profile?.user?.avatar}
+          fullName={profile?.user?.fullName}
         />
       ))}
     </div>

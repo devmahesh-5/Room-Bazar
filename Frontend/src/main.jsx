@@ -23,6 +23,7 @@ import Payment from './pages/Payment.jsx'
 import PaymentSuccess from './pages/PaymentSuccess.jsx'
 import PaymentFailed from './pages/PaymentFailed.jsx'
 import MyBooking from './pages/MyBooking.jsx'
+import OAuthhandler from './pages/OAuthhandler.jsx'
 const router = createBrowserRouter([
   {
     path: "/",
@@ -50,6 +51,10 @@ const router = createBrowserRouter([
           {
             path: 'myprofile',
             element: <Myprofile />
+          },
+          {
+            path: 'oauth-callback',
+            element: <OAuthhandler />
           },
           {
             path: 'my-bookings',
@@ -132,7 +137,8 @@ const router = createBrowserRouter([
             element: <PaymentSuccess />
           }
         ]
-      }
+      },
+      
 
     ]
   }

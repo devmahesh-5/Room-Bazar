@@ -24,7 +24,7 @@ function VerifyOTP() {
             const response = await authService.verifyOTP({ email, otp });
             if (response) {
                 const userData = await authService.getCurrentUser();
-                if (userData && userData.status === "Verified") {
+                if (userData && userData.is_verified===true) {
                     navigate("/users/myprofile");
                 }else{
                 navigate("/users/login");

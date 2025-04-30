@@ -39,7 +39,7 @@ function Signup() {
             }
 
         } catch (error) {
-            setError(error.response.data.error || "Signup failed");
+            setError(error.response?.data?.error || "Signup failed");
         } finally {
             setLoading(false);
         }
@@ -171,7 +171,7 @@ function Signup() {
                                             file:text-sm file:font-semibold
                                             file:bg-[#6C48E3] file:text-white
                                             hover:file:bg-[#5a3acf]"
-                                        {...register("coverImage", { required: true })}
+                                        {...register("coverImage")}
                                     />
                                 </div>
                             </div>

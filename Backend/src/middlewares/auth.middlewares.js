@@ -13,7 +13,6 @@ const verifyAuth = asyncHandler(async (req, res, next) => {
             throw new ApiError(401, "User not authenticated");
         }
        
-        
         const user = await User.findById(decodedToken?.id);
         if(!user){
             throw new ApiError(401, "User not authenticated");

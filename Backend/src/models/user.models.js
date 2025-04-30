@@ -11,9 +11,15 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    googleId:{
+        type: String
+    },
     password: {
         type: String,
-        required: true
+        required: function () {
+            // Required only if no Google ID (i.e., normal signup)
+            return !this.googleId;
+          }
     },
     is_verified: {
         type: Boolean,
@@ -40,12 +46,19 @@ const userSchema = new mongoose.Schema({
     },
     phone : {
         type: Number,
-        required: true,
-        unique: true
+        unique: true,
+        required:function () {
+            // Required only if no Google ID (i.e., normal signup)
+            return !this.googleId;
+          }
     },
     address : {
         type: String,
-        required: true
+        required: function () {
+            // Required only if no Google ID (i.e., normal signup)
+            return !this.googleId;
+          }
+
     },
     gender : {
         type: String,

@@ -14,7 +14,8 @@ export const DB_NAME = "Room-Bazar";
 
 export const options = {
     httpOnly: true,
-    secure: true
+    secure: true,
+    sameSite: 'none'
 }//this ensures that cookie is not modifiable from frontend
 
 export const generateSignature = (dataToSign) => {
@@ -125,14 +126,14 @@ const otpEmailTemplate = (otp) => ({
           </div>
           
           <p style="font-size: 14px; color: #777;">
-            <strong>Important:</strong> This code expires in 5 minutes. Do not share it with anyone.
+            <strong>Important:</strong> This code expires in 3 minutes. Do not share it with anyone.
           </p>
           
           <hr style="border: none; border-top: 1px solid #eee; margin: 25px 0;">
           
           <p style="font-size: 14px; color: #999; text-align: center;">
             If you didn't request this email, please ignore it or contact our support team at 
-            <a href="mailto:support@room-bazar.com" style="color: #6C48E3;">support@room-bazar.com</a>.
+            <a href="mailto:roombazar25@gmail.com" style="color: #6C48E3;">support@room-bazar.com</a>.
           </p>
         </div>
         
@@ -226,9 +227,13 @@ export const sendOtp = async (email, otp) => {
         host: 'smtp.gmail.com',
         port: 587, // SSL
         secure: false,
+        requireTLS: true,
         auth: {
-            user: process.env.EMAIL,
-            pass: process.env.EMAIL_PASSWORD
+            user: `noreply@${process.env.EMAIL}`,
+            pass: process.env.EMAIL_PASSWORD,
+            tls: {
+                rejectUnauthorized: true 
+            }
         }
     });
 
@@ -236,11 +241,15 @@ export const sendOtp = async (email, otp) => {
 
     try {
         await transporter.sendMail({
-            from: `Room-Bazar <${process.env.EMAIL}>`,
+            from: `Room-Bazar <noreply@${process.env.EMAIL}>`,
             to: email,
             subject,
             text,
-            html
+            html,
+            headers: {
+                'X-Priority': '1', // High priority
+                'X-Mailer': 'Nodemailer'
+            }
         });
         return true
     } catch (error) {
@@ -254,9 +263,13 @@ export const sendEmail = async (email) => {
         host: 'smtp.gmail.com',
         port: 587, // SSL
         secure: false,
+        requireTLS: true,
         auth: {
-            user: process.env.EMAIL,
-            pass: process.env.EMAIL_PASSWORD
+            user: `noreply@${process.env.EMAIL}`,
+            pass: process.env.EMAIL_PASSWORD,
+            tls: {
+                rejectUnauthorized: true
+            }
         }
     });
 
@@ -265,11 +278,15 @@ export const sendEmail = async (email) => {
         const { subject, text, html } = accountDeletionWarningTemplate(user.fullName);
         await transporter.sendMail(
             {
-                from: `Room-Bazar <${process.env.EMAIL}>`,
+                from: `Room-Bazar <noreply@${process.env.EMAIL}>`,
                 to: email,
                 subject,
                 text,
-                html
+                html,
+                headers: {
+                    'X-Priority': '1', // High priority
+                    'X-Mailer': 'Nodemailer'
+                }
             }
         )
         return true

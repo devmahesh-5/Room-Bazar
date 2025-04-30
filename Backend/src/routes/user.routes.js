@@ -5,6 +5,8 @@ import {
     verifyOtp,
     resendOtp,
     loginUser,
+    googleCallback,
+    continueWithGoogle,
     logoutUser,
     getUserProfile,
     updateUserPassword,
@@ -51,6 +53,10 @@ router.route('/resend-otp').post(resendOtp);
 router.route('/login').post(
     loginUser
 )
+//google login
+router.route('/oauth-callback').get(verifyAuth,getUserProfile)
+router.route('/auth/google/my-google-profile').get(googleCallback);
+router.route('/auth/google').get(continueWithGoogle);
 
 //secured routes
 router.route('/logout').post(
