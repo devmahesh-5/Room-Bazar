@@ -24,6 +24,9 @@ import PaymentSuccess from './pages/PaymentSuccess.jsx'
 import PaymentFailed from './pages/PaymentFailed.jsx'
 import MyBooking from './pages/MyBooking.jsx'
 import OAuthhandler from './pages/OAuthhandler.jsx'
+import {Protected} from './components/index.js'
+import TermsAndConditions from './pages/Termsandcondition.jsx'
+import PrivacyPolicy from './pages/Privacy.jsx'
 const router = createBrowserRouter([
   {
     path: "/",
@@ -31,36 +34,67 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <Login />
+        element: (
+          <Protected authentication>
+            <Rooms />
+          </Protected>
+        )
       },
       {
         path: '/users',
         children: [
           {
             path: 'signup',
-            element: <Signup />
+            element: (
+              <Protected authentication={false}>
+                <Signup />
+              </Protected>
+            )
           },
           {
-            path:'verify-otp/:email',
-            element: <VerifyOtp />
+            path: 'verify-otp/:email',
+            element: (
+              <Protected authentication={false}>
+                <VerifyOtp />
+              </Protected>
+            )
           },
           {
             path: 'login',
-            element: <Login />
+
+            element: (
+              <Protected authentication={false}>
+                <Login />
+              </Protected>
+            )
           },
           {
             path: 'myprofile',
-            element: <Myprofile />
+            element: (
+              <Protected authentication={true}>
+                <Myprofile />
+              </Protected>
+            )
           },
           {
             path: 'oauth-callback',
-            element: <OAuthhandler />
+            element: (
+              <Protected authentication={false}>
+
+                <OAuthhandler />
+              </Protected>
+            )
           },
           {
             path: 'my-bookings',
-            element: <MyBooking />
+            element: (
+              <Protected authentication>
+                {" "}
+                <MyBooking />
+              </Protected>
+            )
           }
-          
+
         ]
       },
       {
@@ -68,19 +102,39 @@ const router = createBrowserRouter([
         children: [
           {
             path: "",
-            element: <Rooms />
+            element: (
+              <Protected authentication>
+                {" "}
+                <Rooms />
+              </Protected>
+            )
           },
           {
             path: "add",
-            element: <Addroom />
+            element: (
+              <Protected authentication>
+                {" "}
+                <Addroom />
+              </Protected>
+            )
           },
           {
             path: ':id',
-            element: <Room />
+            element: (
+              <Protected authentication>
+                {" "}
+                <Room />
+              </Protected>
+            )
           },
           {
             path: 'payment/:roomId/:amount',
-            element:<Payment />
+            element: (
+              <Protected authentication>
+                {" "}
+                <Payment />
+              </Protected>
+            )
           }
         ]
       },
@@ -89,16 +143,31 @@ const router = createBrowserRouter([
         children: [
           {
             path: '',
-            element: <Profiles />
+            element: (
+              <Protected authentication>
+                {" "}
+                <Profiles />
+              </Protected>
+            )
           },
           {
             path: 'add',
-            element: <Addroommate />
+            element: (
+              <Protected authentication>
+                {" "}
+                <Addroommate />
+              </Protected>
+            )
           },
-            {
-              path: ':roommateId',
-              element: <UserProfilePage />
-            }
+          {
+            path: ':roommateId',
+            element: (
+              <Protected authentication>
+                {" "}
+                <UserProfilePage />
+              </Protected>
+            )
+          }
         ]
 
       },
@@ -107,11 +176,21 @@ const router = createBrowserRouter([
         children: [
           {
             path: '',
-            element: <HollowMessage />
+            element: (
+              <Protected authentication>
+                {" "}
+                <HollowMessage />
+              </Protected>
+            )
           },
           {
             path: ':userId',
-            element: <Message />
+            element: (
+              <Protected authentication>
+                {" "}
+                <Message />
+              </Protected>
+            )
           }
         ]
       },
@@ -120,7 +199,11 @@ const router = createBrowserRouter([
         children: [
           {
             path: 'myfavourites',
-            element: <Favourites />
+            element: (<Protected authentication>
+              {" "}
+              <Favourites />
+            </Protected>
+            )
           }
         ]
       },
@@ -129,19 +212,43 @@ const router = createBrowserRouter([
         children: [
           {
             path: 'failed',
-            element: <PaymentFailed />
+            element: (
+              <Protected authentication>
+                {" "}
+                <PaymentFailed />
+              </Protected>
+            )
 
           },
           {
             path: 'success',
-            element: <PaymentSuccess />
+            element: (<Protected authentication>
+              {" "}
+              <PaymentSuccess />
+            </Protected>
+            )
           }
         ]
       },
-      
+     
+
 
     ]
-  }
+  },
+  {
+    path: '/legal',
+    children:[
+      {
+        path: 'terms-and-conditions',
+        element: <TermsAndConditions />
+      },
+      {
+        path: 'privacy-policy',
+        element: <PrivacyPolicy />
+      }
+    ]
+  },
+  
 ])
 createRoot(document.getElementById('root')).render(
   <Provider store={store}>

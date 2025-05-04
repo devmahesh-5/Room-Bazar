@@ -25,6 +25,7 @@ import PaymentFailed from "./PaymentFailed.jsx";
 import PaymentSuccess from "./PaymentSuccess.jsx";
 import MyBookings from "./MyBookings.jsx";
 import OAuth from "./OAuth.jsx";
+import Protected from "./Protected.jsx";
 export {
     Logo,
     Header,
@@ -52,5 +53,6 @@ export {
     PaymentCard,
     PaymentFailed,
     PaymentSuccess,
-    MyBookings
+    MyBookings,
+    Protected
 }

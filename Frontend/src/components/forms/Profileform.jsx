@@ -2,7 +2,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useLocation } from 'react-router-dom';
 import authService from '../../services/auth.services.js';
-import {Input} from '../../components/index.js';
+import {Button, Input} from '../../components/index.js';
 
 function Profileform({ myProfile }) {
   const {
@@ -218,6 +218,7 @@ function Profileform({ myProfile }) {
 
         {/* Submit Button */}
         <div className="flex justify-end">
+
           {!updateLoading?(<button
             type="submit"
             className="inline-flex justify-center rounded-md border border-[#6C48E3] bg-[#F2F4F7] py-2 px-4 text-sm font-medium text-[#6C48E3] shadow-sm hover:bg-gray-50 focus:outline-none"

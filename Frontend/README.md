@@ -3,10 +3,10 @@
 ```css
 :root {
     --color-primary: #d73953;
-    --color-background: #F2F4F7;
+    --color-background:  #F0F8FF;
     --color-card: #6C48E3;
     --text-color: #131038;
     --button-color: #6C48E3;
-    --button-color-hover: #789DBC;
+    --button-color-hover: #F2F4F7;
     
 }

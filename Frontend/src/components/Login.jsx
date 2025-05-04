@@ -38,6 +38,7 @@ function Login() {
             const userSession = await authService.loginUser(data);
             if(userSession){
                 const userData = await authService.getCurrentUser();
+         
                if (userData) {
                  dispatch(authLogin({userData}))
                }
@@ -53,7 +54,7 @@ function Login() {
         <div
         className='flex items-center justify-center w-full'
     >
-        <div className={`mx-auto w-full max-w-lg bg-gray-100 rounded-xl p-10 border border-black/10`}>
+        <div className={`mx-auto w-full max-w-lg bg-[var(--color-background)] rounded-xl p-10 border border-black/10`}>
             <div className="mb-2 flex justify-center">
                 <span className="inline-block w-full max-w-[100px]">
                     <Logo width="100%" />
@@ -101,10 +102,10 @@ function Login() {
             >Sign in</Button>
 
 <Button
-  className="w-full mx-auto flex items-center justify-center h-12 px-4 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#4285F4]/50"
+  className="w-full mx-auto  flex items-center justify-center h-12 px-4 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#4285F4]/50"
   onClick={() => window.location.href = 'http://localhost:5000/api/v1/users/auth/google'}
 >
-  <div className="gsi-material-button-state absolute -inset-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+  
   
   <div className="gsi-material-button-content-wrapper flex items-center gap-4">
     <div className="gsi-material-button-icon w-6 h-6">

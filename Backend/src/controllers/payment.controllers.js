@@ -63,9 +63,6 @@ const createPayment = asyncHandler(async (req, res) => {
       const dataToSign = `total_amount=${total_amount},transaction_uuid=${transaction_uuid},product_code=${product_code}`;
       const signature = generateSignature(dataToSign);
 
-      console.log('from me:',signature,total_amount,transaction_uuid,product_code);
-      
-
       const htmlForm = `
     <html>
       <head>
@@ -288,7 +285,7 @@ const handleEsewaSuccess = asyncHandler(async (req, res) => {
       });
     const notification = await Notification.create({
       receiver: payment.userId,
-      message: 'Payment for booking with Rs ' + payment.total_amount + ' success with esewa',
+      message: 'Payment for booking with Rs ' + payment.amount + ' success with esewa',
       paymentId: payment._id,
       roomId: payment.roomId,
     });

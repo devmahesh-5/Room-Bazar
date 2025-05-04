@@ -14,8 +14,8 @@ export const DB_NAME = "Room-Bazar";
 
 export const options = {
     httpOnly: true,
-    secure: true,
-    sameSite: 'none'
+    secure: false,
+    sameSite: 'lax'
 }//this ensures that cookie is not modifiable from frontend
 
 export const generateSignature = (dataToSign) => {
@@ -373,7 +373,7 @@ export const makeRoomAvailable = async () => {
                         status: 'Reserved',
                         reservedAt: { $lt: new Date(Date.now() - 10 * 60 * 1000) }
                     },
-                    { $set: { status: 'Available' } }
+                    { $set: { status: 'Available', reservedAt: null } }
                 ),
                 Booking.deleteMany({
                     status: 'Reserved',

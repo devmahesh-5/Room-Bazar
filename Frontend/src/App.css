@@ -3,7 +3,15 @@ html, body {
   margin: 0;
   padding: 0;
 }
-
+:root {
+  --color-primary: #6C48E3;
+  --color-background:  #F0F8FF;
+  --color-card: #F2F4F7;
+  --text-color: #131038;
+  --button-color: #6C48E3;
+  --button-color-hover: #F0F8FF;
+  
+}
 #root {
   height: 100%;
 }

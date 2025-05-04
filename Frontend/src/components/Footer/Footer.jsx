@@ -8,7 +8,7 @@ function Footer() {
       <div className="relative z-10 mx-auto max-w-7xl px-4">
         <div className="flex flex-wrap justify-between">
           {/* Logo and Copyright Section */}
-          <div className="w-full p-6 md:w-1/2 lg:w-4/12">
+          <div className="w-full p-6 md:w-1/2 lg:w-5/12">
             <div className="flex h-full flex-col justify-between">
               <div className="mb-4 inline-flex items-center">
                 <Logo width="100px" />
@@ -17,35 +17,6 @@ function Footer() {
                 &copy; Copyright 2025. All Rights Reserved by Room Bazar.
               </p>
             </div>
-          </div>
-
-          {/* Quick Links Section */}
-          <div className="w-full p-6 md:w-1/2 lg:w-2/12">
-            <h3 className="tracking-px mb-4 text-xs font-semibold uppercase text-[#2C2C2C]">
-              Quick Links
-            </h3>
-            <ul>
-              <li className="mb-3">
-                <Link className="text-base font-medium text-[#2C2C2C] hover:text-[#6C48E3]" to="/">
-                  Features
-                </Link>
-              </li>
-              <li className="mb-3">
-                <Link className="text-base font-medium text-[#2C2C2C] hover:text-[#6C48E3]" to="/">
-                  Pricing
-                </Link>
-              </li>
-              <li className="mb-3">
-                <Link className="text-base font-medium text-[#2C2C2C] hover:text-[#6C48E3]" to="/">
-                  Affiliate Program
-                </Link>
-              </li>
-              <li>
-                <Link className="text-base font-medium text-[#2C2C2C] hover:text-[#6C48E3]" to="/">
-                  Press Kit
-                </Link>
-              </li>
-            </ul>
           </div>
 
           {/* Contact Section */}
@@ -78,18 +49,18 @@ function Footer() {
           </div>
 
           {/* Legal Section */}
-          <div className="w-full p-6 md:w-1/2 lg:w-3/12">
+          <div className="w-full p-6 md:w-1/2 lg:w-4/12">
             <h3 className="tracking-px mb-4 text-xs font-semibold uppercase text-[#2C2C2C]">
               Legals
             </h3>
             <ul>
               <li className="mb-3">
-                <Link className="text-base font-medium text-[#2C2C2C] hover:text-[#6C48E3]" to="/">
+                <Link className="text-base font-medium text-[#2C2C2C] hover:text-[#6C48E3]" to="/legal/terms-and-conditions">
                   Terms & Conditions
                 </Link>
               </li>
               <li className="mb-3">
-                <Link className="text-base font-medium text-[#2C2C2C] hover:text-[#6C48E3]" to="/">
+                <Link className="text-base font-medium text-[#2C2C2C] hover:text-[#6C48E3]" to="/legal/privacy-policy">
                   Privacy Policy
                 </Link>
               </li>

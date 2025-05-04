@@ -20,7 +20,7 @@ function Room() {
     const [rating, setRating] = useState(0); // State for user's rating
     const [averageRating, setAverageRating] = useState(0); // State for average room rating
     const userData = useSelector((state) => state.auth.userData);
-    const isOwner = room && userData ? room.owner._id === userData._id : false;
+    const isOwner = room && userData ? room.owner?._id === userData._id : false;
     const [htmlContent, setHtmlContent] = useState(null);
     const { register, handleSubmit, reset } = useForm();
 
@@ -102,9 +102,9 @@ function Room() {
     const handleBook = async () => {
         setBookingLoading(true);
         try {
-            const bookingResponse = await roomServices.bookRoom(room._id);
+            const bookingResponse = await roomServices.bookRoom(room?._id);
             if (bookingResponse) {
-                navigate(`/rooms/payment/${room._id}/${bookingResponse.data.price}`);
+                navigate(`/rooms/payment/${room._id}/${bookingResponse?.data?.price}`);
             }
         } catch (error) {
             console.log(error);
@@ -136,7 +136,7 @@ function Room() {
         return <div className="flex justify-center items-center h-screen">Loading...</div>;
     }
 
-    const thumbnail = room.thumbnail || (room.roomPhotos && room.roomPhotos[0]);
+    const thumbnail = room?.thumbnail || (room?.roomPhotos && room?.roomPhotos[0]);
 
     return (
         <div className="py-10 px-4 max-w-6xl mx-auto">
@@ -151,7 +151,7 @@ function Room() {
                     />
                     {isOwner && (
                         <div className="absolute right-6 top-6 flex space-x-4">
-                            <Link to={`/rooms/update/${room._id}`}>
+                            <Link to={`/rooms/update/${room?._id}`}>
                                 <Button bgColor="bg-green-600 hover:bg-green-700 text-white" className="px-5 py-2 rounded-md">
                                     Edit
                                 </Button>
@@ -172,15 +172,15 @@ function Room() {
                     <h2 className="text-xl font-bold text-gray-800 mb-4">Property Owner</h2>
                     <div className="flex items-center space-x-4 mb-6">
                         <img
-                            src={room.owner?.avatar || "https://via.placeholder.com/150"}
+                            src={room?.owner?.avatar || "https://via.placeholder.com/150"}
                             alt="Owner"
                             className="w-16 h-16 rounded-full object-cover border-2 border-[#6C48E3]"
                         />
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-800">{room.owner?.fullName || "Owner"}</h3>
+                            <h3 className="text-lg font-semibold text-gray-800">{room?.owner?.fullName || "Owner"}</h3>
                             <p className="text-gray-600 flex items-center">
                                 <FaMapMarkerAlt className="mr-1 text-[#6C48E3]" />
-                                {room.location.address}
+                                {room?.location?.address}
                             </p>
                         </div>
                     </div>
@@ -188,7 +188,7 @@ function Room() {
                     <div className="space-y-3">
                         <div className="flex items-center space-x-2">
                             <FaPhone className="text-[#6C48E3]" />
-                            <span className="text-gray-700">{room.owner?.phone || "Not provided"}</span>
+                            <span className="text-gray-700">{room?.owner?.phone || "Not provided"}</span>
                         </div>
                         
                         <div className="pt-4 border-t border-gray-200">
@@ -196,19 +196,19 @@ function Room() {
                             <div className="grid grid-cols-2 gap-2">
                                 <div className="bg-[#F2F4F7] p-2 rounded">
                                     <p className="text-xs text-gray-500">Price</p>
-                                    <p className="font-semibold">Rs. {room.price}</p>
+                                    <p className="font-semibold">Rs. {room?.price}</p>
                                 </div>
                                 <div className="bg-[#F2F4F7] p-2 rounded">
                                     <p className="text-xs text-gray-500">Rent/Month</p>
-                                    <p className="font-semibold">Rs. {room.rentPerMonth}</p>
+                                    <p className="font-semibold">Rs. {room?.rentPerMonth}</p>
                                 </div>
                                 <div className="bg-[#F2F4E3] p-2 rounded">
                                     <p className="text-xs text-gray-500">Rooms</p>
-                                    <p className="font-semibold">{room.totalRooms}</p>
+                                    <p className="font-semibold">{room?.totalRooms}</p>
                                 </div>
                                 <div className="bg-[#F2F4E3] p-2 rounded">
                                     <p className="text-xs text-gray-500">Capacity</p>
-                                    <p className="font-semibold">{room.capacity}</p>
+                                    <p className="font-semibold">{room?.capacity}</p>
                                 </div>
                             </div>
                         </div>
@@ -220,20 +220,20 @@ function Room() {
             <div className="space-y-6 bg-white rounded-xl shadow-md p-6 mb-8">
                 {/* Title and Category */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
-                    <h1 className="text-3xl font-bold text-gray-800">{room.title}</h1>
+                    <h1 className="text-3xl font-bold text-gray-800">{room?.title}</h1>
                     <span className="bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-semibold">
-                        Category: {room.category}
+                        Category: {room?.category}
                     </span>
                 </div>
 
                 {/* Description */}
                 <div className="prose max-w-none text-gray-700">
-                    <p className="text-lg leading-relaxed">{room.description}</p>
+                    <p className="text-lg leading-relaxed">{room?.description}</p>
                 </div>
 
                 {/* Room Photos */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                    {room.roomPhotos.map((photo, index) => (
+                    {room?.roomPhotos?.map((photo, index) => (
                         <img
                             key={index}
                             src={photo}
@@ -244,10 +244,10 @@ function Room() {
                 </div>
 
                 {/* Video (if available) */}
-                {room.video && (
+                {room?.video && (
                     <div className="w-full mt-6">
                         <video controls className="w-full rounded-lg shadow-sm">
-                            <source src={room.video} type="video/mp4" />
+                            <source src={room?.video} type="video/mp4" />
                             Your browser does not support the video tag.
                         </video>
                     </div>
@@ -292,7 +292,7 @@ function Room() {
                         <div className="flex items-center">
                             <FaStar className="text-yellow-400 text-xl mr-1" />
                             <span className="font-semibold">{averageRating}</span>
-                            <span className="text-gray-500 ml-1">({reviews.length} reviews)</span>
+                            <span className="text-gray-500 ml-1">({reviews?.length} reviews)</span>
                         </div>
                     </div>
                 </div>

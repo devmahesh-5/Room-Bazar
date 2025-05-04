@@ -49,10 +49,10 @@ function HollowMessage() {
         <h2 className="text-xl font-semibold text-gray-800 mb-6">Messages</h2>
         {profiles.map((profile) => (
           <MessageCard
-            key={profile.user._id}
-            _id={profile.user._id}
-            avatar={profile.user.avatar}
-            fullName={profile.user.fullName}
+            key={profile?.user?._id}
+            _id={profile?.user?._id}
+            avatar={profile?.user?.avatar}
+            fullName={profile?.user?.fullName}
           />
         ))}
       </div>

@@ -13,7 +13,7 @@ import Refund from "../models/refund.models.js";
 import { getRoommateByUserId, getUserByRoommateId,emailValidator } from "../constants.js";
 import RoommateRequest from "../models/roommateRequest.models.js";
 import { sendOtp, generateOtp } from "../constants.js";
-
+import RoommateAccount from "../models/roommateAccount.models.js";
 import {google} from 'googleapis';
 
 const generateAccessAndRefreshTokens = async (userId) => {
@@ -307,8 +307,8 @@ const loginUser = asyncHandler(async (req, res) => {
          )
       )
 
-
 });
+
 
 const logoutUser = asyncHandler(async (req, res) => {
    const userid = req.user?._id;
@@ -554,7 +554,21 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 });
 
 const deleteUser = asyncHandler(async (req, res) => {
-   await User.findByIdAndDelete(req.user?._id);
+   const deletedUser = await User.findByIdAndDelete(req.user?._id);
+   const deletedRoommateAccount = await RoommateAccount.findOneAndDelete({ userId: req.user?._id });
+   const deletedRoommateLocation = await Location.findOneAndDelete({ roommate: deletedRoommateAccount._id });
+   const deletedUserLocation = await Location.findOneAndDelete({ user: req.user?._id });
+   const deletedRoommateRequest = await RoommateRequest.deleteMany(
+      {
+         $or: [
+            { sender: deletedRoommateAccount._id },
+            { receiver: deletedRoommateAccount._id }
+         ]
+      }
+   );
+   if (!deletedUser) {
+      throw new ApiError(500, "Failed to delete user");
+   }
    res
       .status(200)
       .clearCookie('accessToken')

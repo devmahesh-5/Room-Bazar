@@ -44,7 +44,9 @@ class authServices {
     }
     async loginUser(data) {
         try {
-            const response = await axios.post("/api/v1/users/login", data);
+            const response = await axios.post("/api/v1/users/login", data,{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error logging in user");
             }
@@ -88,7 +90,7 @@ class authServices {
         try {
             const response = await axios.get("/api/v1/users/myprofile",
                 {
-                    withCredentials: true
+                    withCredentials: true,
                 }
             );
             if (!response) {
@@ -209,7 +211,7 @@ class authServices {
             }
             return response.data;
         } catch (error) {
-            console.error("Error deleting user account:", error);
+            throw error.response.data.error;
         }
     } 
     

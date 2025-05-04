@@ -42,7 +42,7 @@ function Messages() {
             key={profile?.user?._id}
             _id={profile?.user?._id}
             avatar={profile?.user?.avatar}
-            fullName={profile?.user?.fullName}
+            fullName={profile?.user?.fullName || 'Unknown User'}
           />
         ))}
       </div>

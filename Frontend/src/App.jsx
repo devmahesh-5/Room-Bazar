@@ -46,9 +46,8 @@ function App() {
     (async () => {
       try {
         const user = await authService.getCurrentUser();
-        
         if (user.data[0]) {
-          dispatch(login(user.data[0]));
+          dispatch(login({userData:user.data[0]}));
           setUser(user.data[0]);
           fetchNotifications();
           setLoading(false);
@@ -70,7 +69,7 @@ function App() {
     <div className="min-h-screen flex flex-col relative">
       <Header isNotification={notificationHandler} />
       
-      <main className="flex-grow bg-[#F2F4F7] relative">
+      <main className="flex-grow bg-[var(--color-card)] relative">
         <Outlet />
         
         {/* Notification panel (fixed position overlapping content) */}

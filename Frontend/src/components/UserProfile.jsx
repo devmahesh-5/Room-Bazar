@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import authService from '../services/auth.services.js';
-import { FaUsers, FaHome, FaSmoking, FaDog, FaCat } from 'react-icons/fa';
+import { FaUsers, FaHome, FaDog, FaCat } from 'react-icons/fa';
 import { GiSmokingPipe } from 'react-icons/gi';
 import { MdSmokeFree } from 'react-icons/md';
 import RoomCard from './Roomcard.jsx';
@@ -98,26 +98,26 @@ const UserProfile = () => {
                             
                             <div className="flex flex-wrap gap-2">
                                 {userData?.job && (
-                                    <span className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm">
+                                    <span className="px-3 py-1 rounded-full text-sm">
                                         {userData.job}
                                     </span>
                                 )}
                                 {userData?.location?.address && (
-                                    <span className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm flex items-center">
+                                    <span className=" px-3 py-1 rounded-full text-sm flex items-center">
                                         <FaHome className="mr-1" /> {userData.location.address}
                                     </span>
                                 )}
                                 {userData?.smoking ? (
-                                    <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm flex items-center">
+                                    <span className="px-3 py-1 rounded-full text-sm flex items-center">
                                         <GiSmokingPipe className="mr-1" /> Smoker
                                     </span>
                                 ) : (
-                                    <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm flex items-center">
+                                    <span className="px-3 py-1 rounded-full text-sm flex items-center">
                                         <MdSmokeFree className="mr-1" /> Non-smoker
                                     </span>
                                 )}
                                 {userData?.pets && (
-                                    <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm flex items-center">
+                                    <span className="px-3 py-1 rounded-full text-sm flex items-center">
                                         {userData.pets.includes('dog') ? <FaDog className="mr-1" /> : <FaCat className="mr-1" />}
                                         {userData.pets}
                                     </span>

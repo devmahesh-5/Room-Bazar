@@ -6,15 +6,15 @@ const BookingCard = ({ booking, handleCheckIn }) => {
   const { thumbnail, price, category, _id: roomId, rentPerMonth } = room;
   // Status styling with your colors
   const statusStyles = {
-    Booked: 'bg-[#E8F5E9] text-[#2E7D32]', // Green variant
-    Reserved: 'bg-[#FFF8E1] text-[#FF8F00]', // Yellow variant
-    CheckedIn: 'bg-[#E8F5E9] text-[#2E7D32]' // Red variant
+    Booked: 'bg-[#E8F5E9] text-[#6C48E3] border border-[#6C48E3] rounded', // purple variant
+    Reserved: 'bg-[#FFF8E1] text-[#FF8F00] border border-[#FF8F00] rounded', // Yellow variant
+    CheckedIn: 'bg-[#E8F5E9] text-[#2E7D32] border border-[#2E7D32] rounded' // Green variant
   };
 
   return (
     <div className="bg-white rounded-xl border border-[#F2F4F7] overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
       {/* Card Header with Status */}
-      <div className={`px-4 py-2 ${status === 'Booked' ? 'bg-[#6C48E3]' : 'bg-[#F2F4F7]'}`}>
+      <div className={`px-4 py-2 bg-[#6C48E3]`}>
         <span className={`px-3 py-1 text-xs font-medium ${statusStyles[status]}`}>
           {status}
         </span>
@@ -42,7 +42,7 @@ const BookingCard = ({ booking, handleCheckIn }) => {
             <span className="text-gray-600">Booking ID: {bookingId.slice(-6)}</span>
           </div>
 
-          <div className="bg-[#F2F4F7] p-3 rounded-lg mb-4">
+          <div className="bg-[var(--color-background)] p-3 rounded-lg mb-4">
             <div className="flex justify-between items-center">
               <span className="font-medium">Monthly Rent:</span>
               <span className="text-[#6C48E3] font-bold">Rs. {rentPerMonth}</span>

@@ -18,11 +18,13 @@ function LogoutBtn() {
         })
     }
     return (
+
         <button
-        className='inline-bock px-6 py-2 duration-200 text-[#6C48E3] bg-[#F2F4F7] border border-[#6C48E3] rounded-lg hover:bg-[#6C48E3] hover:text-white'
+        className='inline-bock px-6 py-2 duration-200 text-[#6C48E3] bg-[#F2F4F7] border border-[#6C48E3] rounded-lg hover:bg-[#6C48E3] hover:text-white flex items-center gap-2 w-full justify-center'
         onClick={logoutHandler}
         >
             <MdLogout />
+            Logout
         </button>
     )
 }

@@ -5,12 +5,22 @@ import { useDispatch } from "react-redux";
 import { Button, Input, Logo, Select, Authloader } from "./index.js";
 import { useForm } from "react-hook-form";
 import { generateFromEmail, generateUsername } from "unique-username-generator";
+
 function Signup() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { register, handleSubmit,formState: { errors } } = useForm({ defaultValues: { username: generateUsername() } });
+    const { 
+        register, 
+        handleSubmit,
+        formState: { errors } 
+    } = useForm({ 
+        defaultValues: { username: generateUsername() },
+        mode: "onBlur" // Validate fields when they lose focus
+    });
+    
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+
     const signUp = async (data) => {
         setLoading(true);
         setError(null);
@@ -26,7 +36,6 @@ function Signup() {
         if (data.avatar[0]) {
             formData.append("avatar", data.avatar[0]);
         }
-
         if (data.coverImage[0]) {
             formData.append("coverImage", data.coverImage[0]);
         }
@@ -37,7 +46,6 @@ function Signup() {
                 setLoading(false);
                 navigate(`/users/verify-otp/${userSession.data.email}`);
             }
-
         } catch (error) {
             setError(error.response?.data?.error || "Signup failed");
         } finally {
@@ -72,55 +80,63 @@ function Signup() {
                                 type="text"
                                 label="Full Name"
                                 placeholder="Ram Bahadur"
-                                {...register("fullName", { required: true })}
+                                {...register("fullName", { required: "Full name is required" })}
+                                error={errors.fullName?.message}
                             />
 
                             <Input
                                 type="email"
                                 label="Email Address"
                                 placeholder="rambhadur@gmail.com"
-                                {...register("email", { required: true })}
+                                {...register("email", { 
+                                    required: "Email is required",
+                                    pattern: {
+                                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                        message: "Invalid email address"
+                                    }
+                                })}
+                                error={errors.email?.message}
                             />
 
                             <Input
                                 type="text"
                                 label="Username"
                                 placeholder="ram_bahadur"
-                                {...register("username", { required: true })}
+                                {...register("username", { 
+                                    required: "Username is required",
+                                    minLength: {
+                                        value: 3,
+                                        message: "Username must be at least 3 characters"
+                                    }
+                                })}
+                                error={errors.username?.message}
                             />
 
+                            <Input
+                                type="password"
+                                label="Password"
+                                placeholder="••••••••"
+                                {...register("password", {
+                                    required: "Password is required",
+                                    validate: (value) => {
+                                        if (value.length < 8) return "At least 8 characters";
+                                        if (value.length > 20) return "Maximum 20 characters";
+                                        if (!/[A-Za-z]/.test(value)) return "Must include a letter";
+                                        if (!/\d/.test(value)) return "Must include a number";
+                                        return true;
+                                    }
+                                })}
+                                error={errors.password?.message}
+                            />
 
-<Input
-    type="password"
-    label="Password"
-    placeholder="••••••••"
-    {...register("password", {
-        required: "Password is required",
-        validate: (value) => {
-            if (value.length < 8) return "At least 8 characters";
-            if (value.length > 20) return "Maximum 20 characters";
-            if (!/[A-Za-z]/.test(value)) return "Must include a letter";
-            if (!/\d/.test(value)) return "Must include a number";
-            return true;
-        }
-    })}
-    error={errors.password?.message}
-/>
-
-{errors.password && (
-    <div className="mt-1 text-sm text-red-600">
-        {errors.password.message}
-    </div>
-)}
-
-<div className="mt-2 text-sm text-gray-600">
-    <p>Password must contain:</p>
-    <ul className="list-disc pl-5 space-y-1">
-        <li>8-20 characters</li>
-        <li>At least one letter</li>
-        <li>At least one number</li>
-    </ul>
-</div>
+                            <div className="mt-2 text-sm text-gray-600">
+                                <p>Password must contain:</p>
+                                <ul className="list-disc pl-5 space-y-1">
+                                    <li>8-20 characters</li>
+                                    <li>At least one letter</li>
+                                    <li>At least one number</li>
+                                </ul>
+                            </div>
                         </div>
 
                         {/* Right Column */}
@@ -129,21 +145,30 @@ function Signup() {
                                 type="text"
                                 label="Address"
                                 placeholder="City"
-                                {...register("address", { required: true })}
+                                {...register("address", { required: "Address is required" })}
+                                error={errors.address?.message}
                             />
 
                             <Input
                                 type="number"
                                 label="Phone Number"
                                 placeholder="9800000000"
-                                {...register("phone", { required: true })}
+                                {...register("phone", { 
+                                    required: "Phone number is required",
+                                    pattern: {
+                                        value: /^[0-9]{10}$/,
+                                        message: "Invalid phone number (10 digits required)"
+                                    }
+                                })}
+                                error={errors.phone?.message}
                             />
 
                             <Select
-                                options={["Male", "Female", "Other"]}
+                                options={["Male", "Female"]}
                                 label="Gender"
-                                {...register("gender", { required: true })}
+                                {...register("gender", { required: "Gender is required" })}
                                 className="w-full"
+                                error={errors.gender?.message}
                             />
 
                             <div className="space-y-4">
@@ -157,8 +182,11 @@ function Signup() {
                                             file:text-sm file:font-semibold
                                             file:bg-[#6C48E3] file:text-white
                                             hover:file:bg-[#5a3acf]"
-                                        {...register("avatar", { required: true })}
+                                        {...register("avatar", { required: "Profile picture is required" })}
                                     />
+                                    {errors.avatar && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.avatar.message}</p>
+                                    )}
                                 </div>
 
                                 <div className="flex flex-col gap-2">
@@ -182,6 +210,7 @@ function Signup() {
                         type="submit"
                         className="w-full mt-8 py-3 text-lg font-semibold rounded-lg transition-all
                             bg-[#6C48E3] hover:bg-[#5a3acf] focus:ring-2 focus:ring-[#6C48E3] focus:ring-offset-2"
+                        disabled={Object.keys(errors).length > 0}
                     >
                         Create Account
                     </Button>
@@ -203,4 +232,4 @@ function Signup() {
     )
 }
 
-export default Signup
+export default Signup;

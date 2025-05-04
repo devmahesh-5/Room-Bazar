@@ -24,6 +24,8 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(!userData?._id);
   const [myRoommateAccount, setMyRoommateAccount] = useState(null);
   const [verifyLoading, setVerifyLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  
   useEffect(() => {
     const isMounted = true;
     setLoading(true);
@@ -121,8 +123,19 @@ const ProfilePage = () => {
   }
   }
 
-  console.log(userData);
-  
+  const handleDelete = async () => {
+    try {
+      setDeleteLoading(true);
+      const response = await authService.deleteAccount();
+      if (response) {
+        navigate('/');
+      }
+    } catch (error) {
+      setError(error);
+  }finally{
+    setDeleteLoading(false);
+  }
+  }
 
 
   if (loading) {
@@ -293,14 +306,14 @@ const ProfilePage = () => {
       <div className="container mx-auto px-4 py-6">
         {/* Roommates Section */}
         {activeSection === 'roommates' && (
-          <div className="bg-white rounded-lg shadow-sm p-4">
+          <div className="bg-[var(--color-card)] rounded-lg shadow-sm p-4">
             <h2 className="text-xl font-semibold mb-4 text-gray-800">My Roommates</h2>
             {dashboardData?.myRoommates?.length > 0 ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {dashboardData?.myRoommates?.map((roommate, index) => (
                     <div
                     key={index}
-                    className="bg-[#F2F4F7] rounded-lg p-4 flex items-center space-x-4 hover:shadow-md transition-shadow"
+                    className="bg-[var(--color-background)] rounded-lg p-4 flex items-center space-x-4 hover:shadow-md transition-shadow"
                   >
                     
                   <Link to={`/roommates/${roommate?.myRoommates?._id}`} key={index}>
@@ -325,7 +338,7 @@ const ProfilePage = () => {
                 ))}
               </div>
             ) : (
-              <div className="bg-[#F2F4F7] rounded-lg p-8 text-center">
+              <div className="bg-[var(--color-card)] rounded-lg p-8 text-center">
                 <p className="text-gray-500">No roommates found</p>
               </div>
             )}
@@ -334,21 +347,21 @@ const ProfilePage = () => {
 
         {/* Rooms Section */}
         {activeSection === 'rooms' && (
-          <div className="bg-white rounded-lg shadow-sm p-4">
+          <div className="bg-[var(--color-card)] rounded-lg shadow-sm p-4">
             <h2 className="text-xl font-semibold mb-4 text-gray-800">My Rooms</h2>
             {dashboardData?.myRooms?.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {dashboardData.myRooms[0]?.rooms.map((room, index) => (
                   <div
                     key={index}
-                    className="bg-[#F2F4F7] rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+                    className="bg-[var(--color-card)] rounded-lg overflow-hidden hover:shadow-md transition-shadow"
                   >
                     <RoomCard {...room} compact={true} />
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="bg-[#F2F4F7] rounded-lg p-8 text-center">
+              <div className="bg-[var(--color-card)] rounded-lg p-8 text-center">
                 <p className="text-gray-500">No rooms found</p>
               </div>
             )}
@@ -357,7 +370,7 @@ const ProfilePage = () => {
 
         {/* Sent Requests Section */}
         {activeSection === 'sent_requests' && (
-          <div className="bg-white rounded-lg shadow-sm p-4">
+          <div className="bg-[var(--color-card)] rounded-lg shadow-sm p-4">
             <h2 className="text-xl font-semibold mb-4 text-gray-800">Sent Requests</h2>
             {sentRequest?.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -389,7 +402,7 @@ const ProfilePage = () => {
 
         {/* Received Requests Section */}
         {activeSection === 'received_requests' && (
-          <div className="bg-white rounded-lg shadow-sm p-4">
+          <div className="bg-[var(--color-card)] rounded-lg shadow-sm p-4">
             <h2 className="text-xl font-semibold mb-4 text-gray-800">Received Requests</h2>
             {receivedRequest?.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -421,15 +434,15 @@ const ProfilePage = () => {
 
         {/* Edit Profile Section */}
         {activeSection === 'edit_profile' && (
-          <div className="bg-white rounded-lg shadow-sm p-4">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800">Edit Profile</h2>
+          <div className="bg-[var(--color-card)] rounded-lg shadow-sm p-4 ">
             <Profileform myProfile={userData} />
+          
           </div>
         )}
 
         {
           activeSection === 'my_bookings' && (
-            <div className="bg-white rounded-lg shadow-sm p-4">
+            <div className="bg-[var(--color-card)] rounded-lg shadow-sm p-4">
               <h2 className="text-xl font-semibold mb-4 text-gray-800">My Bookings</h2>
               {myBookings?.length > 0 ? (
                 <div>
