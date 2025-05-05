@@ -27,10 +27,18 @@ import OAuthhandler from './pages/OAuthhandler.jsx'
 import {Protected} from './components/index.js'
 import TermsAndConditions from './pages/Termsandcondition.jsx'
 import PrivacyPolicy from './pages/Privacy.jsx'
+import { ErrorBoundary } from './components/ErrorBoundary.jsx'
+import ErrorPage from './pages/ErrorPage.jsx'
+import FallBackPage from './pages/FallBackPage.jsx'
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: (
+      <ErrorBoundary>
+        <App />
+        </ErrorBoundary>
+    
+  ),
     children: [
       {
         path: "/",
@@ -248,10 +256,16 @@ const router = createBrowserRouter([
       }
     ]
   },
+  {
+    path: '*',
+    element: <FallBackPage />
+  }
   
 ])
 createRoot(document.getElementById('root')).render(
+  <ErrorBoundary>
   <Provider store={store}>
     <RouterProvider router={router} />
   </Provider>
+  </ErrorBoundary>
 )
