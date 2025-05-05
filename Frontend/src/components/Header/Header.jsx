@@ -3,9 +3,10 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import LogoutBtn from './LogoutBtn.jsx';
 import { Logo } from '../index.js';
-import { MdHome, MdGroup, MdAddBox, MdFavorite, MdPerson, MdMessage, MdNotifications } from "react-icons/md";
+import { MdHome, MdGroup, MdAddBox, MdFavorite, MdPerson, MdChat, MdNotifications, MdMenu } from "react-icons/md";
 import authService from '../../services/auth.services.js';
 import {Authloader} from '../index.js';
+import { set } from 'react-hook-form';
 function Header({ isNotification }) {
   const location = useLocation();
   const authStatus = useSelector((state) => state.auth.status);
@@ -20,10 +21,17 @@ function Header({ isNotification }) {
     { name: 'Rooms', slug: '/rooms', active: authStatus, icon: <MdHome /> },
     { name: 'Roommates', slug: '/roommates', active: authStatus, icon: <MdGroup /> },
     { name: 'List Room', slug: '/rooms/add', active: authStatus, icon: <MdAddBox /> },
-    { name: 'Favourites', slug: '/favourites/myfavourites', active: authStatus, icon: <MdFavorite /> },
-    { name: 'messages', slug: '/messages/ib', active: authStatus, icon: <MdMessage /> },
+    { name: 'Favourites', slug: '/favourites/myfavourites', active: authStatus, icon: <MdFavorite />  },
+    { name: 'messages', slug: '/messages/ib', active: authStatus, icon: <MdChat /> },
     // { name: 'Profile', slug: '/users/myprofile', active: authStatus, icon: <MdPerson /> },
   ];
+
+  const mobileNavItems = [
+    { name: 'Rooms', slug: '/rooms', active: authStatus, icon: <MdHome /> },
+    { name: 'Roommates', slug: '/roommates', active: authStatus, icon: <MdGroup /> },
+    { name: 'List Room', slug: '/rooms/add', active: authStatus, icon: <MdAddBox /> },
+    { name: 'messages', slug: '/messages/ib', active: authStatus, icon: <MdChat /> },
+  ]
 
   const handleDeleteAccount = async () => {
     try {
@@ -39,20 +47,31 @@ function Header({ isNotification }) {
     }
   }
 
+  const clearNav= () => {
+    setPopUp(false);
+    setShowDeleteConfirm(false);
+  }
+
   if (error) {
     return <div className="text-red-500">Error Occured: {error}</div>;
   }
 
   return !loading ?(
-    <header className="bg-[#F2F4F7] sticky top-0 z-50">
+    <header className="bg-[#F2F4F7] sticky top-0 z-50 ">
+      <div className="text-2xl font-bold text-[#2C2C2C] block md:hidden flex items-center justify-between px-6 py-4">
+          <Logo msg='Room Bazar'/> 
+    {authStatus &&(<div className='flex items-center text-[#6C48E3]'>
+      <MdMenu className='cursor-pointer' onClick={() => setPopUp(!popUp)}/>
+    </div>)}
+        </div>
       <nav className="container mx-auto flex items-center justify-between px-6 py-4">
         {/* Logo */}
-        <div className="text-2xl font-bold text-[#2C2C2C]">
+        <div className="hidden md:block text-2xl font-bold text-[#2C2C2C]">
           <Logo />
         </div>
 
         {/* Navigation Items */}
-        <ul className="flex space-x-6 items-center">
+        <ul className="space-x-6 items-center hidden md:flex">
           {navItems.map(
             (item) =>
               item.active && (
@@ -100,10 +119,48 @@ function Header({ isNotification }) {
             </li>
           )}
         </ul>
+
+        <ul className="flex space-x-6 items-center md:hidden">
+          {mobileNavItems.map(
+            (item) =>
+              item.active && (
+                <li key={item.slug}>
+                  <button
+                    title={item.name} // Displays a tooltip on hover
+                    onClick={() => navigate(item.slug)}
+                    className={`inline-block px-4 py-2 duration-200 text-[#6C48E3] rounded-lg ${location.pathname === item.slug
+                      ? 'bg-[#6C48E3] text-white hover:bg-[#6C48E3] hover:text-white' // Active state
+                      : 'bg-[#F2F4F7] text-[#131038] hover:bg-[#6C48E3] hover:text-white' // Inactive state
+                      }`}
+                  >
+                    {item.icon}
+                  </button>
+
+                </li>
+              )
+          )}
+          {
+            authStatus && (
+              <li>
+                <button
+                  title='Notifications' // Displays a tooltip on hover
+                  onClick={() => (isNotification())}
+                  className={`inline-block px-4 py-2 duration-200 text-[#6C48E3] rounded-lg ${location.pathname === '/notifications'
+                    ? 'bg-[#6C48E3] text-white hover:bg-[#6C48E3] hover:text-white' // Active state
+                    : 'bg-[#F2F4F7] text-[#131038] hover:bg-[#6C48E3] hover:text-white' // Inactive state
+                    }`}
+                >
+                  <MdNotifications />
+                </button>
+              </li>
+            )
+          }
+        
+        </ul>
       </nav>
       {
         popUp && (
-          <div className="fixed top-16 right-0 h-[calc(50vh-4rem)] w-80 bg-[#F2F4F7] shadow-lg border-l border-gray-200 z-30 overflow-y-auto transform transition-all duration-200 ease-in-out">
+          <div className="fixed top-36 right-0 h-[calc(50vh-4rem)] w-80 bg-[#F2F4F7] shadow-lg border-l border-gray-200 z-30 overflow-y-auto transform transition-all duration-200 ease-in-out md:top-16">
             {/* Profile Header */}
             <div className="p-4 border-b border-gray-200 flex items-center space-x-3 bg-[#F2F4F7] cursor-pointer hover:bg-gray-200" onClick={
               () => {
@@ -121,10 +178,22 @@ function Header({ isNotification }) {
               <h1 className="text-lg font-semibold">{userData?.fullName}</h1>
             </div>
 
-            {/* Action Buttons */}
+             
             <div className="p-4 space-y-3">
 
-              <LogoutBtn />
+              <LogoutBtn clearNav={clearNav}/>
+
+              <button
+              className="inline-bock px-6 py-2 duration-200 text-[#6C48E3] bg-[#F2F4F7] border border-[#6C48E3] rounded-lg hover:bg-[#6C48E3] hover:text-white flex items-center gap-2 w-full justify-center"
+              onClick={
+                ()=>{
+                navigate('/favourites/myfavourites')
+                setPopUp(false)
+                }
+              }
+              >
+                <MdFavorite className="text-2xl text-[#6C48E3] mr-2" /><p>Favourites</p>
+              </button>
 
               <button
                 className="w-full py-2 px-4 bg-white text-red-600 border border-red-300 rounded-md hover:bg-red-50 transition-colors"

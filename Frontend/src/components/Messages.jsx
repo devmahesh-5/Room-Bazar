@@ -35,7 +35,7 @@ function Messages() {
   return (    
     Array.isArray(profiles) && profiles.length > 0 ? (
       <div className='flex flex-row'>
-      <div className="w-72 p-4 bg-[#F2F4F7] rounded-lg sticky top-0 h-screen overflow-y-auto">
+      <div className="w-72 p-4 bg-[#F2F4F7] rounded-lg sticky top-0 h-screen overflow-y-auto hidden md:block">
         <h2 className="text-lg font-semibold mb-4">Messages</h2>
         {profiles.map((profile) => (
           <MessageCard

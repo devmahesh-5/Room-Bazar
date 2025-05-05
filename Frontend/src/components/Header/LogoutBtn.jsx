@@ -4,12 +4,13 @@ import { useDispatch } from 'react-redux'
 import authService from '../../services/auth.services.js'
 import { useNavigate } from 'react-router-dom'
 import { MdMailOutline, MdFavorite, MdPerson, MdLogout} from "react-icons/md";
-function LogoutBtn() {
+function LogoutBtn({clearNav}) {
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const logoutHandler = () => {
         authService.logoutUser()
         .then((response)=>{
+            clearNav()
             dispatch(logout());
             navigate('/');
         })

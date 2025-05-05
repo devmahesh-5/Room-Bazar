@@ -3,9 +3,8 @@ import roomServices from '../../services/room.services.js';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { Input, Button, Select } from '../../components/index';
+import { Input, Button, Select, Authloader } from '../../components/index';
 import { useId } from 'react';
-
 const Roomform = ({ room }) => {
   const id = useId();
   const navigate = useNavigate();
@@ -52,10 +51,10 @@ const Roomform = ({ room }) => {
     }
   };
 
-  return (
-    <form onSubmit={handleSubmit(submit)} className="w-full grid grid-cols-3 gap-4 p-4">
+  return !loading?(
+    <form onSubmit={handleSubmit(submit)} className="w-full grid grid cols-1  sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
       {/* Left Section (2 columns) */}
-      <div className="col-span-2 space-y-4">
+      <div className="md:col-span-2 space-y-4">
         <Input
           label="Title :"
           placeholder="Title"
@@ -114,7 +113,7 @@ const Roomform = ({ room }) => {
       </div>
 
       {/* Right Section (1 column) */}
-      <div className="col-span-1 space-y-4">
+      <div className="md:col-span-1 space-y-4">
         <Input
           type="number"
           label="Price :"
@@ -202,7 +201,9 @@ const Roomform = ({ room }) => {
         }
       </div>
     </form>
-  );
+  ):(
+    <Authloader message="Uploading... this may take some time."/>
+  )
 };
 
 export default Roomform;

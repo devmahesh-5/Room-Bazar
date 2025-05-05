@@ -14,7 +14,6 @@ const createRoom = asyncHandler(async (req, res) => {
     if ([title, description, capacity, price, category, status, totalRooms, esewaId, rentPerMonth].some((field) => !field || field.trim() === '')) {
         throw new ApiError(400, 'All fields are required');
     }
-
     const thumbnailLocalPath = req.files?.thumbnail[0]?.path;
     if (!thumbnailLocalPath) {
         throw new ApiError(400, 'Room thumbnail is required');

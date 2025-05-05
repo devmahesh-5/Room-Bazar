@@ -58,7 +58,7 @@ function HollowMessage() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 p-8 bg-gray-100">
+      <div className="flex-1 p-8 bg-gray-100 hidden md:block">
         <div className="flex justify-center items-center h-full">
           <div className="text-center">
             <h2 className="text-2xl font-semibold text-gray-700 mb-4">Please Select a User</h2>
