@@ -18,7 +18,6 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState([]);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const [notificationSection, setNotificationSection] = useState(false);
   const [user, setUser] = useState(null);
   const notificationHandler = () => {
@@ -37,7 +36,7 @@ function App() {
           setNotifications(notification.data);
         }
     } catch (error) {
-      setError(error);
+      setError(error.response.data.error);
       setNotifications([]);
     }
   }, [authStatus]);
@@ -55,7 +54,7 @@ function App() {
           setLoading(false);
         }
       } catch (error) {
-        setError(error);
+        setError(error.response.data.error);
         setUser(null);
       } finally {
         setLoading(false);
@@ -65,7 +64,7 @@ function App() {
 
 
 
-  return !loading ? (
+  return !loading? (
     <div className="min-h-screen flex flex-col relative">
       <Header isNotification={notificationHandler} />
       
@@ -73,13 +72,13 @@ function App() {
         <Outlet />
         
         {/* Notification panel (fixed position overlapping content) */}
-        {authStatus && notificationSection && (
+        {authStatus && notificationSection &&(
           <div className="fixed top-16 right-0 h-[calc(100vh-4rem)] w-96 bg-[#F2F4F7] shadow-lg border-l border-gray-200 z-40 overflow-y-auto">
             <div className="sticky top-0 bg-[#F2F4F7] p-4">
               <h2 className="text-lg font-semibold text-[#6C48E3]">Notifications</h2>
             </div>
             <div className="p-4">
-              {notifications.length > 0 ? (
+              {notifications.length > 0 && !error ? (
                 notifications.map((notification) => (
                   <NotificationCard
                     key={notification._id}
@@ -91,12 +90,17 @@ function App() {
                 ))
               ) : (
                 <div className="text-center py-8 text-gray-500">
-                  No notifications available
+                  {error ? (
+                    <p>{error}</p>
+                  ) : (
+                    <p>No notifications found.</p>
+                  )}
                 </div>
               )}
             </div>
           </div>
         )}
+
       </main>
       
       <Footer />

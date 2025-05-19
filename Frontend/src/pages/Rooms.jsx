@@ -7,6 +7,7 @@ function Rooms() {
   const [rooms, setRooms] = useState([])
   const { register, handleSubmit } = useForm();
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(false)
   useEffect(() => {
     ; (async () => {
       try {
@@ -15,7 +16,7 @@ function Rooms() {
           setRooms(rooms.data)
         }
       } catch (error) {
-        throw error
+        setError(error.response.data.error)
       }
     })()
   }, [])
@@ -28,13 +29,15 @@ function Rooms() {
           setRooms(rooms.data);
         }
       } catch (error) {
-        throw error
+        setError(error.response.data.error)
       } finally {
         setLoading(false)
       }
     }, [setRooms]);
 
-  if (!Array.isArray(rooms) || rooms.length === 0) {
+    
+
+  if (!Array.isArray(rooms) || rooms.length === 0 || error) {
     return (
       <div className="flex flex-col min-h-screen bg-[#F2F4F7] mt-4">
         <form onSubmit={handleSubmit(getSearchResults)}>
@@ -59,7 +62,7 @@ function Rooms() {
         </form>
         <div className="row">
           <div className="w-1/3 p-4 bg-gray-100 rounded-lg">
-            <h2 className="text-lg font-semibold">No rooms found</h2>
+            <h2 className="text-lg font-semibold">{error}</h2>
           </div>
         </div>
       </div>

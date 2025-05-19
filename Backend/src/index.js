@@ -4,7 +4,7 @@ import connectDB from "./db/index.js";
 
 dotenv.config({ path: '../.env' });//configuring dotenv
 
-//.config is used to configure dotenv so that w can access the environment variables with process.env
+//.config is used to configure dotenv so that we can access the environment variables with process.env
 
 
 

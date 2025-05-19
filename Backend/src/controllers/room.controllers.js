@@ -504,7 +504,7 @@ const searchRooms = asyncHandler(async (req, res) => {
         ]
     )
 
-    if (!rooms) {
+    if (!rooms || rooms.length === 0) {
         throw new ApiError(404, 'Rooms not found');
     }
 
