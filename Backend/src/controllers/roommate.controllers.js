@@ -655,12 +655,14 @@ const searchRoomates = asyncHandler(async (req, res) => {
         {
             $match: {
                 $and: [
-                {$or: [
-                    { sender: new mongoose.Types.ObjectId(myRoommateId) },
-                    { receiver: new mongoose.Types.ObjectId(myRoommateId) }
-                ]},
-                { status:'Pending' }
-            ]
+                    {
+                        $or: [
+                            { sender: new mongoose.Types.ObjectId(myRoommateId) },
+                            { receiver: new mongoose.Types.ObjectId(myRoommateId) }
+                        ]
+                    },
+                    { status: 'Pending' }
+                ]
             }
         },
         {
@@ -693,6 +695,11 @@ const searchRoomates = asyncHandler(async (req, res) => {
             'location.address': { $regex: query, $options: 'i' }
         }
     }
+
+    await db.collection('users').createIndex({ _id: 1 });
+    await db.collection('locations').createIndex({ roommate: 1 });
+    await db.collection('RoommateAccount').createIndex({ userId: 1, createdAt: -1 });
+    // Add others as needed
 
     const roommates = await RoommateAccount.aggregate(
         [
