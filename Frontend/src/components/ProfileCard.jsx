@@ -75,7 +75,7 @@ const ProfileCard = ({ avatar, _id, userId, fullName, location, haveRoom, job, a
 }}>
             Unfriend
           </button>) : !loadingSend ? (
-            <button className="flex-1 mr-2 px-3 py-1 bg-[#6C48E3] text-white text-sm font-semibold rounded hover:opacity-80 transition duration-300" onClick={(e)=>{
+            <button className="flex-1 mr-2 px-3 py-1 bg-[#6C48E3] text-white text-sm font-semibold rounded hover:opacity-80 transition duration-300 md:px-2 md:py-1 md:text-xs" onClick={(e)=>{
               e.stopPropagation();
               e.preventDefault();
               sendRequest();

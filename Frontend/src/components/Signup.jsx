@@ -12,7 +12,7 @@ function Signup() {
     const { 
         register, 
         handleSubmit,
-        formState: { errors } 
+        formState: { errors } // Access validation errors
     } = useForm({ 
         defaultValues: { username: generateUsername() },
         mode: "onBlur" // Validate fields when they lose focus

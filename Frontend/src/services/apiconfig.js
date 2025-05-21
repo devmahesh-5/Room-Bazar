@@ -7,13 +7,14 @@ const api = axios.create({
 });
 
 api.interceptors.response.use(
-    (response) =>{
-        return response},
+    (response) => {
+        return response
+    },
     async (error) => {
         const originalRequest = error.config;
         if (error?.response?.status === 401 && !originalRequest._retryoriginalRequest.retryCount < 3) {
-  originalRequest._retry = true;
-  originalRequest.retryCount = (originalRequest.retryCount || 0) + 1;
+            originalRequest._retry = true;
+            originalRequest.retryCount = (originalRequest.retryCount || 0) + 1;
             originalRequest._retry = true;
             try {
                 await authService.refreshAccessToken();

@@ -1,5 +1,5 @@
 import axios from "axios";
-
+import api from "./apiconfig.js";
 class bookingServices {
     async getMyBookings() {
         try {
