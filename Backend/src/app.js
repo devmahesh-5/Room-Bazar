@@ -1,6 +1,7 @@
 import express from "express";
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import {rateLimit} from 'express-rate-limit'
 import { unVerifiedUserRemoval,notifyUnVerifiedUser, makeRoomAvailable } from "./constants.js";
 const app = express();
 
@@ -11,6 +12,17 @@ app.use(cors(
         credentials:true
     }
 ))
+
+const limiter = rateLimit({
+	windowMs: 10 * 60 * 1000, // 15 minutes
+	limit: 100, 
+	standardHeaders: 'draft-8', 
+	legacyHeaders: false, 
+    message:'Limit reached for this request'
+})
+
+app.use(limiter)
+
 
 app.use(express.static("public"))//middleware to serve static files
 

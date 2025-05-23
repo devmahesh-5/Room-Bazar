@@ -37,12 +37,13 @@ function MessageProfile() {
     <div className="w-72 p-4 bg-[#F2F4F7] rounded-lg sticky top-0 h-screen overflow-y-auto">
       <h2 className="text-lg font-semibold mb-4">Contacts</h2>
       {profiles.map((profile) => (
+        <div key={profile?.user?._id}>
         <MessageCard
-          key={profile?.user?._id}
           _id={profile?.user?._id}
           avatar={profile?.user?.avatar}
           fullName={profile?.user?.fullName}
         />
+        </div>
       ))}
     </div>
   );
