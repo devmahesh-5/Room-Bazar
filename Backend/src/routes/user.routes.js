@@ -1,5 +1,5 @@
 import { Router } from "express";
-
+import {rateLimit} from 'express-rate-limit'
 import {
     registerUser,
     verifyOtp,
@@ -30,8 +30,13 @@ import { checkVerified } from "../middlewares/checkVerify.middlewares.js";
 import { upload } from "../middlewares/multer.middlewares.js";
 const router = Router();
 
-
+const loginLimiter = rateLimit({
+    windowMs:  3* 60 * 1000,
+    max: 5,
+    message: "Too many login attempts from this IP, please try again after 3 minutes"
+})
 router.route('/register').post(
+    loginLimiter,
     upload.fields([
         {
             name: 'avatar',
@@ -50,6 +55,7 @@ router.route('/verify-otp').post(verifyOtp)
 router.route('/resend-otp').post(resendOtp);
 
 router.route('/login').post(
+    loginLimiter,
     loginUser
 )
 //google login

@@ -14,16 +14,22 @@ app.use(cors(
 ))
 
 const limiter = rateLimit({
-	windowMs: 10 * 60 * 1000, // 15 minutes
-	limit: 100, 
+	windowMs: 60 * 60 * 1000, // 10 minutes
+	limit: 2000, 
 	standardHeaders: 'draft-8', 
 	legacyHeaders: false, 
-    message:'Limit reached for this request'
+    message:'Server Overloaded due to high traffic'
 })
 
-app.use(limiter)
-
-
+const emergencyLimiter = rateLimit({
+    windowMs:  10*1000,
+    limit: 50, 
+    standardHeaders: 'draft-8', 
+    legacyHeaders: false, 
+    message:'Server Overloaded'
+})
+app.use(emergencyLimiter)
+app.use(limiter)//middleware to limit requests
 app.use(express.static("public"))//middleware to serve static files
 
 app.use(express.urlencoded(

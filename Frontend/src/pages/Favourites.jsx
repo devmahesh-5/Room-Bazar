@@ -5,6 +5,7 @@ import { RoomCard } from '../components'
 function Favourites() {
     const [favourites, setFavourites] = useState([]);
     const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
     useEffect(() => {
         ;(
             async () => {
@@ -13,7 +14,7 @@ function Favourites() {
                     setFavourites(favourites.data);
                     
                 } catch (error) {
-                    throw error
+                    setError(error.response.data.error)
                 }finally{
                     setLoading(false)
                 }
@@ -29,7 +30,7 @@ function Favourites() {
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#6C48E3]"></div>
         )
     }else{
-        return !loading?(
+        return (!loading && !error)?(
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {
                 favourites.map((favourite) => (
@@ -51,8 +52,12 @@ function Favourites() {
                               </div>
                             ))}
             </div>
-        ):(
+        ):!loading?(
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#6C48E3]"></div>
+        ):(
+            <div className="w-72 p-4 bg-red-100 rounded-lg sticky top-0">
+                <h2 className="text-lg font-semibold">{error}</h2>
+            </div>
         )
     }
 }

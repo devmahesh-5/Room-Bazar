@@ -1,11 +1,10 @@
 import React, { useEffect, useState, useRef, use, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
-import { MdSend, MdAttachFile } from 'react-icons/md';
+import { MdSend, MdAttachFile,MdExitToApp } from 'react-icons/md';
 import messageService from '../../services/message.services';
 import authServices from '../../services/auth.services';
-
 function InboxForm({ userId }) {
-  const { register, handleSubmit, reset, setValue } = useForm();
+  const { register, handleSubmit, reset, setValue,watch } = useForm();
   const [messages, setMessages] = useState([]);
   const [receiver, setReceiver] = useState(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -27,7 +26,7 @@ function InboxForm({ userId }) {
     async function fetchMessages() {
       try {
         if (!userId) return;
-        
+        setError(null);
         setLoading(true);
         const [userData, messagesData] = await Promise.all([
           authServices.getUserById({ userId }),
@@ -98,7 +97,7 @@ function InboxForm({ userId }) {
     );
   }
 
-  return (
+  return !error ? (
     <div className="flex flex-col h-full bg-[var(--color-primary)">
       {/* Header */}
       {receiver && (
@@ -244,7 +243,7 @@ function InboxForm({ userId }) {
       )}
 
       {/* Input Area */}
-      <form onSubmit={handleSubmit(handleSendMessage)} className="rounded-xl p-3 bg-[var(--color-background] border-t border-[var(--color-card)]">
+    <form onSubmit={handleSubmit(handleSendMessage)} className="rounded-xl p-3 bg-[var(--color-background] border-t border-[var(--color-card)]">
         <div className="flex items-center">
           <label className="cursor-pointer p-2 text-gray-500 hover:text-[#6C48E3]">
             <MdAttachFile size={20} />
@@ -257,15 +256,23 @@ function InboxForm({ userId }) {
             rows="1"
           />
           <button
-            type="submit"
-            className="bg-[#6C48E3] text-white p-2 rounded-full hover:bg-[#5a3ac9] transition"
+            type={`${watch('message') ? 'submit' : 'button'}`}
+            className={`bg-[#6C48E3] text-white p-2 rounded-full hover:bg-[#5a3ac9] transition`}
           >
             <MdSend size={20} />
           </button>
         </div>
       </form>
     </div>
-  );
-}
+  ):(
+   <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 flex items-start">
+      <MdExitToApp className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
+      <div>
+        <h3 className="font-medium">Error sending message</h3>
+        <p className="text-sm">{error}</p>
+      </div>
+    </div>
+  )}
+
 
 export default InboxForm;

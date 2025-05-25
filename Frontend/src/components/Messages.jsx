@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import {MessageCard} from '../components/index.js'
 import Inboxform from './forms/Inboxform.jsx';
 function Messages() {
-    const userId = useParams()?.userId;
+    const {userId} = useParams();
     const [profiles, setProfiles] = useState([]);
     const [loading, setLoading] = useState(true);
 
