@@ -11,7 +11,7 @@ function InboxForm({ userId }) {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
   const [error, setError] = useState(null);
-
+  const [sendingError, setSendingError] = useState(null);
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages])
@@ -52,14 +52,14 @@ function InboxForm({ userId }) {
   }, [userId]); // Only depend on userId
   
   // Add refresh capability
-  const refreshMessages = useCallback(async () => {
-    try {
-      const { data } = await messageService.getMessages(userId);
-      setMessages(data);
-    } catch (error) {
-      setError(error.response?.data?.error || "Refresh failed");
-    }
-  }, [userId]);
+  // const refreshMessages = useCallback(async () => {
+  //   try {
+  //     const { data } = await messageService.getMessages(userId);
+  //     setMessages(data);
+  //   } catch (error) {
+  //     setError(error.response?.data?.error || "Refresh failed");
+  //   }
+  // }, [userId]);
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
@@ -69,6 +69,8 @@ function InboxForm({ userId }) {
 
   const handleSendMessage = async (data) => {
     try {
+      setSendingError(null);
+      setLoading(true);
       const formData = new FormData();
       for (const key in data) {
         if (key === 'messageFiles' && data[key]?.length > 0) {
@@ -85,17 +87,19 @@ function InboxForm({ userId }) {
         setSelectedFiles([]);
       }
     } catch (error) {
-      console.error('Error sending message:', error);
+      setSendingError(error.response?.data?.error || "Failed to send message");
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-full">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#6C48E3]"></div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="flex justify-center items-center h-full">
+  //       <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#6C48E3]"></div>
+  //     </div>
+  //   );
+  // }
 
   return !error ? (
     <div className="flex flex-col h-full bg-[var(--color-primary)">
@@ -159,7 +163,7 @@ function InboxForm({ userId }) {
 
                     {/* Attachments */}
                     {msg.messageFiles?.length > 0 && (
-                      <div className="mt-2 space-y-2 bg-[var(--color-card)]">
+                      <div className="mt-2 space-y-2">
                         {msg.messageFiles.map((file, index) => {
                           const extension = file.split('.').pop()?.toLowerCase() || '';
                           const imageTypes = ['jpg', 'jpeg', 'png', 'gif'];
@@ -249,15 +253,28 @@ function InboxForm({ userId }) {
             <MdAttachFile size={20} />
             <input type="file" multiple className="hidden" onChange={handleFileChange} />
           </label>
-          <textarea
+         {!loading?( <textarea
             {...register('message')}
             placeholder="Type a message..."
             className="flex-1 border border-gray-200 rounded-full px-4 py-2 mx-2 focus:outline-none focus:ring-1 focus:ring-[#6C48E3] resize-none"
             rows="1"
+          />):(
+           <div className="flex items-center gap-2">
+      <span className="text-gray-700">Sending</span>
+      <div className="flex space-x-1">
+        {[...Array(3)].map((_, i) => (
+          <div 
+            key={i}
+            className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+            style={{ animationDelay: `${i * 0.1}s` }}
           />
+        ))}
+      </div>
+    </div>
+          )}
           <button
             type={`${watch('message') ? 'submit' : 'button'}`}
-            className={`bg-[#6C48E3] text-white p-2 rounded-full hover:bg-[#5a3ac9] transition`}
+            className={`bg-[#6C48E3] text-white p-2 rounded-full hover:bg-[#5a3ac9] transition ${watch('message')=='' || loading?'opacity-50 cursor-not-allowed':''}`}
           >
             <MdSend size={20} />
           </button>

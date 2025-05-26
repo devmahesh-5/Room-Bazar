@@ -46,8 +46,10 @@ const Profiles = () => {
   useEffect( fetchProfiles, []);
 
   const getSearchResults = useCallback(async (data) => {
+    
     setSearchQuery(data);
     try {
+      setError(null);
       setLoading(true);
       const [users, myRoommates] = await Promise.all([
         await roommateService.searchRoommates(1, 10, data),
@@ -148,7 +150,7 @@ const Profiles = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 py-4">
-          {Array.isArray(users) && users?.length > 0 ? (
+          {!error?(Array.isArray(users) && users?.length > 0 ? (
             users.map((user) => (
               <div key={user?._id} className="w-full">
                 <Link to={`/roommates/${user?._id}`}>
@@ -169,6 +171,10 @@ const Profiles = () => {
           ) : (
             <div className="col-span-full text-center py-4">
               <p className='text-gray-700'>No User Found</p>
+            </div>
+          )):(
+            <div className="col-span-full text-center py-4">
+              <p className='text-gray-700'>{error?.response?.data?.error || 'Something went wrong while fetching Roommates'}</p>
             </div>
           )}
         </div>

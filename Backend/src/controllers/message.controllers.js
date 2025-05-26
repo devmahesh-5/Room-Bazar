@@ -43,13 +43,13 @@ const createMessage = asyncHandler(async (req, res) => {
         throw new ApiError(500, 'Failed to create message');
     }
 
-    const senderUser = await User.findById(sender);
+    // const senderUser = await User.findById(sender);
 
-    await Notification.create({
-        receiver,
-        message: `You have a new message from ${senderUser.fullName}`,
-        messageId: newMessage._id
-    })
+    // await Notification.create({
+    //     receiver,
+    //     message: `You have a new message from ${senderUser.fullName}`,
+    //     messageId: newMessage._id
+    // })
 
     res
         .status(200)

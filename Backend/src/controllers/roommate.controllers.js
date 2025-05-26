@@ -9,7 +9,7 @@ import { isValidObjectId } from "mongoose";
 import { uploadMultipleFilesOnCloudinary } from "../utils/Cloudinary.js";
 import Location from "../models/location.models.js";
 import { getRoommateByUserId } from "../constants.js";
-
+import { DB_NAME } from "../constants.js";
 const registerRoommate = asyncHandler(async (req, res) => {
     let { job, pets, smoking, haveRoom, description, address, latitude, longitude } = req.body;
 
@@ -53,17 +53,17 @@ const registerRoommate = asyncHandler(async (req, res) => {
 
     const roommate = await RoommateAccount.create({
         userId: req.user?._id,
-        job,
-        pets,
+        job: job.toLowerCase(),
+        pets: pets.toLowerCase(),
         smoking,
         haveRoom,
-        description,
+        description: description.toLowerCase(),
         roomPhotos: roomPhotosCloudinaryPath
     })
     const location = await Location.create({
         latitude,
         longitude,
-        address,
+        address: address.toLowerCase(),
         roommate: roommate._id
     })
     if (!Location) {
@@ -696,9 +696,9 @@ const searchRoomates = asyncHandler(async (req, res) => {
         }
     }
 
-    await db.collection('users').createIndex({ _id: 1 });
-    await db.collection('locations').createIndex({ roommate: 1 });
-    await db.collection('RoommateAccount').createIndex({ userId: 1, createdAt: -1 });
+    // await DB_NAME.collection('users').createIndex({ _id: 1 });
+    // await DB_NAME.collection('locations').createIndex({ roommate: 1 });
+    // await DB_NAME.collection('RoommateAccount').createIndex({ userId: 1, createdAt: -1 });
     // Add others as needed
 
     const roommates = await RoommateAccount.aggregate(
