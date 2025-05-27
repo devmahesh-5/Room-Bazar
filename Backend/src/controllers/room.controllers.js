@@ -15,6 +15,8 @@ const createRoom = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'All fields are required');
     }
     const thumbnailLocalPath = req.files?.thumbnail[0]?.path;
+    console.log(thumbnailLocalPath);
+    
     if (!thumbnailLocalPath) {
         throw new ApiError(400, 'Room thumbnail is required');
     }
