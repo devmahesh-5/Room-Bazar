@@ -107,7 +107,6 @@ function Room() {
                 navigate(`/rooms/payment/${room._id}/${bookingResponse?.data?.price}`);
             }
         } catch (error) {
-            console.log(error);
             setError(error.response.data.error);
         }finally{
             setBookingLoading(false);

@@ -7,23 +7,23 @@ function Updateroom() {
     const navigate = useNavigate()
     const {roomId} = useParams();
     const [room, setRoom] = useState({});
-
+    const [error, setError] = useState(null);
     useEffect(() => {
         ;(async()=>{
             try {
                 const room = await roomService.getRoomById(roomId);
                 if(room){
-                    console.log(room);
-                    setRoom(room)
+                    setRoom(room.data[0]);
                 }
             } catch (error) {
-                throw error
+                setError(error.response.data.error);
             }
         })();
-    })
-    return (
-        
+    },[roomId])
+    return !error && room? (
         <Roomform room={room} />
+    ):(
+        <h1 className='text-red-600'>{error}</h1>
     )
 }
 

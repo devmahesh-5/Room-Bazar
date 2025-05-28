@@ -309,7 +309,6 @@ const loginUser = asyncHandler(async (req, res) => {
 
 });
 
-
 const logoutUser = asyncHandler(async (req, res) => {
    const userid = req.user?._id;
    if (!isValidObjectId(userid)) {

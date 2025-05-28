@@ -15,7 +15,6 @@ const createRoom = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'All fields are required');
     }
     const thumbnailLocalPath = req.files?.thumbnail[0]?.path;
-    console.log(thumbnailLocalPath);
     
     if (!thumbnailLocalPath) {
         throw new ApiError(400, 'Room thumbnail is required');
@@ -29,9 +28,7 @@ const createRoom = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'Room photos are required');
     }
 
-
     const roomPhotosCloudinaryPath = await uploadMultipleFilesOnCloudinary(...roomPhotosLocalPath);
-
 
     const videoLocalPath = req.files?.video[0]?.path;
 
@@ -40,6 +37,7 @@ const createRoom = asyncHandler(async (req, res) => {
     }
 
     const videoCloudinaryPath = await uploadOnCloudinary(videoLocalPath);
+    
     if (!videoCloudinaryPath) {
         throw new ApiError(500, 'Room video upload failed');
     }
@@ -60,7 +58,7 @@ const createRoom = asyncHandler(async (req, res) => {
         esewaId,
         owner: req.user._id,
         rentPerMonth,
-        video: 'videoCloudinaryPath.url'
+        video: videoCloudinaryPath.url
     })
 
     if (!room) {
@@ -105,72 +103,85 @@ const createRoom = asyncHandler(async (req, res) => {
 
 const updateRoom = asyncHandler(async (req, res) => {
     const roomDetails = req.body;
+    // const address = roomDetails?.location?.address;
+    delete roomDetails?.location;
+    delete roomDetails?.owner;
     //user pass empty fields do not change that specific field
     Object.keys(roomDetails).forEach((key) => {
         if (!roomDetails[key]) {
             delete roomDetails[key];
         }
     })
-    const thumbnailLocalPath = req.files?.thumbnail[0]?.path;
 
-    const roomPhotosLocalPath = req.files?.roomPhotos?.map((file) => file.path);
-    if (!roomPhotosLocalPath || roomPhotosLocalPath.length === 0) {
-        throw new ApiError(400, 'Room photos are required');
+    if (!isValidObjectId(req.params?.roomId)) {
+        throw new ApiError(400, 'Invalid room id');
     }
+    
+    const thumbnailLocalPath = req.files?.thumbnail?.[0]?.path;
 
-    const roomPhotosCloudinaryPath = await uploadMultipleFilesOnCloudinary(...roomPhotosLocalPath);
-
-    if (!roomPhotosCloudinaryPath || roomPhotosCloudinaryPath.length === 0) {
-        throw new ApiError(500, 'Failed to upload image');
-    }
-
-    if (!thumbnailLocalPath) {
-        throw new ApiError(400, 'Room thumbnail is required');
-    }
-
+    const roomPhotosLocalPath = req.files?.roomPhotos?.map((file) => file?.path);
+    // if (!roomPhotosLocalPath || roomPhotosLocalPath?.length === 0) {
+    //     throw new ApiError(400, 'Room photos are required');
+    // }
+    
     const oldRoom = await Room.findById(req.params?.roomId);
-
-
-    const thumbnailCloudinaryPath = await uploadOnCloudinary(thumbnailLocalPath);
-
-
-    if (!thumbnailCloudinaryPath) {
-        throw new ApiError(500, 'Failed to upload image');
+    
+    let roomPhotosCloudinaryPath;
+    if(roomPhotosLocalPath && roomPhotosLocalPath.length > 0){
+        roomPhotosCloudinaryPath = await uploadMultipleFilesOnCloudinary(...roomPhotosLocalPath);
+        if (!roomPhotosCloudinaryPath || roomPhotosCloudinaryPath.length === 0) {
+            throw new ApiError(500, 'Failed to upload image');
+        }
+        oldRoom.roomPhotos = roomPhotosCloudinaryPath;
+        oldRoom.save({ validateBeforeSave: false });
     }
 
+
+    let thumbnailCloudinaryPath;
+
+    if (thumbnailLocalPath) {
+        thumbnailCloudinaryPath = await uploadOnCloudinary(thumbnailLocalPath);
+        thumbnailCloudinaryPath = thumbnailCloudinaryPath?.url;
+        if (!thumbnailCloudinaryPath) {
+            throw new ApiError(500, 'Failed to upload image');
+        }else{
+            oldRoom.thumbnail = thumbnailCloudinaryPath;
+            oldRoom.save({ validateBeforeSave: false });
+        }
+    }
 
 
     const updatedRoom = await Room.findByIdAndUpdate(req.params?.roomId, {
-        $set: { ...roomDetails, thumbnail: thumbnailCloudinaryPath.url, roomPhotos: roomPhotosCloudinaryPath }
+        $set: { ...roomDetails }
     }, { new: true })
 
     if (!updatedRoom) {
         throw new ApiError(500, 'Failed to update room');
     }
 
-    if (oldRoom) {
-        const oldRoomThumbnail = oldRoom.thumbnail;
-        if (oldRoomThumbnail) {
-            const oldRoomThumbnailPublicId = oldRoomThumbnail.split('/').pop().split('.')[0];
-            await deleteImageFromCloudinary(oldRoomThumbnailPublicId);
-            const oldRoomPhotos = oldRoom.roomPhotos;
-            if (oldRoomPhotos) {
-                try {
-                    const oldRoomPhotosPublicIds = oldRoomPhotos.map((photo) => photo.split('/').pop().split('.')[0]);
+    // if (oldRoom) {
+    //     const oldRoomThumbnail = oldRoom.thumbnail;
+    //     if (oldRoomThumbnail) {
+    //         const oldRoomThumbnailPublicId = oldRoomThumbnail.split('/').pop().split('.')[0];
+    //         await deleteImageFromCloudinary(oldRoomThumbnailPublicId);
+    //         const oldRoomPhotos = oldRoom.roomPhotos;
+    //         if (oldRoomPhotos) {
+    //             try {
+    //                 const oldRoomPhotosPublicIds = oldRoomPhotos.map((photo) => photo.split('/').pop().split('.')[0]);
 
-                    await Promise.all(
-                        oldRoomPhotosPublicIds.map(async (publicid) => {
-                            await deleteImageFromCloudinary(publicid);
-                        })
-                    );
-                } catch (error) {
-                    throw new ApiError(500, 'Failed to delete old room photos');
-                }
-            }
-        }
-    } else {
-        console.warn("Could not delete old room thumbnail");
-    }
+    //                 await Promise.all(
+    //                     oldRoomPhotosPublicIds.map(async (publicid) => {
+    //                         await deleteImageFromCloudinary(publicid);
+    //                     })
+    //                 );
+    //             } catch (error) {
+    //                 throw new ApiError(500, 'Failed to delete old room photos');
+    //             }
+    //         }
+    //     }
+    // } else {
+    //     console.warn("Could not delete old room thumbnail");
+    // }
 
     res
         .status(200)
@@ -273,6 +284,7 @@ const getRoomById = asyncHandler(async (req, res) => {
                 rentPerMonth: 1,
                 video: 1,
                 thumbnail: 1,
+                esewaId: 1,
                 createdAt: 1,
                 updatedAt: 1
             }

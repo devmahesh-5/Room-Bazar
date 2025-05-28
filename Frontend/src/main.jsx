@@ -30,6 +30,7 @@ import PrivacyPolicy from './pages/Privacy.jsx'
 import { ErrorBoundary } from './components/ErrorBoundary.jsx'
 import ErrorPage from './pages/ErrorPage.jsx'
 import FallBackPage from './pages/FallBackPage.jsx'
+import Updateroom from './pages/Updateroom.jsx'
 const router = createBrowserRouter([
   {
     path: "/",
@@ -123,6 +124,15 @@ const router = createBrowserRouter([
               <Protected authentication>
                 {" "}
                 <Addroom />
+              </Protected>
+            )
+          },
+          {
+            path: "update/:roomId",
+            element: (
+              <Protected authentication>
+                {" "}
+                <Updateroom />
               </Protected>
             )
           },

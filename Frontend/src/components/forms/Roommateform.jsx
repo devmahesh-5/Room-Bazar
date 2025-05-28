@@ -10,6 +10,7 @@ const Roommateform = ({ roommate }) => {
     const id = useId();
     const navigate = useNavigate();
     const user = useSelector((state) => state.auth.userData);
+    const [error,setError]=React.useState(null)
     const { register, handleSubmit,reset } = useForm({
         defaultValues: {
             job: roommate?.job || '',
@@ -62,7 +63,7 @@ const Roommateform = ({ roommate }) => {
             }
 
         } catch (error) {
-            throw error
+            setError(error.response.data.error);
         }finally{
             setLoading(false);
         }

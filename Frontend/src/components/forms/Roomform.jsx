@@ -6,26 +6,49 @@ import { useSelector } from 'react-redux';
 import { Input, Button, Select, Authloader } from '../../components/index';
 import { useId } from 'react';
 const Roomform = ({ room }) => {
+  // console.log(room);
+  
   const id = useId();
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.userData);
-  const { register, handleSubmit,formState: { errors} } = useForm({
+  const { register, handleSubmit,reset,formState: { errors} } = useForm({
     mode: "onBlur",
+    defaultValues: {
+      title: room?.title || '',
+      description: room?.description || '',
+      price: room?.price || '',
+      address: room?.location?.address || '',
+      roomPhotos: room?.roomPhotos || [],
+      thumbnail: room?.thumbnail || '',
+      video: room?.video || '',
+      capacity: room?.capacity || '',
+      category: room?.category || '',
+      status: room?.status || '',
+      totalRooms: room?.totalRooms || '',
+      rentPerMonth: room?.rentPerMonth || '',
+      owner: room?.owner || user._id
+    }
   });
   const [loading, setLoading] = React.useState(false);
   const [error,setError]=React.useState(null)
+  React.useEffect(() => {
+        if (room) {
+            reset(room);
+        }
+    }, [room, reset]);
   const submit = async (data) => {
     try {
       setError(null)
       setLoading(true);
+      
       const formData = new FormData();
       for (const key in data) {
         if (key === 'thumbnail' || key === 'video') {
-          if (data[key] && data[key].length > 0) {
+          if (data[key] && typeof data[key] === 'object' && data[key].length > 0) {
             formData.append(key, data[key][0]); // Single file
           }
         } else if (key === 'roomPhotos') {
-          if (data[key] && data[key].length > 0) {
+          if (data[key] && data[key].length > 0  ) {
             for (let i = 0; i < data[key].length; i++) {
               formData.append('roomPhotos', data[key][i]);
             }
@@ -38,15 +61,15 @@ const Roomform = ({ room }) => {
       if (room) {
         const updatedRoom = await roomServices.updateRoom(room._id, formData);
         if (!updatedRoom) {
-          throw new Error("Error updating room");
+          setError("Error updating room");
         }
-        navigate(`/rooms/${updatedRoom._id}`);
+        navigate(`/rooms/${room?._id}`);
       } else {
         const newRoom = await roomServices.addRoom(formData);
         if (!newRoom) {
           throw new Error("Error adding room");
         }
-        navigate(`/rooms/${newRoom._id}`);
+        navigate(`/rooms/${newRoom?._id}`);
       }
     } catch (error) {
       setError(error)
@@ -58,7 +81,7 @@ const Roomform = ({ room }) => {
   return !loading?(
     <form onSubmit={handleSubmit(submit)} className="w-full grid grid cols-1  sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
       {/* Left Section (2 columns) */}
-      {error && <div className="bg-red-500 text-white p-2 rounded-lg">{error.response.data.error}</div>}
+      {error && <div className="bg-red-500 text-white p-2 rounded-lg">{error.response.data.error ||"Something went wrong While adding room please try again later"}</div>}
       <div className="md:col-span-2 space-y-4">
         <Input
           label="Title :"
@@ -111,14 +134,14 @@ const Roomform = ({ room }) => {
           {...register("category", { required: true })}
         />
 
-        <Input
+        {!room && (<Input
           type="text"
           label="Location"
           className="w-full"
-          defaultValue={room?.location.address}
+          defaultValue={room?.location?.address}
           {...register("address", { required: "Location is required" })}
           error={errors.address?.message}
-        />
+        />)}
       </div>
 
       {/* Right Section (1 column) */}
@@ -167,14 +190,29 @@ const Roomform = ({ room }) => {
           {...register("roomPhotos", { required: !room? "Room Photos is required" : false })}
           error={errors.roomPhotos?.message}
         />
+        {room && (
+          <div className="w-full">
+            {room?.roomPhotos?.map((photo) => (
+              <img key={photo} src={photo} alt={room.title} className="rounded-lg w-full" />
+            ))}
+          </div>
+        )}
 
-        <Input
+        {!room && (<Input
           label="Video :"
           type="file"
           className="w-full"
           accept="video/mp4, video/webm"
-          {...register("video")}
-        />
+          {...register("video",{ required: !room? "Room Video is required" : false })}
+          error={errors.video?.message}
+        />)}
+        {room && (
+          <div className="w-full">
+            <video controls>
+              <source src={room.video} type="video/mp4" />
+            </video>
+          </div>
+        )}
 
         <Input
           label="Esewa Id :"
@@ -197,7 +235,7 @@ const Roomform = ({ room }) => {
         {
         !loading?(<Button
           type="submit"
-          bgColor={room ? "bg-[#F2F4F7]" : undefined}
+          //bgColor={room ? "bg-[#F2F4F7] text-[#6C48E3]" : undefined}
           className="w-full border hover:bg-gray-100 border-[#6C48E3] hover:text-[#6C48E3]"
         >
           {room ? "Update" : "Submit"}
