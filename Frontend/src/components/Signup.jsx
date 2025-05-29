@@ -55,7 +55,7 @@ function Signup() {
 
     return !loading ? (
         <div className="w-full min-h-screen flex items-center justify-center bg-[#F2F4F7] p-4">
-            <div className="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-8">
+            <div className="w-full max-w-2xl bg-[#F2F4F7] rounded-2xl shadow-lg p-8">
                 <div className="mb-6 flex justify-center">
                     <span className="inline-block w-24">
                         <Logo width="100%" />

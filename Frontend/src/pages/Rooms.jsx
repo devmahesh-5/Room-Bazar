@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 
 function Rooms() {
   const [rooms, setRooms] = useState([])
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit,watch } = useForm();
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   useEffect(() => {
@@ -23,6 +23,7 @@ function Rooms() {
   const getSearchResults = useCallback(
     async (data) => {
       try {
+        setError(null)
         setLoading(true)
         const rooms = await roomService.searchRooms(1, 10, data);
         if (rooms) {
@@ -55,9 +56,11 @@ function Rooms() {
               {...register("field")}
             />
 
-            <Button className="bg-[#6C48E3] text-white px-3 py-2 rounded-lg hover:opacity-80 hover:text-white">
+            <button
+              type={`${watch('query') ? 'submit' : 'button'}`}
+             className="bg-[#6C48E3] text-white px-3 py-2 rounded-lg hover:opacity-80 hover:text-white">
               Search
-            </Button>
+            </button>
           </div>
         </form>
         <div className="row">
@@ -85,9 +88,11 @@ function Rooms() {
               {...register("field")}
             />
 
-            <Button className="bg-[#6C48E3] text-white px-3 py-2 rounded-lg hover:opacity-80 hover:text-white">
+            <button 
+            type={`${watch('query') ? 'submit' : 'button'}`}
+            className="bg-[#6C48E3] text-white px-3 py-2 rounded-lg hover:opacity-80 hover:text-white">
               Search
-            </Button>
+            </button>
           </div>
         </form>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">

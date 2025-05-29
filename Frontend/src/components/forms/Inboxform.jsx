@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef, use, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
-import { MdSend, MdAttachFile,MdExitToApp } from 'react-icons/md';
+import { MdSend, MdAttachFile, MdExitToApp, MdArrowUpward } from 'react-icons/md';
 import messageService from '../../services/message.services';
 import authServices from '../../services/auth.services';
+import { func } from 'prop-types';
 function InboxForm({ userId }) {
-  const { register, handleSubmit, reset, setValue,watch } = useForm();
+  const { register, handleSubmit, reset, setValue, watch } = useForm();
   const [messages, setMessages] = useState([]);
   const [receiver, setReceiver] = useState(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -12,8 +13,15 @@ function InboxForm({ userId }) {
   const messagesEndRef = useRef(null);
   const [error, setError] = useState(null);
   const [sendingError, setSendingError] = useState(null);
+  const [limit, setLimit] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const skipAutoScroll = useRef(false);
   const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (!skipAutoScroll.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+    skipAutoScroll.current = false;
   }, [messages])
 
 
@@ -22,35 +30,38 @@ function InboxForm({ userId }) {
   }, [messages.length]);
   useEffect(() => {
     let isMounted = true;
-    
-    async function fetchMessages() {
+
+    const fetchMessages = async function () {
       try {
         if (!userId) return;
         setError(null);
-        setLoading(true);
+        setLoadingMore(true);
         const [userData, messagesData] = await Promise.all([
           authServices.getUserById({ userId }),
-          messageService.getMessages(userId)
+          messageService.getMessages(userId, limit * 10)
         ]);
-  
+
         if (isMounted) {
           setReceiver(userData.data);
-          setMessages(messagesData.data);
+          setMessages(messagesData.data.messages);
+          //console.log(messagesData.data.messageCount,messages.length);
+          setHasMore(messagesData.data.messageCount > messages.length);
         }
+
       } catch (error) {
         if (isMounted) {
           setError(error.response?.data?.error || "Failed to load messages");
         }
       } finally {
-        if (isMounted) setLoading(false);
+        if (isMounted) setLoadingMore(false);
       }
     }
-  
+
     fetchMessages();
-  
+
     return () => { isMounted = false }; // Cleanup
-  }, [userId]); // Only depend on userId
-  
+  }, [userId, limit]); // Only depend on userId
+
   // Add refresh capability
   // const refreshMessages = useCallback(async () => {
   //   try {
@@ -101,6 +112,10 @@ function InboxForm({ userId }) {
   //   );
   // }
 
+  const handleSeeMore = () => {
+    skipAutoScroll.current = true;
+    setLimit(limit + 1);
+  };
   return !error ? (
     <div className="flex flex-col h-full bg-[var(--color-primary)">
       {/* Header */}
@@ -120,107 +135,156 @@ function InboxForm({ userId }) {
 
       {/* Messages */}
       <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-[var(--color-primary)">
+
+        {!loadingMore && hasMore ? (
+  <button
+    onClick={handleSeeMore}
+    className="absolute top-20 left-1/2 -translate-x-1/2 z-10
+              bg-[#F2F4F7] hover:bg-white border border-gray-200
+              rounded-full shadow-sm hover:shadow-md
+              px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900
+              transition-all duration-200 ease-in-out
+              flex items-center gap-2
+              backdrop-blur-sm"
+  >
+    <svg 
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-4 w-4 text-gray-500"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+    >
+      <path
+        fillRule="evenodd"
+        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+        clipRule="evenodd"
+    />
+    </svg>
+    Show older messages
+  </button>
+) : loadingMore ? (
+  <div className="absolute top-20 left-1/2 -translate-x-1/2 z-10
+                 bg-white/90 border border-gray-200
+                 rounded-full shadow-sm
+                 p-2
+                 backdrop-blur-sm">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-5 w-5 animate-spin text-gray-500"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+      />
+    </svg>
+  </div>
+) : null}
         {messages.length > 0 ? (
           messages.map((msg, index) => {
             const isSentByUser = msg.sender?._id !== userId;
             return (
               <React.Fragment key={index}>
-              <div key={msg._id} className={`flex ${isSentByUser ? 'justify-end' : 'justify-start'} mb-3 px-4`}>
-                <div className={`flex flex-row items-end max-w-[80%]`}>
-                  {/* Avatar */}
-                  {!isSentByUser && receiver.avatar && (
-                    <div className="flex-shrink-0 mr-2 mb-1">
-                      <img
-                        src={receiver.avatar}
-                        alt={receiver.fullName}
-                        className="w-8 h-8 rounded-full object-cover"
-                      />
-                    </div>
-                  )}
-
-                  {/* Message bubble */}
-                  <div
-                    className={`
-        relative px-4 py-2 rounded-2xl text-sm
-        ${isSentByUser
-                        ? 'bg-[var(--color-primary)] rounded-br-none text-white'
-                        : 'bg-[var(--color-background)] rounded-bl-none'
-                      }
-        shadow-sm
-      `}
-                  >
-                    {/* Message text */}
-                    <div className="whitespace-pre-wrap break-words">
-                      {msg.message}
-                    </div>
-
-                    {/* Timestamp */}
-                    <div className={`text-xs mt-1 flex ${isSentByUser ? 'justify-end' : 'justify-start'}`}>
-                      <span className={`${isSentByUser ? 'bg-[var(--color-primary)] text-white' : 'bg-[var(--color-background)]'}`}>
-                        {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                    </div>
-
-                    {/* Attachments */}
-                    {msg.messageFiles?.length > 0 && (
-                      <div className="mt-2 space-y-2">
-                        {msg.messageFiles.map((file, index) => {
-                          const extension = file.split('.').pop()?.toLowerCase() || '';
-                          const imageTypes = ['jpg', 'jpeg', 'png', 'gif'];
-                          const videoTypes = ['mp4', 'webm', 'ogg'];
-
-                          return (
-                            <div
-                              key={index}
-                              className={`
-                  overflow-hidden rounded-lg border
-                  ${isSentByUser
-                                  ? 'border-gray-200'
-                                  : 'border-[rgba(255,255,255,0.1)]'
-                                }
-                `}
-                            >
-                              {imageTypes.includes(extension) ? (
-                                <img
-                                  src={file}
-                                  alt="Attachment"
-                                  className="max-w-full max-h-60 object-contain cursor-pointer hover:opacity-90 transition-opacity"
-                                />
-                              ) : videoTypes.includes(extension) ? (
-                                <video controls className="max-w-full max-h-60 bg-black">
-                                  <source src={file} type={`video/${extension}`} />
-                                </video>
-                              ) : (
-                                <a
-                                  href={file}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className={`
-                      flex items-center p-3 hover:bg-opacity-10 transition-colors
-                      ${isSentByUser
-                                      ? 'text-[var(--color-card)] hover:bg-gray-200'
-                                      : 'text-white hover:bg-[rgba(255,255,255,0.1)]'
-                                    }
-                    `}
-                                >
-                                  <svg className="mr-2 flex-shrink-0 w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" />
-                                  </svg>
-                                  <span className="truncate">{file.split('/').pop()}</span>
-                                </a>
-                              )}
-                            </div>
-                          );
-                        })}
+                <div key={msg._id} className={`flex ${isSentByUser ? 'justify-end' : 'justify-start'} mb-3 px-4`}>
+                  <div className={`flex flex-row items-end max-w-[80%]`}>
+                    {/* Avatar */}
+                    {!isSentByUser && receiver.avatar && (
+                      <div className="flex-shrink-0 mr-2 mb-1">
+                        <img
+                          src={receiver.avatar}
+                          alt={receiver.fullName}
+                          className="w-8 h-8 rounded-full object-cover"
+                        />
                       </div>
                     )}
+
+                    {/* Message bubble */}
+                    <div
+                      className={`
+        relative px-4 py-2 rounded-2xl text-sm
+        ${isSentByUser
+                          ? 'bg-[var(--color-primary)] rounded-br-none text-white'
+                          : 'bg-[#E9E4FD] rounded-bl-none'
+                        }
+        shadow-sm
+      `}
+                    >
+                      {/* Message text */}
+                      <div className="whitespace-pre-wrap break-words">
+                        {msg.message}
+                      </div>
+
+                      {/* Timestamp */}
+                      <div className={`text-xs mt-1 flex ${isSentByUser ? 'justify-end' : 'justify-start'}`}>
+                        <span className={`${isSentByUser ? 'bg-[var(--color-primary)] text-white' : 'bg-[#E9E4FD]'}`}>
+                          {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+
+                      {/* Attachments */}
+                      {msg.messageFiles?.length > 0 && (
+                        <div className="mt-2 space-y-2">
+                          {msg.messageFiles.map((file, index) => {
+                            const extension = file.split('.').pop()?.toLowerCase() || '';
+                            const imageTypes = ['jpg', 'jpeg', 'png', 'gif'];
+                            const videoTypes = ['mp4', 'webm', 'ogg'];
+                            //const pdfTypes = ['pdf'];
+
+                            return (
+                              <div
+                                key={index}
+                                className={`
+                  overflow-hidden rounded-lg border
+                  ${isSentByUser
+                                    ? 'border-gray-200'
+                                    : 'border-[rgba(255,255,255,0.1)]'
+                                  }
+                `}
+                              >
+                                {imageTypes.includes(extension) ? (
+                                  <img
+                                    src={file}
+                                    alt="Attachment"
+                                    className="max-w-full max-h-60 object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                                  />
+                                ) : videoTypes.includes(extension) ? (
+                                  <video controls className="max-w-full max-h-60 bg-black">
+                                    <source src={file} type={`video/${extension}`} />
+                                  </video>
+                                ) : (
+                                  <a
+                                    href={file}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={`
+                      flex items-center p-3 hover:bg-opacity-10 transition-colors
+                      ${isSentByUser
+                                        ? 'text-[var(--color-card)] hover:bg-gray-200'
+                                        : 'text-red hover:bg-[rgba(255,255,255,0.1)]'
+                                      }
+                    `}
+                                  >
+                                    <svg className="mr-2 flex-shrink-0 w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" />
+                                    </svg>
+                                    <span className="truncate">{file.split('/').pop()}</span>
+                                  </a>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-              {(index % 3 === 0 || index === messages.length - 1) && (
-            <div ref={index === messages.length - 1 ? messagesEndRef : null} />
-          )}
-        </React.Fragment>
+                {(index % 3 === 0 || index === messages.length - 1) && (
+                  <div ref={index === messages.length - 1 ? messagesEndRef : null} />
+                )}
+              </React.Fragment>
 
             );
           })
@@ -232,6 +296,7 @@ function InboxForm({ userId }) {
         )}
         <div ref={messagesEndRef} />
       </div>
+      {sendingError && <p className="text-red-500 text-center">{sendingError || 'Failed to send message'}</p>}
 
       {/* File Preview */}
       {selectedFiles.length > 0 && (
@@ -247,49 +312,50 @@ function InboxForm({ userId }) {
       )}
 
       {/* Input Area */}
-    <form onSubmit={handleSubmit(handleSendMessage)} className="rounded-xl p-3 bg-[var(--color-background] border-t border-[var(--color-card)]">
+      <form onSubmit={handleSubmit(handleSendMessage)} className="rounded-xl p-3 bg-[var(--color-background] border-t border-[var(--color-card)]">
         <div className="flex items-center">
           <label className="cursor-pointer p-2 text-gray-500 hover:text-[#6C48E3]">
             <MdAttachFile size={20} />
             <input type="file" multiple className="hidden" onChange={handleFileChange} />
           </label>
-         {!loading?( <textarea
+          {!loading ? (<textarea
             {...register('message')}
             placeholder="Type a message..."
             className="flex-1 border border-gray-200 rounded-full px-4 py-2 mx-2 focus:outline-none focus:ring-1 focus:ring-[#6C48E3] resize-none"
             rows="1"
-          />):(
-           <div className="flex items-center gap-2">
-      <span className="text-gray-700">Sending</span>
-      <div className="flex space-x-1">
-        {[...Array(3)].map((_, i) => (
-          <div 
-            key={i}
-            className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
-            style={{ animationDelay: `${i * 0.1}s` }}
-          />
-        ))}
-      </div>
-    </div>
+          />) : (
+            <div className="flex items-center gap-2">
+              <span className="text-gray-700">Sending</span>
+              <div className="flex space-x-1">
+                {[...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+                    style={{ animationDelay: `${i * 0.1}s` }}
+                  />
+                ))}
+              </div>
+            </div>
           )}
           <button
             type={`${watch('message') ? 'submit' : 'button'}`}
-            className={`bg-[#6C48E3] text-white p-2 rounded-full hover:bg-[#5a3ac9] transition ${watch('message')=='' || loading?'opacity-50 cursor-not-allowed':''}`}
+            className={`bg-[#6C48E3] text-white p-2 rounded-full hover:bg-[#5a3ac9] transition ${watch('message') == '' || loading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             <MdSend size={20} />
           </button>
         </div>
       </form>
     </div>
-  ):(
-   <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 flex items-start">
+  ) : (
+    <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 flex items-start">
       <MdExitToApp className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
       <div>
-        <h3 className="font-medium">Error sending message</h3>
+        <h3 className="font-medium">Error getting message</h3>
         <p className="text-sm">{error}</p>
       </div>
     </div>
-  )}
+  )
+}
 
 
 export default InboxForm;

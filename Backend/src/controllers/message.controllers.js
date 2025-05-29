@@ -66,12 +66,14 @@ const getUserMessages = asyncHandler(async (req, res) => {
     //By sender or receiver id
     const sender = req.user?._id;
     const receiver = req.params?.userId;
+    // const page = req.query?.page || 1;
+    const limit = req.query?.limit || 10;
 
     if (!isValidObjectId(sender) || !isValidObjectId(receiver)) {
         throw new ApiError(400, 'Invalid user id');
     }
-
-    const messages = await Message.aggregate(
+//lets change
+    let messages = await Message.aggregate(
         [
             {
                 $match: {
@@ -121,9 +123,17 @@ const getUserMessages = asyncHandler(async (req, res) => {
             },
             {
                 $sort: {
-                    createdAt: 1
+                    createdAt: -1
                 }
             },
+            
+            // {
+            //     $skip: (Number(page) - 1) * Number(limit)
+            // },
+            {
+                $limit: Number(limit)
+            },
+            
             {
                 $project: {
                     sender: 1,
@@ -136,6 +146,15 @@ const getUserMessages = asyncHandler(async (req, res) => {
         ]
     )
 
+    messages = messages.reverse();
+
+    const messageCount = await Message.countDocuments({
+        $or: [
+            { sender:new mongoose.Types.ObjectId(sender), receiver:new mongoose.Types.ObjectId(receiver) },
+            { sender:new mongoose.Types.ObjectId(receiver), receiver: new mongoose.Types.ObjectId(sender) }
+        ]
+    })
+    
     if (!messages) {
         throw new ApiError(500, 'Failed to get messages');
     }
@@ -145,7 +164,10 @@ const getUserMessages = asyncHandler(async (req, res) => {
         .json(
             new ApiResponse(
                 200,
-                messages,
+                {
+                    messages,
+                    messageCount
+                },
                 'Messages fetched successfully'
             )
         )
@@ -234,6 +256,11 @@ const getMessageProfile = asyncHandler(async (req, res) => {
             {
                 $addFields: {
                     user: { $arrayElemAt: ['$user', 0] }
+            }
+        },
+        {
+            $sort: {
+                createdAt: -1
             }
         }
 

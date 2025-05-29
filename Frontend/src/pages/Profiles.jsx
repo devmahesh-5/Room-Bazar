@@ -9,7 +9,7 @@ import MessageProfile from '../components/MessageProfile.jsx';
 const Profiles = () => {
   const [myAccount, setMyAccount] = useState([]);
   const [users, setUsers] = useState([]);
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, watch } = useForm();
   const [loading, setLoading] = useState(false);
   const [flag, setFlag] = useState(false);
   const [error, setError] = useState(null);
@@ -142,9 +142,11 @@ const Profiles = () => {
                 {...register("field")}
               />
 
-              <Button className="bg-[#6C48E3] text-white px-3 py-2 rounded-lg hover:opacity-80 hover:text-[#F2F4F7] w-full w-1/2 sm:w-auto">
+              <button 
+              type = {`${watch('query')? 'submit' : 'button'}`}
+              className="bg-[#6C48E3] text-white px-3 py-2 rounded-lg hover:opacity-80 hover:text-[#F2F4F7] w-full w-1/2 sm:w-auto">
                 Search
-              </Button>
+              </button>
             </div>
           </form>
         </div>

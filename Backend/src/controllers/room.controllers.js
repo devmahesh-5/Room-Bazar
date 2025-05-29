@@ -409,7 +409,7 @@ const getAllRooms = asyncHandler(async (req, res) => {
 const searchRooms = asyncHandler(async (req, res) => {
 
     let { page = 1, limit = 10, query, field } = req.query;
-
+    query = query.trim();
     let searchQuery = {
         [field]: { $regex: query, $options: 'i' }
     }

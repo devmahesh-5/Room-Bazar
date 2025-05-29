@@ -8,16 +8,18 @@ function Messages() {
     const {userId} = useParams();
     const [profiles, setProfiles] = useState([]);
     const [loading, setLoading] = useState(true);
-
+    const [error, setError] = useState(null);
   useEffect(() => {
     (async () => {
       try {
+        setError(null);
+        setLoading(true);
         const messageProfile = await messageService.getMessageProfile();
         if (messageProfile) {
           setProfiles(messageProfile.data);
         }
       } catch (error) {
-        console.error('Error fetching message profiles:', error);
+        setError(error.response?.data?.error || "Failed to load profiles");
       } finally {
         setLoading(false);
       }
@@ -35,7 +37,7 @@ function Messages() {
   return (    
     Array.isArray(profiles) && profiles.length > 0 ? (
       <div className='flex flex-row'>
-      <div className="w-72 p-4 bg-[#F2F4F7] rounded-lg sticky top-0 h-screen overflow-y-auto hidden md:block">
+      <div className="w-72 p-4 bg-[#F2F4F7] rounded-lg sticky top-0 h-screen overflow-y-auto hidden md:block ">
         <h2 className="text-lg font-semibold mb-4">Messages</h2>
         {profiles.map((profile) => (
           <div key={profile?.user?._id}>

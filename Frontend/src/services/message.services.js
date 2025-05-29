@@ -17,9 +17,9 @@ class messageServices {
         }
     }
 
-    async getMessages(userId) {
+    async getMessages(userId,limit=10) {
         try {
-            const response = await axios.get(`/api/v1/messages/ib/${userId}`);
+            const response = await axios.get(`/api/v1/messages/ib/${userId}?limit=${limit}`);
             if (!response) {
                 throw new Error("Error getting messages");
             }
