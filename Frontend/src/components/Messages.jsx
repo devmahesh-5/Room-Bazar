@@ -9,6 +9,7 @@ function Messages() {
     const [profiles, setProfiles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [refreshIndex, setRefreshIndex] = useState(0);
   useEffect(() => {
     (async () => {
       try {
@@ -25,7 +26,10 @@ function Messages() {
       }
 
     })();
-  }, []);
+  }, [refreshIndex]);
+  const refreshData = () => {
+    setRefreshIndex(refreshIndex + 1);
+  }
   if(loading){
     return(
       <div className="flex justify-center items-center h-screen">
@@ -34,7 +38,7 @@ function Messages() {
       </div>
     )
   }
-  return (    
+  return !error?(    
     Array.isArray(profiles) && profiles.length > 0 ? (
       <div className='flex flex-row'>
       <div className="w-72 p-4 bg-[#F2F4F7] rounded-lg sticky top-0 h-screen overflow-y-auto hidden md:block ">
@@ -50,7 +54,7 @@ function Messages() {
         ))}
       </div>
       <div className="flex-1 p-4 bg-[#F2F4F7] rounded-lg">
-          <Inboxform userId={userId} />
+          <Inboxform userId={userId} refreshData={refreshData} />
       </div>
       </div>
     ) : (
@@ -59,10 +63,19 @@ function Messages() {
         <h2 className="text-lg font-semibold">No profiles found</h2>
       </div>
       <div className="flex-1 p-4 bg-[#F2F4F7] rounded-lg">
-          <Inboxform userId={userId} />
+          <Inboxform userId={userId} refreshData={refreshData} />
       </div>
       </div>
     )
-  ) 
+  ) :(
+    <div className='flex flex-row'>
+    <div className="w-1/3 p-4 bg-[#F2F4F7] rounded-lg sticky top-0">
+      <h2 className="text-lg font-semibold">{error}</h2>
+    </div>
+    <div className="flex-1 p-4 bg-[#F2F4F7] rounded-lg">
+        <Inboxform userId={userId} refreshData={refreshData} />
+    </div>
+    </div>
+  )
 }
 export default Messages

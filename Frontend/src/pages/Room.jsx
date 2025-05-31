@@ -6,8 +6,8 @@ import { Button } from "../components";
 import { useSelector } from "react-redux";
 import { FaHeart, FaBook, FaStar, FaComment, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
 import reviewService from "../services/review.services.js";
-import { useForm } from "react-hook-form";
-
+import { set, useForm } from "react-hook-form";
+import {Authloader} from "../components/index.js";
 function Room() {
     const [bookingLoading, setBookingLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -17,31 +17,26 @@ function Room() {
     const [room, setRoom] = useState(null);
     const [isFavourite, setIsFavourite] = useState(false);
     const [showCommentBox, setShowCommentBox] = useState(false); // State to toggle comment box
-    const [rating, setRating] = useState(0); // State for user's rating
+    const [rating, setRating] = useState(1); // State for user's rating
     const [averageRating, setAverageRating] = useState(0); // State for average room rating
     const userData = useSelector((state) => state.auth.userData);
     const isOwner = room && userData ? room.owner?._id === userData._id : false;
-    const [htmlContent, setHtmlContent] = useState(null);
     const { register, handleSubmit, reset } = useForm();
-
+    const [commentError, setCommentError] = useState(null);
+    const [commentLoading, setCommentLoading] = useState(false);
+    const [reviewsError, setReviewsError] = useState(null);
+    const [favAndDeleteError, setFavAndDeleteError] = useState(null);
+    const [loading, setLoading] = useState(false);
     useEffect(() => {
-        if (slug.id) {
+        if (slug?.id) {
             (async () => {
                 try {
                     const response = await roomServices.getRoomById(slug.id);
                     setRoom(response.data[0]); // Store the room in state
-
-                    // Fetch favourite status
-                    try {
-                        const favResponse = await favouriteService.getFavouriteByRoomId(slug.id);
-                        if (favResponse) {
-                            setIsFavourite(true);
-                        }
-                    } catch (error) {
-                        setIsFavourite(false);
-                    }
-
-                    // Fetch reviews and calculate average rating
+                } catch (error) {
+                    setError(error);
+                }
+                 // Fetch reviews and calculate average rating
                     try {
                         const reviewResponse = await reviewService.getRoomReviews(slug.id);
                         if (reviewResponse) {
@@ -49,27 +44,45 @@ function Room() {
                             calculateAverageRating(reviewResponse.data); // Calculate average rating
                         }
                     } catch (error) {
-                        console.error("Error fetching room reviews:", error);
+                        setReviewsError(error.response.data.error);
                     }
-                } catch (error) {
-                    console.error("Error fetching room:", error);
-                }
+                //favourites
+                try {
+                        const favResponse = await favouriteService.getFavouriteByRoomId(slug.id);
+                        if (favResponse) {
+                            setIsFavourite(true);
+                        }
+                    } catch (error) {
+                        setIsFavourite(false);
+                    }
             })();
         }
-    }, [slug.id]);
+    }, [slug?.id]);
 
     const deleteRoom = async () => {
         try {
+            setFavAndDeleteError(null);
+            setLoading(true);
             const response = await roomServices.deleteRoom(slug.id);
             if (response) {
                 navigate("/rooms");
             }
         } catch (error) {
-            console.log("Room deletion Error", error);
-            throw new Error("Something went wrong while deleting the room.");
+            setFavAndDeleteError(error.response.data.error);
+        }finally{
+            setLoading(false);
         }
     };
-
+    
+    useEffect(() => {
+    if (favAndDeleteError) {
+        const timer = setTimeout(() => {
+            setFavAndDeleteError(null);
+        }, 3000);
+        return () => clearTimeout(timer);
+    }
+}, [favAndDeleteError]);
+    
     // Calculate average rating
     const calculateAverageRating = (reviews) => {
         if (reviews.length === 0) {
@@ -84,10 +97,9 @@ function Room() {
     // Handle comment submission
     const handleCommentPost = async (data) => {
         try {
-            const commentData = await reviewService.addReview(room._id, { ...data, rating });
-            if (!commentData) {
-                throw new Error("Error adding review");
-            }
+            setCommentError(null);
+            setCommentLoading(true);
+            await reviewService.addReview(room._id, { ...data, rating });
             // Refresh reviews after posting
             const reviewResponse = await reviewService.getRoomReviews(slug.id);
             setReviews(reviewResponse.data);
@@ -95,7 +107,9 @@ function Room() {
             reset(); // Reset the form
             setShowCommentBox(false); // Hide the comment box after submission
         } catch (error) {
-            console.error("Error posting comment:", error);
+            setCommentError(error.response.data.error);
+        }finally{
+            setCommentLoading(false);
         }
     };
 
@@ -115,37 +129,40 @@ function Room() {
     };
 
     const handleFavourite = () => {
-        try {
+            setFavAndDeleteError(null);
             favouriteService.toggleFavourite(room._id).then((response) => {
-                if (response) {
-                    setIsFavourite(response.data.isFavourite);
-                }
+            setIsFavourite(response.data.isFavourite);
+            }).catch((error) => {
+                setFavAndDeleteError(error.response.data.error);
             });
-        } catch (error) {
-            console.error("Error toggling favourite:", error);
-        }
+       
     };
-
+    
     // Toggle comment box visibility
     const toggleCommentBox = () => {
+        setCommentError(null);
         setShowCommentBox(!showCommentBox);
     };
 
-    if (!room) {
-        return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    if (!room && error) {
+        return <div className="flex justify-center items-center h-screen">{error}</div>;
     }
 
     const thumbnail = room?.thumbnail || (room?.roomPhotos && room?.roomPhotos[0]);
 
-    return (
+    return !loading? (
         <div className="py-10 px-4 max-w-6xl mx-auto">
+       { favAndDeleteError && (<div className="bg-[#F2F4F7] p-2 absolute top-4 right-6 transform -translate-x-1/2 -translate-y-1/2">
+            <h2 className="text-xl text-red-600 text-center">{favAndDeleteError}<span className="absolute bottom-0 left-0 bg-[#F2F4F7] h-0.5 animate-underline z-10"></span></h2>
+        </div>)}
+    
             {/* Room Image and Owner Info Section */}
             <div className="flex flex-col lg:flex-row gap-8 mb-8">
                 {/* Room Image */}
                 <div className="lg:w-2/3 relative rounded-2xl overflow-hidden shadow-lg">
                     <img
                         src={thumbnail}
-                        alt={room.title}
+                        alt={room?.title}
                         className="w-full h-96 object-cover transition-transform duration-500 ease-in-out hover:scale-105"
                     />
                     {isOwner && (
@@ -171,7 +188,7 @@ function Room() {
                     <h2 className="text-xl font-bold text-gray-800 mb-4">Property Owner</h2>
                     <div className="flex items-center space-x-4 mb-6">
                         <img
-                            src={room?.owner?.avatar || "https://via.placeholder.com/150"}
+                            src={room?.owner?.avatar}
                             alt="Owner"
                             className="w-16 h-16 rounded-full object-cover border-2 border-[#6C48E3]"
                         />
@@ -254,7 +271,7 @@ function Room() {
             </div>
 
             {/* Action Buttons (for non-owners) */}
-            {!isOwner && room.status === "Available" && (
+            {!isOwner && room?.status === "Available" && (
                 <div className="flex flex-wrap gap-4 mb-8">
                     <Button
                         bgColor="bg-[#6C48E3] border border-[#6C48E3] hover:bg-blue-700 text-white"
@@ -265,26 +282,26 @@ function Room() {
                         <span>Book Now</span>
                     </Button>
                     <Button
-                        bgColor={`${isFavourite ? "bg-red-600 hover:bg-red-700" : "bg-[#F2F4F7] border border-[#6C48E3] text-[#6C48E3] hover:bg-[#6C48E3] hover:text-white"} `}
+                        bgColor="[#F2F4F7]"
                         onClick={handleFavourite}
                         className="px-6 py-3 rounded-lg flex items-center space-x-2"
                     >
                         <FaHeart className="text-lg text-red-600" />
-                        <span>{isFavourite ? "Remove Favorite" : "Add to Favorites"}</span>
+                        <span className={`${isFavourite ? "text-red-600" : "text-gray-600"}`}>{isFavourite ? "Remove Favorite" : "Add to Favorites"}</span>
                     </Button>
                     <Button
-                        bgColor="bg-white border border-[#6C48E3] text-[#6C48E3] hover:bg-[#6C48E3] hover:text-white"
+                        bgColor="bg-[#F2F4F7]"
                         onClick={toggleCommentBox}
                         className="px-6 py-3 rounded-lg flex items-center space-x-2"
                     >
-                        <FaComment className="text-lg" />
-                        <span>Leave a Review</span>
+                        <FaComment className="text-lg text-[#6C48E3]" />
+                        <span className="text-[#6C48E3]">Review</span>
                     </Button>
                 </div>
             )}
 
             {/* Rating and Reviews Section */}
-            <div className="bg-white rounded-xl shadow-md p-6">
+           { !reviewsError?(<div className="bg-white rounded-xl shadow-md p-6">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-bold text-gray-800">Reviews</h2>
                     <div className="flex items-center space-x-2">
@@ -297,8 +314,8 @@ function Room() {
                 </div>
 
                 {/* Comment Box (Conditionally Rendered) */}
-                {showCommentBox && (
-                    <form onSubmit={handleSubmit(handleCommentPost)} className="mb-8 bg-[#F2F4F7] p-4 rounded-lg">
+                {showCommentBox &&!commentError? (
+                    <form onSubmit={handleSubmit(handleCommentPost)} className="mb-8 bg-white p-4 rounded-lg">
                         <h3 className="text-lg font-semibold mb-3">Write a Review</h3>
                         <div className="flex space-x-1 mb-4">
                             {[...Array(5)].map((_, index) => (
@@ -320,9 +337,13 @@ function Room() {
                             bgColor="bg-[#6C48E3] hover:bg-blue-700 text-white"
                             className="mt-3 px-6 py-2 rounded-lg"
                         >
-                            Submit Review
+                            {commentLoading ? "Posting..." : "Post"}
                         </Button>
                     </form>
+                ):(
+                    <div className="mb-8 p-4 rounded-lg">
+                        <p className="text-red-600">{commentError}</p>
+                    </div>
                 )}
 
                 {/* Reviews List */}
@@ -360,8 +381,14 @@ function Room() {
                         </div>
                     ))}
                 </div>
-            </div>
+            </div>):(
+                <div className="bg-[#F2F4F7] rounded-xl shadow-md p-6">
+                    <h2 className="text-2xl font-bold text-red-600 text-center">{reviewsError}</h2>
+                </div>
+            )}
         </div>
+    ):(
+        <Authloader fullScreen={true} message='please wait deleting room...' />
     );
 }
 

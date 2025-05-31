@@ -838,13 +838,33 @@ const getDashboard = asyncHandler(async (req, res) => {
             }
          },
          {
+            $lookup: {
+               from: 'users',
+               localField: 'owner',
+               foreignField: '_id',
+               as: 'owner',
+               pipeline: [
+                  {
+                     $project: {
+                        _id: 1,
+                        fullName: 1,
+                        email: 1,
+                        phone: 1,
+                        address: 1
+                     }
+                  },
+               ]
+            }
+         },
+         {
             $project: {
                _id: 1,
                name: 1,
                category: 1,
                price: 1,
                thumbnail: 1,
-               rentPerMonth: 1
+               rentPerMonth: 1,
+               owner: { $arrayElemAt: ["$owner", 0] }
             }
          },
          {

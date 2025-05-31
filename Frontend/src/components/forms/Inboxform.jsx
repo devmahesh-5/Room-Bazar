@@ -4,7 +4,7 @@ import { MdSend, MdAttachFile, MdExitToApp, MdArrowUpward } from 'react-icons/md
 import messageService from '../../services/message.services';
 import authServices from '../../services/auth.services';
 import { func } from 'prop-types';
-function InboxForm({ userId }) {
+function InboxForm({ userId,refreshData }) {
   const { register, handleSubmit, reset, setValue, watch } = useForm();
   const [messages, setMessages] = useState([]);
   const [receiver, setReceiver] = useState(null);
@@ -93,9 +93,10 @@ function InboxForm({ userId }) {
 
       const sentMessage = await messageService.sendMessage(userId, formData);
       if (sentMessage) {
-        setMessages(prev => [...prev, sentMessage.data]);
+        // setMessages(prev => [...prev, sentMessage.data]);
         reset();
         setSelectedFiles([]);
+        refreshData();
       }
     } catch (error) {
       setSendingError(error.response?.data?.error || "Failed to send message");
@@ -139,7 +140,7 @@ function InboxForm({ userId }) {
         {!loadingMore && hasMore ? (
   <button
     onClick={handleSeeMore}
-    className="absolute top-20 left-1/2 -translate-x-1/2 z-10
+    className="relative top-0 left-1/2 -translate-x-1/2 z-10
               bg-[#F2F4F7] hover:bg-white border border-gray-200
               rounded-full shadow-sm hover:shadow-md
               px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900

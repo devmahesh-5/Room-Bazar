@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose,{ isValidObjectId } from "mongoose";
 import Room from "../models/room.models.js";
 import User from "../models/user.models.js";
 import Notification from "../models/notification.models.js";
@@ -7,7 +7,6 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import uploadOnCloudinary, { uploadMultipleFilesOnCloudinary, deleteImageFromCloudinary } from "../utils/Cloudinary.js";
-import { isValidObjectId } from "mongoose";
 const createRoom = asyncHandler(async (req, res) => {
     const { title, description, capacity, price, category, status, totalRooms, esewaId, rentPerMonth } = req.body;
 

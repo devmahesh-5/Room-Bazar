@@ -48,6 +48,8 @@ const ProfilePage = () => {
     })();
   }, [userData?._id]);
 
+ 
+  
   const handleReceivedRequestAccept = async () => {
     fetchReceivedRequests();
   }
@@ -136,7 +138,6 @@ const ProfilePage = () => {
     setDeleteLoading(false);
   }
   }
-
 
   if (loading) {
     return <Authloader message="Loading Profile" />;
