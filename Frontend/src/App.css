@@ -29,6 +29,19 @@ html, body {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
+.custom-scroll::-webkit-scrollbar {
+    width: 4px;  /* Thin scrollbar */
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+    background: #F2F4F7;  /* Light gray */
+    border-radius: 4px;
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+    background: #F2F4F7;  /* Match your bg color */
+}
+
 @keyframes logo-spin {
   from {
     transform: rotate(0deg);

@@ -30,18 +30,18 @@ function Messages() {
   const refreshData = () => {
     setRefreshIndex(refreshIndex + 1);
   }
-  if(loading){
-    return(
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#6C48E3]"></div>
-        <span className="ml-4 text-lg font-semibold">Loading profiles...</span>
-      </div>
-    )
-  }
+  // if(loading){
+  //   return(
+  //     <div className="flex justify-center items-center h-screen">
+  //       <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#6C48E3]"></div>
+  //       <span className="ml-4 text-lg font-semibold">Loading profiles...</span>
+  //     </div>
+  //   )
+  // }
   return !error?(    
     Array.isArray(profiles) && profiles.length > 0 ? (
       <div className='flex flex-row'>
-      <div className="w-72 p-4 bg-[#F2F4F7] rounded-lg sticky top-0 h-screen overflow-y-auto hidden md:block ">
+      <div className="w-72 p-4 bg-[#F2F4F7] rounded-lg sticky top-0 h-screen overflow-y-auto hidden md:block custom-scroll">
         <h2 className="text-lg font-semibold mb-4">Messages</h2>
         {profiles.map((profile) => (
           <div key={profile?.user?._id}>
@@ -49,6 +49,7 @@ function Messages() {
             _id={profile?.user?._id}
             avatar={profile?.user?.avatar}
             fullName={profile?.user?.fullName || 'Unknown User'}
+            ureadCount={profile?.unreadCount}
           />
           </div>
         ))}

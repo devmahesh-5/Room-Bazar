@@ -21,9 +21,11 @@ function MessageProfile() {
     })();
   }, []);
 
-  if (loading) {
-    return <div className="text-center p-4">Loading profiles...</div>;
-  }
+  // if (loading) {
+  //   return <div className="text-center p-4">Loading profiles...</div>;
+  // }
+
+  
 
   if (!Array.isArray(profiles) || profiles.length === 0) {
     return (
@@ -34,7 +36,7 @@ function MessageProfile() {
   }
 
   return (
-    <div className="w-72 p-4 bg-[#F2F4F7] rounded-lg sticky top-0 h-screen overflow-y-auto">
+    <div className="w-72 p-4 bg-[#F2F4F7] rounded-lg sticky top-0 h-screen overflow-y-auto custom-scroll">
       <h2 className="text-lg font-semibold mb-4">Contacts</h2>
       {profiles.map((profile) => (
         <div key={profile?.user?._id}>

@@ -1,9 +1,8 @@
 import React, { useEffect, useState, useRef, use, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
-import { MdSend, MdAttachFile, MdExitToApp, MdArrowUpward } from 'react-icons/md';
+import { MdSend, MdAttachFile, MdExitToApp} from 'react-icons/md';
 import messageService from '../../services/message.services';
 import authServices from '../../services/auth.services';
-import { func } from 'prop-types';
 function InboxForm({ userId,refreshData }) {
   const { register, handleSubmit, reset, setValue, watch } = useForm();
   const [messages, setMessages] = useState([]);
@@ -44,7 +43,6 @@ function InboxForm({ userId,refreshData }) {
         if (isMounted) {
           setReceiver(userData.data);
           setMessages(messagesData.data.messages);
-          //console.log(messagesData.data.messageCount,messages.length);
           setHasMore(messagesData.data.messageCount > messages.length);
         }
 
@@ -60,7 +58,7 @@ function InboxForm({ userId,refreshData }) {
     fetchMessages();
 
     return () => { isMounted = false }; // Cleanup
-  }, [userId, limit]); // Only depend on userId
+  }, [userId, limit, refreshData]); // Only depend on userId
 
   // Add refresh capability
   // const refreshMessages = useCallback(async () => {
@@ -93,7 +91,7 @@ function InboxForm({ userId,refreshData }) {
 
       const sentMessage = await messageService.sendMessage(userId, formData);
       if (sentMessage) {
-        // setMessages(prev => [...prev, sentMessage.data]);
+        //setMessages(prev => [...prev, sentMessage.data]);
         reset();
         setSelectedFiles([]);
         refreshData();

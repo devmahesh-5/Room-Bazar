@@ -45,7 +45,7 @@ function HollowMessage() {
   return (
     <div className="flex flex-row h-screen bg-[#F2F4F7]">
       {/* Sidebar for Messages */}
-      <div className="w-full p-4 bg-[#F2F4F7] shadow-lg rounded-r-lg overflow-y-auto md:w-1/4">
+      <div className="w-full p-4 bg-[#F2F4F7] shadow-lg rounded-r-lg overflow-y-auto md:w-1/4 custom-scroll">
         <h2 className="text-xl font-semibold text-gray-800 mb-6">Messages</h2>
         {profiles.map((profile) => (
           <div key={profile?.user?._id}>
@@ -53,6 +53,7 @@ function HollowMessage() {
             _id={profile?.user?._id}
             avatar={profile?.user?.avatar}
             fullName={profile?.user?.fullName || 'Unknown'}
+            unreadCount={profile?.unreadCount}
           />
           </div>
         ))}

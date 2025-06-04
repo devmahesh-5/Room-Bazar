@@ -36,7 +36,7 @@ function App() {
           setNotifications(notification.data);
         }
     } catch (error) {
-      setError(error.response.data.error);
+      setError(error.response?.data?.error || "Failed to fetch notifications");
       setNotifications([]);
     }
   }, [authStatus]);
@@ -54,7 +54,7 @@ function App() {
           setLoading(false);
         }
       } catch (error) {
-        setError(error.response.data.error);
+        setError(error.response?.data?.error || "Failed to fetch user");
         setUser(null);
       } finally {
         setLoading(false);
