@@ -14,7 +14,7 @@ const PaymentCard = ({amount, onPayment}) => {
         {/* eSewa Button */}
         <button
         onClick={()=>{onPayment('ESewa')}}
-          className="w-full flex items-center justify-center gap-3 bg-[#5a3acf] hover:bg-[#6C48E3] text-white py-3 px-4 rounded-lg transition-all duration-300 hover:shadow-md"
+          className="w-full flex items-center justify-center gap-3 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg transition-all duration-300 hover:shadow-md"
         >
           <img 
             src="https://esewa.com.np/common/images/esewa_logo.png" 

@@ -6,7 +6,7 @@ import { MessageCard } from '../components';
 function HollowMessage() {
   const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const [error, setError] = useState(null);
   useEffect(() => {
     (async () => {
       try {
@@ -15,7 +15,7 @@ function HollowMessage() {
           setProfiles(messageProfile.data);
         }
       } catch (error) {
-        console.error('Error fetching message profiles:', error);
+        setError(error.response?.data?.error || 'Failed to load profiles');
       } finally {
         setLoading(false);
       }
@@ -29,9 +29,16 @@ function HollowMessage() {
         <span className="ml-4 text-lg font-semibold">Loading profiles...</span>
       </div>
     );
-  }
-
-  if (!Array.isArray(profiles) || profiles.length === 0) {
+  }else if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-center p-6 bg-white rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold text-gray-700">Error</h2>
+          <p className="text-gray-500">{error}</p>
+        </div>
+      </div>
+    );
+  }else if (!Array.isArray(profiles) || profiles.length === 0) {
     return (
       <div className="flex justify-center items-center h-screen">
         <div className="text-center p-6 bg-white rounded-lg shadow-md">

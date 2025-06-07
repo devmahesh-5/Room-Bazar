@@ -30,6 +30,7 @@ function Messages() {
   const refreshData = () => {
     setRefreshIndex(refreshIndex + 1);
   }
+  
   // if(loading){
   //   return(
   //     <div className="flex justify-center items-center h-screen">
@@ -49,7 +50,7 @@ function Messages() {
             _id={profile?.user?._id}
             avatar={profile?.user?.avatar}
             fullName={profile?.user?.fullName || 'Unknown User'}
-            ureadCount={profile?.unreadCount}
+            unreadCount={profile?.unreadCount}
           />
           </div>
         ))}

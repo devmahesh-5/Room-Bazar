@@ -314,7 +314,7 @@ const ProfilePage = () => {
                 {dashboardData?.myRoommates?.map((roommate, index) => (
                     <div
                     key={index}
-                    className="bg-[var(--color-background)] rounded-lg p-4 flex items-center space-x-4 hover:shadow-md transition-shadow"
+                    className="bg-white rounded-lg p-4 flex items-center space-x-4 hover:shadow-md transition-shadow"
                   >
                     
                   <Link to={`/roommates/${roommate?.myRoommates?._id}`} key={index}>

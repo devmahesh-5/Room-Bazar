@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 const MessageCard = ({ _id, avatar, fullName,unreadCount }) => {//userid
-  // console.log(unreadCount);
   
   return (
     <Link to={`/messages/ib/${_id}`}>
@@ -13,7 +12,7 @@ const MessageCard = ({ _id, avatar, fullName,unreadCount }) => {//userid
         <h3 className="text-lg font-semibold">{fullName || 'Unknown User'}</h3>
         {unreadCount > 0 && (
           //[#6C48E3] color dot here
-          <p className="text-sm text-[#6C48E3]">{unreadCount} unread messages</p>)}
+          <p className="text-sm text-[#6C48E3] font-semibold">{unreadCount} unread messages</p>)}
       </div>
     </div>
     </Link>

@@ -1,6 +1,7 @@
 import React from 'react'
 import roommateService from '../services/roommate.services.js';
 function RequestCard({
+    userId,
     _id,
     avatar,
     fullName,
@@ -79,9 +80,13 @@ function RequestCard({
             </div>)}
             {
             cardType === 'sent' &&(
-            <div>
+            <div className="flex space-x-4">
             <button className="flex-1 mr-2 px-3 py-1 bg-[#6C48E3] text-white text-sm font-semibold rounded hover:opacity-80 transition duration-300" onClick={cancelRequest}>
               Cancel
+            </button>
+
+            <button className="flex-1 mr-2 px-3 py-1 bg-gray-200 text-[#6C48E3] text-sm font-semibold rounded hover:opacity-80 transition duration-300" onClick={() => window.location.href = `/messages/ib/${userId}`}>
+              Message
             </button>
             </div>
             )}
