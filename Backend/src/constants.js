@@ -229,7 +229,7 @@ export const sendOtp = async (email, otp) => {
         secure: false,
         requireTLS: true,
         auth: {
-            user: `noreply@${process.env.EMAIL}`,
+            user: `${process.env.EMAIL}`,
             pass: process.env.EMAIL_PASSWORD,
             tls: {
                 rejectUnauthorized: true 
@@ -257,6 +257,105 @@ export const sendOtp = async (email, otp) => {
         return false
     }
 }
+const resetPasswordTemplate = (token) => ({
+    subject: 'Reset Your Room-Bazar Password',
+text: `
+  Password Reset Request
+  
+  We received a request to reset your Room-Bazar account password. 
+  Click the link below to proceed:
+  
+  ${process.env.FRONTEND_URL}/reset-password/${token}
+  
+  This link will expire in 15 minutes. If you didn't request this, 
+  please ignore this email or contact our support team immediately.
+  
+  The Room-Bazar Team
+`,
+html: `
+<div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #F2F4F7; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+  <div style="background-color: #6C48E3; padding: 24px; text-align: center;">
+    <h1 style="color: white; margin: 0; font-size: 24px;">Room-Bazar</h1>
+  </div>
+  
+  <div style="padding: 32px;">
+    <h2 style="color: #1A1A1A; margin-top: 0; font-size: 20px; font-weight: 600;">Password Reset Request</h2>
+    <p style="font-size: 16px; line-height: 1.5; color: #555; margin-bottom: 24px;">
+      We received a request to reset your Room-Bazar account password. Click the button below to 
+      securely reset your password:
+    </p>
+    
+    <div style="text-align: center; margin: 32px 0;">
+      <a href="${process.env.FRONTEND_URL}/reset-password/${token}" 
+         style="display: inline-block; padding: 12px 24px; background-color: #6C48E3; color: white; 
+                text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 16px;
+                box-shadow: 0 2px 8px rgba(108, 72, 227, 0.3);">
+        Reset Password
+      </a>
+    </div>
+    
+    <p style="font-size: 14px; color: #777; margin-bottom: 24px;">
+      <strong>Security Note:</strong> This link will expire in 15 minutes. For your protection, 
+      please do not share this link with anyone.
+    </p>
+    
+    <div style="background-color: #F8F9FA; padding: 16px; border-radius: 6px; margin-bottom: 24px;">
+      <p style="font-size: 13px; color: #666; margin: 0;">
+        If the button doesn't work, copy and paste this link into your browser:<br>
+        <span style="word-break: break-all; color: #6C48E3;">${process.env.FRONTEND_URL}/reset-password/${token}</span>
+      </p>
+    </div>
+    
+    <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;">
+    
+    <p style="font-size: 14px; color: #999; text-align: center; margin-bottom: 0;">
+      If you didn't request this password reset, please secure your account by changing your password 
+      or contact our support team at 
+      <a href="mailto:support@room-bazar.com" style="color: #6C48E3;">support@room-bazar.com</a>.
+    </p>
+  </div>
+  
+  <div style="background-color: #F2F4F7; padding: 16px; text-align: center; font-size: 12px; color: #777;">
+    © ${new Date().getFullYear()} Room-Bazar. All rights reserved.<br>
+    <span style="font-size: 11px;">This is an automated message - please do not reply directly to this email.</span>
+  </div>
+</div>
+`
+})
+export const resetPasswordEmail = async (email, token) => {
+    const transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 587, // SSL
+        secure: false,
+        requireTLS: true,
+         auth: {
+            user: `${process.env.EMAIL}`,
+            pass: process.env.EMAIL_PASSWORD,
+            tls: {
+                rejectUnauthorized: true
+            }
+        }
+    });
+    
+
+    try {
+        const { subject, text, html } = resetPasswordTemplate(token);
+        await transporter.sendMail({
+            from: `Room-Bazar <noreply@${process.env.EMAIL}>`,
+            to: email,
+            subject,
+            text,
+            html,
+            headers: {
+                'X-Priority': '1', // High priority
+                'X-Mailer': 'Nodemailer'
+            }
+        });
+        return true
+    } catch (error) {
+        throw error
+    }
+}
 
 export const sendEmail = async (email) => {
     const transporter = nodemailer.createTransport({
@@ -265,7 +364,7 @@ export const sendEmail = async (email) => {
         secure: false,
         requireTLS: true,
         auth: {
-            user: `noreply@${process.env.EMAIL}`,
+            user: `${process.env.EMAIL}`,
             pass: process.env.EMAIL_PASSWORD,
             tls: {
                 rejectUnauthorized: true
@@ -300,14 +399,14 @@ export const sendEmail = async (email) => {
 
 }
 
-export const generateOtp = async () => {
+export const generateOtp = async (reset=false) => {
     const otp = otpGenerator.generate(6, {
         digits: true,
-        upperCaseAlphabets: false,
-        lowerCaseAlphabets: false,
-        specialChars: false
+        upperCaseAlphabets: reset,
+        lowerCaseAlphabets: reset,
+        specialChars: reset
     });
-    return otp
+    return otp;
 }
 export const notifyUnVerifiedUser = async () => {
     cron.schedule('0 3 * * *', async () => {

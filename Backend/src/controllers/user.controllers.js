@@ -12,7 +12,7 @@ import Payment from "../models/payment.models.js";
 import Refund from "../models/refund.models.js";
 import { getRoommateByUserId, getUserByRoommateId,emailValidator } from "../constants.js";
 import RoommateRequest from "../models/roommateRequest.models.js";
-import { sendOtp, generateOtp } from "../constants.js";
+import { sendOtp, generateOtp,resetPasswordEmail } from "../constants.js";
 import RoommateAccount from "../models/roommateAccount.models.js";
 import {google} from 'googleapis';
 
@@ -1091,7 +1091,59 @@ const getUserIdByRoommateId = asyncHandler(async (req, res) => {
       )
 })
 
+const sendForgetPasswordEmail = asyncHandler(async (req, res) => {
+   const { email } = req.body;
 
+   const user = await User.findOne({ email });
+   if (!user) {
+      throw new ApiError(404, 'User not found');
+   }
+
+   const otp = await generateOtp(true);
+   if(!otp){
+      throw new ApiError(500, 'Failed to generate OTP');
+   }
+
+   const otpExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
+   user.otp = otp;
+   user.otpExpiry = otpExpiry;
+   await user.save({ validateBeforeSave: false });
+   await resetPasswordEmail(email, otp);
+   res
+      .status(200)
+      .json(
+         new ApiResponse(
+            200,
+            null,
+            'OTP sent successfully'
+         )
+      )
+})
+
+const resetNewPassword = asyncHandler(async (req, res) => {
+   const token = req.params?.token;
+   const { password } = req.body;
+   const user = await User.findOne({ otp: token });
+   
+   if (!user || user.otpExpiry < Date.now()) {
+      throw new ApiError(404, 'Token expired or user not found');
+   }
+
+   user.password = password;
+   user.otp = null;
+   user.otpExpiry = null;
+   await user.save();
+   res
+      .status(200)
+      .json(
+         new ApiResponse(
+            200,
+            null,
+            'Password reset successfully'
+         )
+      )
+
+});
 export {
    registerUser,
    verifyOtp,
@@ -1110,5 +1162,7 @@ export {
    getUserFavourites,
    getDashboard,
    getUserById,
-   getUserIdByRoommateId
+   getUserIdByRoommateId,
+   sendForgetPasswordEmail,
+   resetNewPassword
 };
