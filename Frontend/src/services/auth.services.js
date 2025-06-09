@@ -345,6 +345,26 @@ class authServices {
             throw error;
         }
     }
+
+    async sendForgetPasswordEmail({ email }) {
+        try {
+            const response = await axios.post("/api/v1/users/forgot-password", { email });
+        } catch (error) {
+            throw error;
+        }
+        } //sendForgetPasswordEmail
+    
+    async resetPassword(token, password ) {
+        try {
+            const response = await axios.post(`/api/v1/users/reset-password/${token}`, { password });
+            if (!response) {
+                throw new Error("Error resetting password");
+            }
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 const authService = new authServices();

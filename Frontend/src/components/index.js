@@ -26,6 +26,8 @@ import PaymentSuccess from "./PaymentSuccess.jsx";
 import MyBookings from "./MyBookings.jsx";
 import OAuth from "./OAuth.jsx";
 import Protected from "./Protected.jsx";
+import ForgetPassword from "./ForgetPassword.jsx";
+import ResetPassword from "./ResetPassword.jsx";
 export {
     Logo,
     Header,
@@ -54,5 +56,7 @@ export {
     PaymentFailed,
     PaymentSuccess,
     MyBookings,
-    Protected
+    Protected,
+    ForgetPassword,
+    ResetPassword
 }

@@ -31,6 +31,8 @@ import { ErrorBoundary } from './components/ErrorBoundary.jsx'
 import ErrorPage from './pages/ErrorPage.jsx'
 import FallBackPage from './pages/FallBackPage.jsx'
 import Updateroom from './pages/Updateroom.jsx'
+import ForgetPassword from './pages/ForgetPassword.jsx'
+import ResetPassword from './pages/ResetPassword.jsx'
 const router = createBrowserRouter([
   {
     path: "/",
@@ -100,6 +102,14 @@ const router = createBrowserRouter([
               <Protected authentication>
                 {" "}
                 <MyBooking />
+              </Protected>
+            )
+          },
+          {
+            path:'forgetpassword',
+            element:(
+              <Protected authentication={false}>
+                <ForgetPassword />
               </Protected>
             )
           }
@@ -248,7 +258,20 @@ const router = createBrowserRouter([
           }
         ]
       },
-     
+      {
+        path: 'reset-password/:token',
+        children: [
+          {
+            path: '',
+            element: (
+              <Protected authentication={false}>
+                {" "}
+                <ResetPassword />
+              </Protected>
+            )
+          }
+        ]
+      }
 
 
     ]
