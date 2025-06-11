@@ -14,7 +14,7 @@ export const DB_NAME = "Room-Bazar";
 
 export const options = {
     httpOnly: true,
-    secure: false,
+    secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax'
 }//this ensures that cookie is not modifiable from frontend
 
