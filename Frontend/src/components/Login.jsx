@@ -120,7 +120,7 @@ function Login() {
 
                         <Button
                             className="w-full mx-auto  flex items-center justify-center h-12 px-4 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#4285F4]/50"
-                            onClick={() => window.location.href = 'http://localhost:5000/api/v1/users/auth/google'}
+                            onClick={() => window.location.href = 'https://room-bazar.onrender.com/api/v1/users/auth/google'}
                         >
 
 

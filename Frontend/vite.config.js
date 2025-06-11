@@ -21,7 +21,8 @@ export default defineConfig({
       interval: 1000
     },
     proxy: {
-      '/api': 'http://localhost:5000'
+      // '/api': 'http://localhost:5000',
+      '/api': 'https://room-bazar.onrender.com'
     }
   },
   cacheDir: './.vite'

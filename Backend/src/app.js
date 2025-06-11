@@ -8,7 +8,7 @@ const app = express();
 //cors setup to allow cross origin request
 app.use(cors(
     {
-        origin:process.env.CORS_ORIGIN.split(','),
+        origin:"*",
         credentials:true
     }
 ))
