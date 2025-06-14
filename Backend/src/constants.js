@@ -10,9 +10,11 @@ import Booking from "./models/booking.models.js";
 import validator from 'validator';
 import axios from "axios";
 import { ApiError } from "./utils/ApiError.js";
+import path from "path";
 export const DB_NAME = "Room-Bazar";
 const isProduction = process.env.NODE_ENV === 'production';
 export const options = {
+    path: '/',
     httpOnly: true,
     secure: isProduction,
     sameSite: isProduction ? 'none' : 'lax'
