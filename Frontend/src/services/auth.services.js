@@ -1,6 +1,8 @@
 import axios from "axios";
 import api from "./apiconfig.js";
 const API = import.meta.env.VITE_API_BASE_URL;
+
+
 class authServices {
     
     async registerUser(formData) {
@@ -84,13 +86,15 @@ class authServices {
             }
             return response.data;
         } catch (error) {
-            console.error("Error logging out user:", error);
+            throw error;
         }
     }
 
     async getCurrentUser() {
+        console.log(API);
+        
         try {
-            const response = await axios.get("/api/v1/users/myprofile",
+            const response = await axios.get(`${API}/api/v1/users/myprofile`,
                 {
                     withCredentials: true,
                 }
