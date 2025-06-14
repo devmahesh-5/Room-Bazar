@@ -81,11 +81,11 @@ const ResetPassword = () => {
     ) : loading && !error ? (
         <div className="auth-form-container">
             {loading && <Authloader />}
-            {error && <p className="error">{error}</p>}
+            {error && typeof error === "string" && <p className="error">{error}</p>}
         </div>
     ) : (
         <div className="auth-form-container">
-  {error && (
+  {error && typeof error === "string" && (
     <div className="mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded">
       <div className="flex items-center">
         <svg 

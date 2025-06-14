@@ -34,7 +34,7 @@ function Input({
                 aria-describedby={error ? errorId : undefined}
             />
             
-            {error && (
+            {error && typeof error === 'string' && (
                 <p id={errorId} className="mt-1 text-sm text-red-600">
                     {error}
                 </p>

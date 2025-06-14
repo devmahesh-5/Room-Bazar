@@ -1,5 +1,6 @@
 import axios from "axios";
 import api from "./apiconfig.js";
+const API = import.meta.env.VITE_API_BASE_URL;
 class authServices {
     
     async registerUser(formData) {
@@ -45,8 +46,7 @@ class authServices {
     }
     async loginUser(data) {
         try {
-            
-            const response = await axios.post("/api/v1/users/login", data,{
+            const response = await axios.post(`${API}/api/v1/users/login`, data,{
                 withCredentials: true
             });
             if (!response) {
@@ -95,12 +95,9 @@ class authServices {
                     withCredentials: true,
                 }
             );
-            if (!response) {
-                throw new Error("Error getting current user");
-            }
             return response.data;
         } catch (error) {
-            console.error("Error getting current user:", error);
+            throw error;
         }
     }
 

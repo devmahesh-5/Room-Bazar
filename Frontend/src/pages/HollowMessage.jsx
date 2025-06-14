@@ -29,7 +29,7 @@ function HollowMessage() {
         <span className="ml-4 text-lg font-semibold">Loading profiles...</span>
       </div>
     );
-  }else if (error) {
+  }else if (error && typeof error === 'string') {
     return (
       <div className="flex justify-center items-center h-screen">
         <div className="text-center p-6 bg-white rounded-lg shadow-md">
@@ -55,14 +55,14 @@ function HollowMessage() {
       <div className="w-full p-4 bg-[#F2F4F7] shadow-lg rounded-r-lg overflow-y-auto md:w-1/4 custom-scroll">
         <h2 className="text-xl font-semibold text-gray-800 mb-6">Messages</h2>
         {profiles.map((profile) => (
-          <div key={profile?.user?._id}>
-          <MessageCard
+          profile?.user?._id &&
+          (<MessageCard
+            key={profile?.user?._id}
             _id={profile?.user?._id}
             avatar={profile?.user?.avatar}
             fullName={profile?.user?.fullName || 'Unknown'}
             unreadCount={profile?.unreadCount}
-          />
-          </div>
+          />)
         ))}
       </div>
 

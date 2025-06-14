@@ -65,7 +65,7 @@ function Rooms() {
         </form>
         <div className="row">
           <div className="w-1/3 p-4 bg-gray-100 rounded-lg">
-            <h2 className="text-lg font-semibold">{error}</h2>
+            {error && typeof error === 'string' && (<h2 className="text-lg font-semibold">{error}</h2>)}
           </div>
         </div>
       </div>

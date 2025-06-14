@@ -56,7 +56,8 @@ function Favourites() {
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#6C48E3]"></div>
         ):(
             <div className="w-72 p-4 bg-red-100 rounded-lg sticky top-0">
-                <h2 className="text-lg font-semibold">{error}</h2>
+               {
+                error && typeof error === 'string' && (<h2 className="text-lg font-semibold">{error}</h2>)}
             </div>
         )
     }

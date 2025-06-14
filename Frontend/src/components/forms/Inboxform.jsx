@@ -345,7 +345,7 @@ function InboxForm({ userId,refreshData }) {
         </div>
       </form>
     </div>
-  ) : (
+  ) : typeof error === 'string' ? (
     <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 flex items-start">
       <MdExitToApp className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
       <div>
@@ -353,7 +353,7 @@ function InboxForm({ userId,refreshData }) {
         <p className="text-sm">{error}</p>
       </div>
     </div>
-  )
+  ):null;
 }
 
 

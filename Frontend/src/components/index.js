@@ -6,7 +6,6 @@ import Button from "./Button.jsx";
 import Select from "./Select.jsx";
 import Signup from "./Signup.jsx";
 import Login from "./Login.jsx";
-import Home from "./Home.jsx";
 import Roomform from "./forms/Roomform.jsx";
 import MessageProfile from "./MessageProfile.jsx";
 import MessageCard from "./Messagecard.jsx";
@@ -38,7 +37,6 @@ export {
     Signup,
     Login,
     OAuth,
-    Home,
     Roomform,
     MessageProfile,
     MessageCard,

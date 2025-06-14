@@ -90,7 +90,7 @@ function App() {
                 ))
               ) : (
                 <div className="text-center py-8 text-gray-500">
-                  {error ? (
+                  {error && typeof error === 'string' ? (
                     <p>{error}</p>
                   ) : (
                     <p>No notifications found.</p>

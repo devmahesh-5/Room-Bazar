@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 const MessageCard = ({ _id, avatar, fullName,unreadCount }) => {//userid
   
-  return (
+  return _id && (
     <Link to={`/messages/ib/${_id}`}>
     <div className="flex items-center p-3 hover:bg-gray-200 hover:opacity-80 cursor-pointer rounded-lg bg-[#F2F4F7] my-2" key={_id}>
       <div className="mr-4">

@@ -144,7 +144,7 @@ function Room() {
         setShowCommentBox(!showCommentBox);
     };
 
-    if (!room && error) {
+    if (!room && error && typeof error === "string") {
         return <div className="flex justify-center items-center h-screen">{error}</div>;
     }
 

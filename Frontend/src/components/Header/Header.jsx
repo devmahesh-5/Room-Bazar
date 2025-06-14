@@ -52,7 +52,7 @@ function Header({ isNotification }) {
     setShowDeleteConfirm(false);
   }
 
-  if (error) {
+  if (error && typeof error === 'string') {
     return <div className="text-red-500">Error Occured: {error}</div>;
   }
 

@@ -22,8 +22,10 @@ function Updateroom() {
     },[roomId])
     return !error && room? (
         <Roomform room={room} />
-    ):(
+    ):typeof error === 'string'?(
         <h1 className='text-red-600'>{error}</h1>
+    ):(
+        <div className='text-red-600'>Something went wrong</div>
     )
 }
 

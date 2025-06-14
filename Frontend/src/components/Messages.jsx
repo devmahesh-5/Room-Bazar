@@ -45,14 +45,14 @@ function Messages() {
       <div className="w-72 p-4 bg-[#F2F4F7] rounded-lg sticky top-0 h-screen overflow-y-auto hidden md:block custom-scroll">
         <h2 className="text-lg font-semibold mb-4">Messages</h2>
         {profiles.map((profile) => (
-          <div key={profile?.user?._id}>
+          profile?.user?._id &&(
           <MessageCard
+            key={profile?.user?._id}
             _id={profile?.user?._id}
             avatar={profile?.user?.avatar}
             fullName={profile?.user?.fullName || 'Unknown User'}
             unreadCount={profile?.unreadCount}
-          />
-          </div>
+          />)
         ))}
       </div>
       <div className="flex-1 p-4 bg-[#F2F4F7] rounded-lg">
@@ -69,7 +69,7 @@ function Messages() {
       </div>
       </div>
     )
-  ) :(
+  ) : error && typeof error === 'string'?(
     <div className='flex flex-row'>
     <div className="w-1/3 p-4 bg-[#F2F4F7] rounded-lg sticky top-0">
       <h2 className="text-lg font-semibold">{error}</h2>
@@ -78,6 +78,8 @@ function Messages() {
         <Inboxform userId={userId} refreshData={refreshData} />
     </div>
     </div>
+  ):(
+    null
   )
 }
 export default Messages

@@ -27,7 +27,7 @@ function ForgetPassword() {
                            <span className="inline-block w-full max-w-[100px]">
                                <Logo width="100%" />
                            </span>
-                           {error && (
+                           {error && typeof error === 'string' && (
                                <p className="text-red-500 text-xs mt-2">{error}</p>
                            )}
                        </div>
@@ -52,7 +52,7 @@ function ForgetPassword() {
                            <span className="inline-block w-full max-w-[100px]">
                                <Logo width="100%" />
                            </span>
-                           {error && (
+                           {error && typeof error === 'string' && (
                                <p className="text-red-500 text-xs mt-2">{error}</p>
                            )}
                        </div>

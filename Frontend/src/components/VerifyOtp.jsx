@@ -69,7 +69,7 @@ function VerifyOTP() {
                     </span>
                 </div>
 
-                {error && <p className="text-red-600 mt-2 text-center">{error}</p>}
+                {error && typeof error === "string" && <p className="text-red-600 mt-2 text-center">{error}</p>}
 
                 <h2 className="text-center text-2xl font-bold leading-tight text-[#6C48E3]">
                     Verify Your Email

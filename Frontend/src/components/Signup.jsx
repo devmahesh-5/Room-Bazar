@@ -71,7 +71,7 @@ function Signup() {
                     Join our community and start your journey
                 </p>
 
-                {error && <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-center">{error}</div>}
+                {error && typeof error === "string" && <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-center">{error}</div>}
 
                 <form onSubmit={handleSubmit(signUp)}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -23,13 +23,13 @@ export default defineConfig(({ mode }) => {
         usePolling: true,
         interval: 1000
       },
-      proxy: {
-        '/api': {
-          target: env.VITE_API_BASE_URL || 'http://localhost:5000',
-          changeOrigin: true,
-          // rewrite: (path) => path.replace(/^\/api/, ''),
-        },
-      }
+      // proxy: {
+      //   '/api': {
+      //     target: env.VITE_API_BASE_URL || 'http://localhost:5000',
+      //     changeOrigin: true,
+      //     // rewrite: (path) => path.replace(/^\/api/, ''),
+      //   },
+      // }
     },
     cacheDir: './.vite'
   }

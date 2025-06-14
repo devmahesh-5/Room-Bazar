@@ -5,7 +5,6 @@ import { FaHome, FaRedo } from 'react-icons/fa';
 
 export default function ErrorPage() {
   const error = useRouteError();
-  console.error(error);
 
   // Define error messages
   const errorMessages = {

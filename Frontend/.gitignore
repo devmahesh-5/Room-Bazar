@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 
 # dot env
-.env
+.env.production
