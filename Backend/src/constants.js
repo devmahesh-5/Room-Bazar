@@ -11,11 +11,11 @@ import validator from 'validator';
 import axios from "axios";
 import { ApiError } from "./utils/ApiError.js";
 export const DB_NAME = "Room-Bazar";
-
+const isProduction = process.env.NODE_ENV === 'production';
 export const options = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax'
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax'
 }//this ensures that cookie is not modifiable from frontend
 
 export const generateSignature = (dataToSign) => {
