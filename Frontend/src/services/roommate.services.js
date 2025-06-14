@@ -1,8 +1,9 @@
 import axios from "axios";
+const API = import.meta.env.VITE_API_BASE_URL;
 class roommateServices {
     async registerRoommate(formData) {
         try {
-            const response = await axios.post("/api/v1/roommates/register", formData, {
+            const response = await axios.post(`${API}/api/v1/roommates/register`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             if (!response) {
@@ -16,7 +17,7 @@ class roommateServices {
 
     async updateRoommate(formData) {
         try {
-            const response = await axios.patch(`/api/v1/roommates/update-account`, formData, {
+            const response = await axios.patch(`${API}/api/v1/roommates/update-account`, formData, {
 
                 headers: { 'Content-Type': 'multipart/form-data' }
 
@@ -33,7 +34,7 @@ class roommateServices {
 
     async deleteRoommateAccount() {
         try {
-            const response = await axios.delete(`/api/v1/roommates/delete-account`);
+            const response = await axios.delete(`${API}/api/v1/roommates/delete-account`);
             if (!response) {
                 throw new Error("Error deleting roommate");
             }
@@ -45,7 +46,7 @@ class roommateServices {
 
     async getRoommateById(roommateId) {
         try {
-            const response = await axios.get(`/api/v1/roommates/profile/${roommateId}`);
+            const response = await axios.get(`${API}/api/v1/roommates/profile/${roommateId}`);
             if (!response) {
                 throw new Error("Error getting roommate");
             }
@@ -58,7 +59,7 @@ class roommateServices {
     async searchRoommates(page, limit, data) {
         try {
             const { query, field } = data
-            const response = await axios.get(`/api/v1/roommates/search?page=${page}&limit=${limit}&query=${query}&field=${field}`);
+            const response = await axios.get(`${API}/api/v1/roommates/search?page=${page}&limit=${limit}&query=${query}&field=${field}`);
             if (!response) {
                 throw new Error("Error searching roommates");
             }
@@ -70,7 +71,7 @@ class roommateServices {
 
     async getRoommateByJob(job) {
         try {
-            const response = await axios.get(`/api/v1/roommates/job/${job}`);
+            const response = await axios.get(`${API}/api/v1/roommates/job/${job}`);
             if (!response) {
                 throw new Error("Error getting roommate");
             }
@@ -82,7 +83,7 @@ class roommateServices {
 
     async getMyRoommates() {
         try {
-            const response = await axios.get(`/api/v1/roommates/my-roommates`);
+            const response = await axios.get(`${API}/api/v1/roommates/my-roommates`);
             if (!response) {
                 throw new Error("Error getting roommates");
             }
@@ -94,7 +95,7 @@ class roommateServices {
 
     async getMyRoommateAccount() {
         try {
-            const response = await axios.get(`/api/v1/roommates/myprofile`);
+            const response = await axios.get(`${API}/api/v1/roommates/myprofile`);
             if (!response) {
                 throw new Error("Error getting roommate");
             }
@@ -106,7 +107,7 @@ class roommateServices {
 
     async getNonRoommates(page, limit) {
         try {
-            const response = await axios.get(`/api/v1//roommates/non-roommates?page=${page}&limit=${limit}`);
+            const response = await axios.get(`${API}/api/v1//roommates/non-roommates?page=${page}&limit=${limit}`);
             if (!response) {
                 throw new Error("Error getting roommates");
             }
@@ -118,7 +119,7 @@ class roommateServices {
 
     async sendRoommateRequest(roommateId) {
         try {
-            const response = await axios.post(`/api/v1/roommates/sendrequest/${roommateId}`);
+            const response = await axios.post(`${API}/api/v1/roommates/sendrequest/${roommateId}`);
             if (!response) {
                 throw new Error("Error sending roommate request");
             }
@@ -130,7 +131,7 @@ class roommateServices {
 
     async acceptRoommateRequest(roommateId) {
         try {
-            const response = await axios.patch(`/api/v1/roommates/acceptrequest/${roommateId}`);
+            const response = await axios.patch(`${API}/api/v1/roommates/acceptrequest/${roommateId}`);
             if (!response) {
                 throw new Error("Error accepting roommate request");
             }
@@ -142,7 +143,7 @@ class roommateServices {
 
     async rejectRoommateRequest(roommateId) {
         try {
-            const response = await axios.patch(`/api/v1/roommates/rejectrequest/${roommateId}`);
+            const response = await axios.patch(`${API}/api/v1/roommates/rejectrequest/${roommateId}`);
             if (!response) {
                 throw new Error("Error rejecting roommate request");
             }
@@ -154,7 +155,7 @@ class roommateServices {
 
     async cancelRoommateRequest(roommateId) {
         try {
-            const response = await axios.delete(`/api/v1/roommates/cancelrequest/${roommateId}`);
+            const response = await axios.delete(`${API}/api/v1/roommates/cancelrequest/${roommateId}`);
             if (!response) {
                 throw new Error("Error canceling roommate request");
             }
@@ -166,7 +167,7 @@ class roommateServices {
 
     async getSentRoommateRequests() {
         try {
-            const response = await axios.get(`/api/v1/roommates/sentrequests`);
+            const response = await axios.get(`${API}/api/v1/roommates/sentrequests`);
             if (!response) {
                 throw new Error("Error getting roommate requests");
             }
@@ -178,7 +179,7 @@ class roommateServices {
 
     async getReceivedRoommateRequests() {
         try {
-            const response = await axios.get(`/api/v1/roommates/receivedrequests`);
+            const response = await axios.get(`${API}/api/v1/roommates/receivedrequests`);
             if (!response) {
                 throw new Error("Error getting roommate requests");
             }
@@ -190,7 +191,7 @@ class roommateServices {
 
     async deleteRoommate(roommateId) {
         try {
-            const response = await axios.delete(`/api/v1/roommates/delete/${roommateId}`);
+            const response = await axios.delete(`${API}/api/v1/roommates/delete/${roommateId}`);
             if (!response) {
                 throw new Error("Error deleting roommate");
             }

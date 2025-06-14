@@ -1,10 +1,10 @@
 import axios from "axios";
-
+const API = import.meta.env.VITE_API_BASE_URL;
 class favouriteServices {
     
    async toggleFavourite(roomId) {
        try {
-           const response = await axios.post(`/api/v1/rooms/${roomId}`);
+           const response = await axios.post(`${API}/api/v1/rooms/${roomId}`);
            if (!response) {
                throw new Error("Error toggling favourite");
            }
@@ -16,7 +16,7 @@ class favouriteServices {
 
     async getUserFavourites() {
         try {
-            const response = await axios.get(`/api/v1/favourites/myfavourites`);
+            const response = await axios.get(`${API}/api/v1/favourites/myfavourites`);
             if (!response) {
                 throw new Error("Error getting favourites");
             }
@@ -28,7 +28,7 @@ class favouriteServices {
 
     async getFavouriteByRoomId(roomId) {
         try {
-            const response = await axios.get(`/api/v1/rooms/favourites/${roomId}`);
+            const response = await axios.get(`${API}/api/v1/rooms/favourites/${roomId}`);
             if (!response) {
                 throw new Error("Error getting favourite");
             }

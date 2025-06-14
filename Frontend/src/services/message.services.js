@@ -1,9 +1,9 @@
 import axios from "axios";
-
+const API = import.meta.env.VITE_API_BASE_URL;
 class messageServices {
     async sendMessage(userId, formData) {
         try {
-            const response = await axios.post(`/api/v1/messages/ib/${userId}`, formData,
+            const response = await axios.post(`${API}/api/v1/messages/ib/${userId}`, formData,
                 {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 }
@@ -19,7 +19,7 @@ class messageServices {
 
     async getMessages(userId,limit=10) {
         try {
-            const response = await axios.get(`/api/v1/messages/ib/${userId}?limit=${limit}`);
+            const response = await axios.get(`${API}/api/v1/messages/ib/${userId}?limit=${limit}`);
             if (!response) {
                 throw new Error("Error getting messages");
             }
@@ -31,7 +31,7 @@ class messageServices {
 
     async getMessageProfile() {
         try {
-            const response = await axios.get(`/api/v1/messages`);
+            const response = await axios.get(`${API}/api/v1/messages`);
             if (!response) {
                 throw new Error("Error getting messages");
             }
@@ -43,7 +43,7 @@ class messageServices {
 
     async deleteMessage(messageId) {
         try {
-            const response = await axios.delete(`/api/v1/messages/${messageId}`);
+            const response = await axios.delete(`${API}/api/v1/messages/${messageId}`);
             if (!response) {
                 throw new Error("Error deleting message");
             }

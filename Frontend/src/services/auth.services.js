@@ -8,7 +8,7 @@ class authServices {
     async registerUser(formData) {
    
         try {
-            const response = await axios.post("/api/v1/users/register", formData, {
+            const response = await axios.post(`${API}/api/v1/users/register`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
     
@@ -25,7 +25,7 @@ class authServices {
     
     async verifyOTP(data) {
         try {
-            const response = await axios.post("/api/v1/users/verify-otp", data);
+            const response = await axios.post(`${API}/api/v1/users/verify-otp`, data);
             if (!response) {
                 throw new Error("Error verifying OTP");
             }
@@ -37,7 +37,7 @@ class authServices {
 
     async resendOTP(email) {
         try {
-            const response = await axios.post("/api/v1/users/resend-otp", { email });
+            const response = await axios.post(`${API}/api/v1/users/resend-otp`, { email });
             if (!response) {
                 throw new Error("Error resending OTP");
             }
@@ -76,7 +76,7 @@ class authServices {
 
     async logoutUser() {
         try {
-            const response = await axios.post("/api/v1/users/logout",
+            const response = await axios.post(`${API}/api/v1/users/logout`,
                 {
                     withCredentials: true
                 }
@@ -91,7 +91,6 @@ class authServices {
     }
 
     async getCurrentUser() {
-        console.log(API);
         
         try {
             const response = await axios.get(`${API}/api/v1/users/myprofile`,
@@ -107,7 +106,7 @@ class authServices {
 
     async getOauthCurrentUser() {
         try {
-            const response = await axios.get("/api/v1/users/oauth-callback",
+            const response = await axios.get(`${API}/api/v1/users/oauth-callback`,
                 {
                     withCredentials: true
                 }
@@ -123,7 +122,7 @@ class authServices {
 
     async updatePassword({ oldPassword, newPassword }) {
         try {
-            const response = await axios.patch("/api/v1/users/change-password", { oldPassword, newPassword });
+            const response = await axios.patch(`${API}/api/v1/users/change-password`, { oldPassword, newPassword });
             if (!response) {
                 throw new Error("Error updating password");
             }
@@ -135,7 +134,7 @@ class authServices {
 
     async updateProfile({ fullName, email, phone, address }) {
         try {
-            const response = await axios.patch("/api/v1/users/updateprofile", { fullName, email, phone, address });
+            const response = await axios.patch(`${API}/api/v1/users/updateprofile`, { fullName, email, phone, address });
             if (!response) {
                 throw new Error("Error updating profile");
             }
@@ -148,14 +147,13 @@ class authServices {
     async updateProfilePic(formData) {
         const newFormData = new FormData();
         for(const [key, value] of formData.entries()) {
-            console.log(key);
             if (key !== 'coverImage') {
                 newFormData.append(key, value);
             }
         }
         
         try {
-            const response = await axios.patch("/api/v1/users/updateprofilepicture", newFormData, {
+            const response = await axios.patch(`${API}/api/v1/users/updateprofilepicture`, newFormData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             if (!response) {
@@ -174,7 +172,7 @@ class authServices {
             }
         }
         try {
-            const response = await axios.patch("/api/v1/users/updatecoverpicture", newFormData, {
+            const response = await axios.patch(`${API}/api/v1/users/updatecoverpicture`, newFormData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             if (!response) {
@@ -188,7 +186,7 @@ class authServices {
 
     async getMyLocation() {
         try {
-            const response = await axios.get("/api/v1/users/mylocation",
+            const response = await axios.get(`${API}/api/v1/users/mylocation`,
                 {
                     withCredentials: true
                 }
@@ -204,7 +202,7 @@ class authServices {
 
     async deleteUserAccount() {
         try {
-            const response = await axios.delete("/api/v1/users/delete-account",
+            const response = await axios.delete(`${API}/api/v1/users/delete-account`,
                 {
                     withCredentials: true
                 }
@@ -221,7 +219,7 @@ class authServices {
     async getUserDashboard(roommateId) {
         try {
             
-             const response = await axios.get(`/api/v1/users/dashboard/${roommateId}`,
+             const response = await axios.get(`${API}/api/v1/users/dashboard/${roommateId}`,
                 {
                     withCredentials: true
                 }
@@ -238,7 +236,7 @@ class authServices {
     async getMyDashboard(){
         try {
             
-            const response = await axios.get(`/api/v1/users/get-my-dashboard`,
+            const response = await axios.get(`${API}/api/v1/users/get-my-dashboard`,
                {
                    withCredentials: true
                }
@@ -254,7 +252,7 @@ class authServices {
     
     async getUserByRoommateId({ roommateId }) {
         try {
-            const response = await axios.get(`/api/v1/users/getroommatesuserid/${roommateId}`);
+            const response = await axios.get(`${API}/api/v1/users/getroommatesuserid/${roommateId}`);
             if (!response) {
                 throw new Error("Error getting user by roommate ID");
             }
@@ -265,7 +263,7 @@ class authServices {
     }
     async updateLocation({ address, latitude, longitude }) {
         try {
-            const response = await axios.patch("/api/v1/users/mylocation", { address,latitude, longitude });
+            const response = await axios.patch(`${API}/api/v1/users/mylocation`, { address,latitude, longitude });
             if (!response) {
                 throw new Error("Error updating location");
             }
@@ -277,7 +275,7 @@ class authServices {
 
     async getUserFavourites() {
         try {
-            const response = await axios.get("/api/v1/users/myfavourites",
+            const response = await axios.get(`${API}/api/v1/users/myfavourites`,
                 {
                     withCredentials: true
                 }
@@ -293,7 +291,7 @@ class authServices {
 
     async reportOwner({ reason,ownerId }) {
         try {
-            const response = await axios.patch(`/api/v1/users/addreport/${ownerId}`, { reason });
+            const response = await axios.patch(`${API}/api/v1/users/addreport/${ownerId}`, { reason });
             if (!response) {
                 throw new Error("Error reporting owner");
             }
@@ -305,7 +303,7 @@ class authServices {
 
     async getOwnerReports({ ownerId }) {
         try {
-            const response = await axios.get(`/api/v1/users/reports/${ownerId}`,
+            const response = await axios.get(`${API}/api/v1/users/reports/${ownerId}`,
                 {
                     withCredentials: true
                 }
@@ -321,7 +319,7 @@ class authServices {
 
     async getUserById({ userId }) {
         try {
-            const response = await axios.get(`/api/v1/users/${userId}`);
+            const response = await axios.get(`${API}/api/v1/users/${userId}`);
             if (!response) {
                 throw new Error("Error getting user by ID");
             }
@@ -333,7 +331,7 @@ class authServices {
 
     async refreshAccessToken() {
         try {
-            const response = await axios.post("/api/v1/users/refresh-token",
+            const response = await axios.post(`${API}/api/v1/users/refresh-token`,
                 {
                     withCredentials: true
                 }
@@ -349,7 +347,7 @@ class authServices {
 
     async sendForgetPasswordEmail({ email }) {
         try {
-            const response = await axios.post("/api/v1/users/forgot-password", { email });
+            const response = await axios.post(`${API}/api/v1/users/forgot-password`, { email });
         } catch (error) {
             throw error;
         }
@@ -357,7 +355,7 @@ class authServices {
     
     async resetPassword(token, password ) {
         try {
-            const response = await axios.post(`/api/v1/users/reset-password/${token}`, { password });
+            const response = await axios.post(`${API}/api/v1/users/reset-password/${token}`, { password });
             if (!response) {
                 throw new Error("Error resetting password");
             }
