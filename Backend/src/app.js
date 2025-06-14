@@ -8,18 +8,24 @@ const app = express();
 const allowedOrigins = process.env.CORS_ORIGIN.split(',');
 console.log('Allowed Origins:', allowedOrigins);
 //cors setup to allow cross origin request
-app.use(cors({
-  origin: function (origin, callback) {
-    const allowedOrigins = process.env.CORS_ORIGIN.split(',');
-    console.log('Request Origin:', origin);
 
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+app.options('*', cors({
+  origin: allowedOrigins,
   credentials: true
+}));
+
+app.use(cors({
+  origin: function(origin, callback) {
+  const allowedOrigins = process.env.CORS_ORIGIN.split(',');
+  console.log('Request Origin:', origin);
+  
+  if (!origin || allowedOrigins.includes(origin)) {
+    callback(null, true);  // allow
+  } else {
+    callback(null, false); // deny without throwing error
+  }
+}
+
 }));
 
 const limiter = rateLimit({
