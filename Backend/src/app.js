@@ -4,7 +4,7 @@ import cookieParser from 'cookie-parser'
 import {rateLimit} from 'express-rate-limit'
 import { unVerifiedUserRemoval,notifyUnVerifiedUser, makeRoomAvailable } from "./constants.js";
 const app = express();
-
+app.set('trust proxy', 1);
 const allowedOrigins = process.env.CORS_ORIGIN.split(',');
 
 const corsOptions = {
