@@ -5,7 +5,8 @@ class roomServices {
     async addRoom(formData) {
         try {
             const response = await axios.post(`${API}/api/v1/rooms/add`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
+                headers: { 'Content-Type': 'multipart/form-data' },
+                withCredentials: true
             });
             if (!response) {
                 throw new Error("Error adding room");
@@ -19,7 +20,9 @@ class roomServices {
     async updateRoom(roomId, formData) {
         try {
             const response = await axios.patch(`${API}/api/v1/rooms/update/${roomId}`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
+                headers: { 'Content-Type': 'multipart/form-data'
+                 },
+                withCredentials: true
             });
             if (!response) {
                 throw new Error("Error updating room");
@@ -32,7 +35,11 @@ class roomServices {
 
     async getAllRooms(page, limit) {
         try {
-            const response = await axios.get(`${API}/api/v1/rooms/`);
+            const response = await axios.get(`${API}/api/v1/rooms/`,
+                {
+                    withCredentials: true
+                }
+            );
             if (!response) {
                 throw new Error("Error getting rooms");
             }
@@ -44,7 +51,9 @@ class roomServices {
 
     async getRoomById(roomId) {
         try {
-            const response = await axios.get(`${API}/api/v1/rooms/${roomId}`);
+            const response = await axios.get(`${API}/api/v1/rooms/${roomId}`,{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error getting room");
             }
@@ -56,7 +65,9 @@ class roomServices {
 
     async getRoomByLocation(location) {
         try {
-            const response = await axios.get(`${API}/api/v1/rooms/location/${location}`);
+            const response = await axios.get(`${API}/api/v1/rooms/location/${location}`,{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error getting room");
             }
@@ -68,7 +79,9 @@ class roomServices {
 
     async getRoomByCategory(category) {
         try {
-            const response = await axios.get(`${API}/api/v1/rooms/category/${category}`);
+            const response = await axios.get(`${API}/api/v1/rooms/category/${category}`,{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error getting room");
             }
@@ -80,7 +93,9 @@ class roomServices {
 
     async bookRoom(roomId) {
         try {
-            const response = await axios.post(`${API}/api/v1/rooms/booking/${roomId}`);
+            const response = await axios.post(`${API}/api/v1/rooms/booking/${roomId}`,{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error booking room");
             }
@@ -92,7 +107,9 @@ class roomServices {
 
     async searchRooms(page=1, limit=10,data) {
         try {
-            const response = await axios.get(`${API}/api/v1/rooms/search?page=${page}&limit=${limit}&query=${data.query}&field=${data.field}`);
+            const response = await axios.get(`${API}/api/v1/rooms/search?page=${page}&limit=${limit}&query=${data.query}&field=${data.field}`,{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error searching rooms");
             }
@@ -104,7 +121,9 @@ class roomServices {
 
     async deleteRoom(roomId) {
         try {
-            const response = await axios.delete(`${API}/api/v1/rooms/delete/${roomId}`);
+            const response = await axios.delete(`${API}/api/v1/rooms/delete/${roomId}`,{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error deleting room");
             }
@@ -116,7 +135,9 @@ class roomServices {
 
     async getMyRooms() {
         try {
-            const response = await axios.get(`${API}/api/v1/rooms/myrooms`);
+            const response = await axios.get(`${API}/api/v1/rooms/myrooms`,{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error getting my rooms");
             }
@@ -128,7 +149,9 @@ class roomServices {
 
     async requestRefund(roomId,reason) {
         try {
-            const response = await axios.patch(`${API}/api/v1/rooms/refund/${roomId}`,{reason});
+            const response = await axios.patch(`${API}/api/v1/rooms/refund/${roomId}`,{reason},{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error requesting refund");
             }
@@ -140,7 +163,9 @@ class roomServices {
 
     async addReport(roomId,reason) {
         try {
-            const response = await axios.patch(`${API}/api/v1/rooms/addreport/${roomId}`,{reason});
+            const response = await axios.patch(`${API}/api/v1/rooms/addreport/${roomId}`,{reason},{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error reporting room");
             }
@@ -152,7 +177,9 @@ class roomServices {
 
     async getReport(roomId) {
         try {
-            const response = await axios.get(`${API}/api/v1/rooms/reports/${roomId}`);
+            const response = await axios.get(`${API}/api/v1/rooms/reports/${roomId}`,{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error getting reports");
             }
@@ -164,7 +191,9 @@ class roomServices {
 
     async addToFavourites(roomId) {
         try {
-            const response = await axios.post(`${API}/api/v1/rooms/${roomId}`);
+            const response = await axios.post(`${API}/api/v1/rooms/${roomId}`,{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error adding to favourites");
             }
@@ -176,7 +205,9 @@ class roomServices {
 
     async removeFromFavourites(roomId) {
         try {
-            const response = await axios.delete(`${API}/api/v1/rooms/${roomId}`);
+            const response = await axios.delete(`${API}/api/v1/rooms/${roomId}`,{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error removing from favourites");
             }
@@ -188,7 +219,9 @@ class roomServices {
 
     async updateRoomLocation(roomId, data) {
         try {
-            const response = await axios.patch(`${API}/api/v1/rooms/location/${roomId}`, data);
+            const response = await axios.patch(`${API}/api/v1/rooms/location/${roomId}`, data,{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error updating room location");
             }
@@ -200,7 +233,9 @@ class roomServices {
 
     async addReview(roomId, data) {
         try {
-            const response = await axios.post(`${API}/api/v1/rooms/reviews/${roomId}`, data);
+            const response = await axios.post(`${API}/api/v1/rooms/reviews/${roomId}`, data,{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error adding review");
             }
@@ -212,7 +247,9 @@ class roomServices {
 
     async getRoomReviews(roomId) {
         try {
-            const response = await axios.get(`${API}/api/v1/rooms/reviews/${roomId}`);
+            const response = await axios.get(`${API}/api/v1/rooms/reviews/${roomId}`,{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error getting room reviews");
             }
@@ -224,7 +261,9 @@ class roomServices {
 
     async updateRoomReview(roomId, reviewId, data) {
         try {
-            const response = await axios.patch(`${API}/api/v1/rooms/reviews/${roomId}/${reviewId}`, data);
+            const response = await axios.patch(`${API}/api/v1/rooms/reviews/${roomId}/${reviewId}`, data,{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error updating room review");
             }
@@ -236,7 +275,9 @@ class roomServices {
 
     async deleteRoomReview(roomId, reviewId) {
         try {
-            const response = await axios.delete(`${API}/api/v1/rooms/reviews/${roomId}/${reviewId}`);
+            const response = await axios.delete(`${API}/api/v1/rooms/reviews/${roomId}/${reviewId}`,{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error deleting room review");
             }

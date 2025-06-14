@@ -3,7 +3,9 @@ const API = import.meta.env.VITE_API_BASE_URL;
 class reviewServices {
     async addReview(roomId, data) {
         try {
-            const response = await axios.post(`${API}/api/v1/rooms/reviews/${roomId}`, data);
+            const response = await axios.post(`${API}/api/v1/rooms/reviews/${roomId}`, data,{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error adding review");
             }
@@ -15,7 +17,9 @@ class reviewServices {
 
     async updateReview(roomId, reviewId, data) {
         try {
-            const response = await axios.patch(`${API}/api/v1/rooms/reviews/${roomId}/${reviewId}`, data);
+            const response = await axios.patch(`${API}/api/v1/rooms/reviews/${roomId}/${reviewId}`, data,{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error updating review");
             }
@@ -27,7 +31,9 @@ class reviewServices {
 
     async deleteReview(roomId, reviewId) {
         try {
-            const response = await axios.delete(`${API}/api/v1/rooms/reviews/${roomId}/${reviewId}`);
+            const response = await axios.delete(`${API}/api/v1/rooms/reviews/${roomId}/${reviewId}`,{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error deleting review");
             }
@@ -39,7 +45,9 @@ class reviewServices {
 
     async getRoomReviews(roomId) {
         try {
-            const response = await axios.get(`${API}/api/v1/rooms/reviews/${roomId}`);
+            const response = await axios.get(`${API}/api/v1/rooms/reviews/${roomId}`,{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error getting room reviews");
             }

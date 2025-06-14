@@ -37,7 +37,13 @@ class authServices {
 
     async resendOTP(email) {
         try {
-            const response = await axios.post(`${API}/api/v1/users/resend-otp`, { email });
+            const response = await axios.post(`${API}/api/v1/users/resend-otp`,
+                {
+                    email: email,
+                },
+                {
+                    withCredentials: true,
+                });
             if (!response) {
                 throw new Error("Error resending OTP");
             }
@@ -122,19 +128,23 @@ class authServices {
 
     async updatePassword({ oldPassword, newPassword }) {
         try {
-            const response = await axios.patch(`${API}/api/v1/users/change-password`, { oldPassword, newPassword });
+            const response = await axios.patch(`${API}/api/v1/users/change-password`, { oldPassword, newPassword },{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error updating password");
             }
             return response.data;
         } catch (error) {
-            console.error("Error updating password:", error);
+            throw error;
         }
     }
 
     async updateProfile({ fullName, email, phone, address }) {
         try {
-            const response = await axios.patch(`${API}/api/v1/users/updateprofile`, { fullName, email, phone, address });
+            const response = await axios.patch(`${API}/api/v1/users/updateprofile`, { fullName, email, phone, address },{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error updating profile");
             }
@@ -154,7 +164,8 @@ class authServices {
         
         try {
             const response = await axios.patch(`${API}/api/v1/users/updateprofilepicture`, newFormData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
+                headers: { 'Content-Type': 'multipart/form-data' },
+                withCredentials: true
             });
             if (!response) {
                 throw new Error("Error updating profile pic");
@@ -173,7 +184,8 @@ class authServices {
         }
         try {
             const response = await axios.patch(`${API}/api/v1/users/updatecoverpicture`, newFormData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
+                headers: { 'Content-Type': 'multipart/form-data' },
+                withCredentials: true
             });
             if (!response) {
                 throw new Error("Error updating cover image");
@@ -252,18 +264,23 @@ class authServices {
     
     async getUserByRoommateId({ roommateId }) {
         try {
-            const response = await axios.get(`${API}/api/v1/users/getroommatesuserid/${roommateId}`);
+            const response = await axios.get(`${API}/api/v1/users/getroommatesuserid/${roommateId}`,
+                {
+                    withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error getting user by roommate ID");
             }
             return response.data;
         } catch (error) {
-            console.error("Error getting user by roommate ID:", error);
+            throw error;
         }
     }
     async updateLocation({ address, latitude, longitude }) {
         try {
-            const response = await axios.patch(`${API}/api/v1/users/mylocation`, { address,latitude, longitude });
+            const response = await axios.patch(`${API}/api/v1/users/mylocation`, { address,latitude, longitude },{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error updating location");
             }
@@ -291,13 +308,15 @@ class authServices {
 
     async reportOwner({ reason,ownerId }) {
         try {
-            const response = await axios.patch(`${API}/api/v1/users/addreport/${ownerId}`, { reason });
+            const response = await axios.patch(`${API}/api/v1/users/addreport/${ownerId}`, { reason },{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error reporting owner");
             }
             return response.data;
         } catch (error) {
-            console.error("Error reporting owner:", error);
+            throw error;
         }
     }
 
@@ -319,13 +338,15 @@ class authServices {
 
     async getUserById({ userId }) {
         try {
-            const response = await axios.get(`${API}/api/v1/users/${userId}`);
+            const response = await axios.get(`${API}/api/v1/users/${userId}`,{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error getting user by ID");
             }
             return response.data;
         } catch (error) {
-            console.error("Error getting user by ID:", error);
+            throw error;
         }
     }
 
@@ -347,7 +368,9 @@ class authServices {
 
     async sendForgetPasswordEmail({ email }) {
         try {
-            const response = await axios.post(`${API}/api/v1/users/forgot-password`, { email });
+            const response = await axios.post(`${API}/api/v1/users/forgot-password`, { email },{
+                withCredentials: true
+            });
         } catch (error) {
             throw error;
         }
@@ -355,7 +378,9 @@ class authServices {
     
     async resetPassword(token, password ) {
         try {
-            const response = await axios.post(`${API}/api/v1/users/reset-password/${token}`, { password });
+            const response = await axios.post(`${API}/api/v1/users/reset-password/${token}`, { password },{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error resetting password");
             }

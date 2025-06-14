@@ -5,7 +5,8 @@ class messageServices {
         try {
             const response = await axios.post(`${API}/api/v1/messages/ib/${userId}`, formData,
                 {
-                    headers: { 'Content-Type': 'multipart/form-data' }
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                    withCredentials: true
                 }
             );
             if (!response) {
@@ -19,7 +20,9 @@ class messageServices {
 
     async getMessages(userId,limit=10) {
         try {
-            const response = await axios.get(`${API}/api/v1/messages/ib/${userId}?limit=${limit}`);
+            const response = await axios.get(`${API}/api/v1/messages/ib/${userId}?limit=${limit}`,{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error getting messages");
             }
@@ -31,7 +34,9 @@ class messageServices {
 
     async getMessageProfile() {
         try {
-            const response = await axios.get(`${API}/api/v1/messages`);
+            const response = await axios.get(`${API}/api/v1/messages`,{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error getting messages");
             }
@@ -43,7 +48,9 @@ class messageServices {
 
     async deleteMessage(messageId) {
         try {
-            const response = await axios.delete(`${API}/api/v1/messages/${messageId}`);
+            const response = await axios.delete(`${API}/api/v1/messages/${messageId}`,{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error deleting message");
             }
