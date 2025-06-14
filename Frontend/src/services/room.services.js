@@ -191,7 +191,7 @@ class roomServices {
 
     async addToFavourites(roomId) {
         try {
-            const response = await axios.post(`${API}/api/v1/rooms/${roomId}`,{
+            const response = await axios.post(`${API}/api/v1/rooms/${roomId}`,{},{
                 withCredentials: true
             });
             if (!response) {

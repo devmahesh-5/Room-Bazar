@@ -82,7 +82,7 @@ class authServices {
 
     async logoutUser() {
         try {
-            const response = await axios.post(`${API}/api/v1/users/logout`,
+            const response = await axios.post(`${API}/api/v1/users/logout`,{},
                 {
                     withCredentials: true
                 }
@@ -99,7 +99,7 @@ class authServices {
     async getCurrentUser() {
         
         try {
-            const response = await axios.get(`${API}/api/v1/users/myprofile`,
+            const response = await axios.get(`${API}/api/v1/users/myprofile`,{},
                 {
                     withCredentials: true,
                 }
@@ -112,7 +112,7 @@ class authServices {
 
     async getOauthCurrentUser() {
         try {
-            const response = await axios.get(`${API}/api/v1/users/oauth-callback`,
+            const response = await axios.get(`${API}/api/v1/users/oauth-callback`,{},
                 {
                     withCredentials: true
                 }
@@ -352,7 +352,7 @@ class authServices {
 
     async refreshAccessToken() {
         try {
-            const response = await axios.post(`${API}/api/v1/users/refresh-token`,
+            const response = await axios.post(`${API}/api/v1/users/refresh-token`,{},
                 {
                     withCredentials: true
                 }

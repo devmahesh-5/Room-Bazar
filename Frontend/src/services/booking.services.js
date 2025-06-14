@@ -16,7 +16,7 @@ class bookingServices {
 
     async updateBooking(bookingId) {
         try {
-            const response = await axios.patch(`${API}/api/v1/bookings/checkin/${bookingId}`,{
+            const response = await axios.patch(`${API}/api/v1/bookings/checkin/${bookingId}`,{},{
                 withCredentials: true
             });
             if (!response) {

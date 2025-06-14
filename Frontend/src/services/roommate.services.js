@@ -30,7 +30,7 @@ class roommateServices {
             }
             return response;
         } catch (error) {
-            console.log(error)
+            throw error
         }
     }
 
@@ -135,7 +135,7 @@ class roommateServices {
 
     async sendRoommateRequest(roommateId) {
         try {
-            const response = await axios.post(`${API}/api/v1/roommates/sendrequest/${roommateId}`,{
+            const response = await axios.post(`${API}/api/v1/roommates/sendrequest/${roommateId}`,{},{
                 withCredentials: true
             });
             if (!response) {
@@ -149,7 +149,7 @@ class roommateServices {
 
     async acceptRoommateRequest(roommateId) {
         try {
-            const response = await axios.patch(`${API}/api/v1/roommates/acceptrequest/${roommateId}`,{
+            const response = await axios.patch(`${API}/api/v1/roommates/acceptrequest/${roommateId}`,{},{
                 withCredentials: true
             });
             if (!response) {
@@ -163,7 +163,7 @@ class roommateServices {
 
     async rejectRoommateRequest(roommateId) {
         try {
-            const response = await axios.patch(`${API}/api/v1/roommates/rejectrequest/${roommateId}`,{
+            const response = await axios.patch(`${API}/api/v1/roommates/rejectrequest/${roommateId}`,{},{
                 withCredentials: true
             });
             if (!response) {
