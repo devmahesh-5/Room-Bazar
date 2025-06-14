@@ -23,8 +23,8 @@ app.options('*', cors({
 }));
 
 app.use(cors({
-  origin: corsOptionsDelegate,
-  credentials: true,
+  origin: '*',          // Allow all origins, just for debugging
+  credentials: false,
 }));
 
 
