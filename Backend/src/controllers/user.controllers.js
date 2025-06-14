@@ -76,8 +76,8 @@ const registerUser = asyncHandler(async (req, res) => {
          username,
          phone: phone.toString(),
          address,
-         avatar: avatarCloudinaryPath?.url,
-         coverImage: coverImageCloudinaryPath?.url,
+         avatar: avatarCloudinaryPath?.secure_url || avatarCloudinaryPath?.url,
+         coverImage: coverImageCloudinaryPath?.secure_url || coverImageCloudinaryPath?.url,
          gender,
       }
    );
@@ -644,7 +644,7 @@ const updateProfilePicture = asyncHandler(async (req, res) => {
    const updatedUser = await User.findByIdAndUpdate(userId,
       {
          $set: {
-            avatar: profileCloudinaryPath?.url
+            avatar: profileCloudinaryPath?.secure_url || profileCloudinaryPath?.url
          }
       },
       { new: true }
@@ -694,7 +694,7 @@ const updateCoverPicture = asyncHandler(async (req, res) => {
    const updatedUser = await User.findByIdAndUpdate(userId,
       {
          $set: {
-            coverImage: coverCloudinaryPath?.url
+            coverImage: coverCloudinaryPath?.secure_url || coverCloudinaryPath?.url
          }
       },
       { new: true }

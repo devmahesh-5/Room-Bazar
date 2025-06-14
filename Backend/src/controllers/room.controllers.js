@@ -53,7 +53,7 @@ const createRoom = asyncHandler(async (req, res) => {
         status,
         totalRooms,
         roomPhotos: roomPhotosCloudinaryPath,
-        thumbnail: thumbnailCloudinaryPath.url,
+        thumbnail: thumbnailCloudinaryPath.secure_url || thumbnailCloudinaryPath.url,
         esewaId,
         owner: req.user._id,
         rentPerMonth,
@@ -140,7 +140,7 @@ const updateRoom = asyncHandler(async (req, res) => {
 
     if (thumbnailLocalPath) {
         thumbnailCloudinaryPath = await uploadOnCloudinary(thumbnailLocalPath);
-        thumbnailCloudinaryPath = thumbnailCloudinaryPath?.url;
+        thumbnailCloudinaryPath = thumbnailCloudinaryPath?.secure_url || thumbnailCloudinaryPath?.url;
         if (!thumbnailCloudinaryPath) {
             throw new ApiError(500, 'Failed to upload image');
         }else{

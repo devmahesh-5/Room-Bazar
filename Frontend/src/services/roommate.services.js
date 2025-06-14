@@ -121,7 +121,7 @@ class roommateServices {
 
     async getNonRoommates(page, limit) {
         try {
-            const response = await axios.get(`${API}/api/v1//roommates/non-roommates?page=${page}&limit=${limit}`,{
+            const response = await axios.get(`${API}/api/v1/roommates/non-roommates?page=${page}&limit=${limit}`,{
                 withCredentials: true
             });
             if (!response) {

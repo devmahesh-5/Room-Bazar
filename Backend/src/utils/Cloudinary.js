@@ -43,14 +43,13 @@ import { ApiError } from "./ApiError.js";
         return deleteResult;
 
     } catch (error) {
-        
         console.log("Cloudinary file deletion error::",error);
         return null;
     }
  }
  export const uploadMultipleFilesOnCloudinary = async (...args) => {
      const result = await Promise.all(args.map(async (arg) => await uploadOnCloudinary(arg)));
-     return result.map((result) => result.url);
+     return result.map((result) => result.secure_url || result.url);
  }
 
  export default uploadOnCloudinary;
