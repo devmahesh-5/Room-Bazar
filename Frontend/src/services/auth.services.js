@@ -99,7 +99,7 @@ class authServices {
     async getCurrentUser() {
         
         try {
-            const response = await axios.get(`${API}/api/v1/users/myprofile`,{},
+            const response = await axios.get(`${API}/api/v1/users/myprofile`,
                 {
                     withCredentials: true,
                 }
@@ -112,7 +112,7 @@ class authServices {
 
     async getOauthCurrentUser() {
         try {
-            const response = await axios.get(`${API}/api/v1/users/oauth-callback`,{},
+            const response = await axios.get(`${API}/api/v1/users/oauth-callback`,
                 {
                     withCredentials: true
                 }
