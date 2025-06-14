@@ -6,6 +6,7 @@ import { unVerifiedUserRemoval,notifyUnVerifiedUser, makeRoomAvailable } from ".
 const app = express();
 app.set('trust proxy', 1);
 const allowedOrigins = process.env.CORS_ORIGIN.split(',');
+console.log('production:',process.env.NODE_ENV === 'production');
 
 const corsOptions = {
   origin: function (origin, callback) {
