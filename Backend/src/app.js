@@ -7,26 +7,26 @@ const app = express();
 
 const allowedOrigins = process.env.CORS_ORIGIN.split(',');
 console.log('Allowed Origins:', allowedOrigins);
-//cors setup to allow cross origin request
+
+const corsOptionsDelegate = function (reqOrigin, callback) {
+  console.log('Request Origin:', reqOrigin);
+  if (!reqOrigin || allowedOrigins.includes(reqOrigin)) {
+    callback(null, true);
+  } else {
+    callback(null, false);
+  }
+};
 
 app.options('*', cors({
-  origin: allowedOrigins,
+  origin: corsOptionsDelegate,
   credentials: true
 }));
 
 app.use(cors({
-  origin: function(origin, callback) {
-  const allowedOrigins = process.env.CORS_ORIGIN.split(',');
-  console.log('Request Origin:', origin);
-  
-  if (!origin || allowedOrigins.includes(origin)) {
-    callback(null, true);  // allow
-  } else {
-    callback(null, false); // deny without throwing error
-  }
-}
-
+  origin: corsOptionsDelegate,
+  credentials: true,
 }));
+
 
 const limiter = rateLimit({
 	windowMs: 60 * 60 * 1000, // 10 minutes
