@@ -8,19 +8,19 @@ const app = express();
 const allowedOrigins = process.env.CORS_ORIGIN.split(',');
 console.log('Allowed Origins:', allowedOrigins);
 
-const corsOptionsDelegate = function (reqOrigin, callback) {
-  console.log('Request Origin:', reqOrigin);
-  if (!reqOrigin || allowedOrigins.includes(reqOrigin)) {
-    callback(null, true);
-  } else {
-    callback(null, false);
-  }
-};
+// const corsOptionsDelegate = function (reqOrigin, callback) {
+//   console.log('Request Origin:', reqOrigin);
+//   if (!reqOrigin || allowedOrigins.includes(reqOrigin)) {
+//     callback(null, true);
+//   } else {
+//     callback(null, false);
+//   }
+// };
 
-app.options('*', cors({
-  origin: corsOptionsDelegate,
-  credentials: true
-}));
+// app.options('*', cors({
+//   origin: corsOptionsDelegate,
+//   credentials: true
+// }));
 
 app.use(cors({
   origin: '*',          // Allow all origins, just for debugging
