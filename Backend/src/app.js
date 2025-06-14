@@ -8,25 +8,21 @@ const app = express();
 const allowedOrigins = process.env.CORS_ORIGIN.split(',');
 console.log('Allowed Origins:', allowedOrigins);
 
-// const corsOptionsDelegate = function (reqOrigin, callback) {
-//   console.log('Request Origin:', reqOrigin);
-//   if (!reqOrigin || allowedOrigins.includes(reqOrigin)) {
-//     callback(null, true);
-//   } else {
-//     callback(null, false);
-//   }
-// };
+const corsOptions = {
+  origin: function (origin, callback) {
+    console.log('Request Origin:', origin);
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, false); // deny without throwing
+    }
+  },
+  credentials: true,
+};
 
-// app.options('*', cors({
-//   origin: corsOptionsDelegate,
-//   credentials: true
-// }));
+app.use(cors(corsOptions));
 
-app.use(cors({
-  origin: '*',          // Allow all origins, just for debugging
-  credentials: false,
-}));
-
+app.options('*', cors(corsOptions));
 
 const limiter = rateLimit({
 	windowMs: 60 * 60 * 1000, // 10 minutes
