@@ -5,6 +5,8 @@ import {rateLimit} from 'express-rate-limit'
 import { unVerifiedUserRemoval,notifyUnVerifiedUser, makeRoomAvailable } from "./constants.js";
 const app = express();
 
+const allowedOrigins = process.env.CORS_ORIGIN.split(',');
+console.log('Allowed Origins:', allowedOrigins);
 //cors setup to allow cross origin request
 app.use(cors({
   origin: function (origin, callback) {
