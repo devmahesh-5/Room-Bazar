@@ -21,15 +21,17 @@ const OAuthCallback = () => {
         }
       } catch (error) {
         console.error('OAuth error:', error);
-        navigate('/users/login', { state: { error: 'Google login failed' } });
+        navigate('/users/login',);
       }
     };
 
     handleOAuthCallback();
-  }, [dispatch, navigate]);
+  }, []);
 
   return (
+    <>
     <Authloader message='connecting to Room Bazar...'/>
+    </>
   );
 };
 

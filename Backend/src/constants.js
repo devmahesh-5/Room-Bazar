@@ -17,7 +17,8 @@ export const options = {
     path: '/',
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax'
+    sameSite: isProduction ? 'none' : 'lax',
+    domain: process.env.COOKIE_DOMAIN
 }//this ensures that cookie is not modifiable from frontend
 
 export const generateSignature = (dataToSign) => {
