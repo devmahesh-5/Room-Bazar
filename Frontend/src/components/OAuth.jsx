@@ -13,7 +13,7 @@ const OAuthCallback = () => {
     const handleOAuthCallback = async () => {
       try {
         await new Promise(resolve => setTimeout(resolve, 500));
-        const userData = await authService.getCurrentUser();
+        const userData = await authService.getOauthCurrentUser();
         if (userData) {
           dispatch(authLogin({ userData }));
           navigate('/rooms');
