@@ -97,7 +97,6 @@ class authServices {
     }
 
     async getCurrentUser() {
-        
         try {
             const response = await axios.get(`${API}/api/v1/users/myprofile`,
                 {

@@ -12,7 +12,7 @@ const OAuthCallback = () => {
   useEffect(() => {
     const handleOAuthCallback = async () => {
       try {
-        const userData = await authService.getOauthCurrentUser();
+        const userData = await authService.getCurrentUser();
         if (userData) {
           dispatch(authLogin({ userData }));
           navigate('/rooms');
