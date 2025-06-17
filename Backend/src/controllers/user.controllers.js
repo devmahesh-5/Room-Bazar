@@ -415,7 +415,6 @@ const googleCallback = asyncHandler(async (req, res) => {
    }
    
    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user?._id);
-   console.log(options)
    res
       .status(200)
       .cookie('accessToken', accessToken, options)
