@@ -122,7 +122,7 @@ class authServices {
             }
             return response.data;
         } catch (error) {
-            console.error("Error getting current user:", error);
+            throw error;
         }
     }
 

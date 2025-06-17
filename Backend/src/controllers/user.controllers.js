@@ -421,7 +421,8 @@ const googleCallback = asyncHandler(async (req, res) => {
       .cookie('refreshToken', refreshToken, options)
    .redirect(`${process.env.FRONTEND_URL}/users/oauth-callback`);
 } catch (error) {
-   console.error(error);
+   console.log(error);
+   throw new ApiError(500, error.message);
    // res.redirect(process.env.GOOGLE_REDIRECT_URL || '/rooms');
 }
 

@@ -21,7 +21,7 @@ const OAuthCallback = () => {
         }
       } catch (error) {
         console.error('OAuth error:', error);
-        navigate('/login', { state: { error: 'Google login failed' } });
+        navigate('/users/login', { state: { error: 'Google login failed' } });
       }
     };
 
