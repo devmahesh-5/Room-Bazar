@@ -361,13 +361,11 @@ const continueWithGoogle = asyncHandler(async (req, res) => {
 const googleCallback = asyncHandler(async (req, res) => {
    
    const code = req.query.code;
-   console.log(code);
-   
    try {
       const oauth2Client = new google.auth.OAuth2(
          process.env.GOOGLE_CLIENT_ID,
          process.env.GOOGLE_CLIENT_SECRET,
-         process.env.GOOGLE_CALLBACK_URI // e.g., http://localhost:3000/auth/google/callback
+         process.env.GOOGLE_CALLBACK_URI 
      );
    
      const { tokens } = await oauth2Client.getToken({
@@ -424,7 +422,13 @@ const googleCallback = asyncHandler(async (req, res) => {
       .status(200)
       .cookie('accessToken', accessToken, options)
       .cookie('refreshToken', refreshToken, options)
-   .redirect(`${process.env.FRONTEND_URL}/users/oauth-callback`);
+      .json(
+         new ApiResponse(
+            200,
+            data={redirect_url: req.query.state},
+            'User logged in successfully'
+         )
+      )
 } catch (error) {
    console.log(error);
    throw new ApiError(500, error.message);
