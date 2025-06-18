@@ -66,19 +66,19 @@ class authServices {
         }
     }
 
-    // async continueWithGoogle() {
-    //     try {
-    //         const response = await api.get("/api/v1/users/auth/google",{
-    //             withCredentials: true
-    //         });
-    //         if (!response) {
-    //             throw new Error("Error logging in user");
-    //         }
-    //         return response.data;
-    //     } catch (error) {
-    //         throw error;
-    //     }
-    // }
+    async continueWithGoogle() {
+        try {
+            const response = await api.get("/api/v1/users/auth/google",{
+                withCredentials: true
+            });
+            if (!response) {
+                throw new Error("Error logging in user");
+            }
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
 
     async logoutUser() {
         try {
