@@ -68,7 +68,7 @@ class authServices {
 
     async continueWithGoogle() {
         try {
-            const response = await api.get("/api/v1/users/auth/google",{
+            const response = await api.get(`${API}/api/v1/users/auth/google`,{
                 withCredentials: true
             });
             if (!response) {
