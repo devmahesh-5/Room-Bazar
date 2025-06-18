@@ -61,7 +61,7 @@ router.route('/login').post(
     loginUser
 )
 //google login
-router.route('/oauth-callback').get(getUserProfile)
+router.route('/oauth-callback').get(verifyAuth,getUserProfile)
 router.route('/auth/google/my-google-profile').get(googleCallback);
 router.route('/auth/google').get(continueWithGoogle);
 

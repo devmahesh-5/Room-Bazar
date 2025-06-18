@@ -12,7 +12,6 @@ const OAuthCallback = () => {
   useEffect(() => {
     const handleOAuthCallback = async () => {
       try {
-        await new Promise(resolve => setTimeout(resolve, 500));
         const userData = await authService.getOauthCurrentUser();
         if (userData) {
           dispatch(authLogin({ userData }));

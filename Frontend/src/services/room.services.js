@@ -93,7 +93,7 @@ class roomServices {
 
     async bookRoom(roomId) {
         try {
-            const response = await axios.post(`${API}/api/v1/rooms/booking/${roomId}`,{
+            const response = await axios.post(`${API}/api/v1/rooms/booking/${roomId}`,{},{
                 withCredentials: true
             });
             if (!response) {
@@ -149,7 +149,7 @@ class roomServices {
 
     async requestRefund(roomId,reason) {
         try {
-            const response = await axios.patch(`${API}/api/v1/rooms/refund/${roomId}`,{reason},{
+            const response = await axios.patch(`${API}/api/v1/rooms/refund/${roomId}`,{reason},{},{
                 withCredentials: true
             });
             if (!response) {
@@ -163,7 +163,7 @@ class roomServices {
 
     async addReport(roomId,reason) {
         try {
-            const response = await axios.patch(`${API}/api/v1/rooms/addreport/${roomId}`,{reason},{
+            const response = await axios.patch(`${API}/api/v1/rooms/addreport/${roomId}`,{reason},{},{
                 withCredentials: true
             });
             if (!response) {
@@ -177,7 +177,7 @@ class roomServices {
 
     async getReport(roomId) {
         try {
-            const response = await axios.get(`${API}/api/v1/rooms/reports/${roomId}`,{
+            const response = await axios.get(`${API}/api/v1/rooms/reports/${roomId}`,{},{
                 withCredentials: true
             });
             if (!response) {
