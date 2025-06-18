@@ -425,7 +425,7 @@ const googleCallback = asyncHandler(async (req, res) => {
       .json(
          new ApiResponse(
             200,
-            data={redirect_url: req.query.state},
+            {redirect_url: req.query.state},
             'User logged in successfully'
          )
       )
