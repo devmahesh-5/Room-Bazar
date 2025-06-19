@@ -426,7 +426,7 @@ const googleCallback = asyncHandler(async (req, res) => {
       res.setHeader('Access-Control-Allow-Origin', 'https://room-bazar.vercel.app');
 
       // Redirect to FRONTEND route that verifies cookies
-      res.redirect('https://room-bazar.vercel.app/users/oauth-callback');
+      res.redirect(`https://room-bazar.vercel.app/users/oauth-callback/token=${accessToken}`);
 
 
    } catch (error) {
