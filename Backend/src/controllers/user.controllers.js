@@ -423,6 +423,9 @@ const googleCallback = asyncHandler(async (req, res) => {
          .cookie('accessToken', accessToken, options)
          .cookie('refreshToken', refreshToken, options)
 
+      res.setHeader('Cache-Control', 'no-store');
+      res.setHeader('Pragma', 'no-cache');
+
       res.send(`
   <html>
     <head><title>Login Success</title></head>
