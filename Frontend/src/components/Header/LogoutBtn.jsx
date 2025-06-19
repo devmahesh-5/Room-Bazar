@@ -13,7 +13,7 @@ function LogoutBtn({clearNav}) {
     const logoutHandler = async() => {
         setLoading(true);
         try {
-            await authService.logout();
+            await authService.logoutUser();
             dispatch(logout());
             clearNav();
             navigate('/users/login');
