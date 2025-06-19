@@ -430,7 +430,7 @@ const googleCallback = asyncHandler(async (req, res) => {
         // Wait a moment to ensure cookies are set
         setTimeout(function () {
           window.location.href = "${process.env.FRONTEND_URL}/users/oauth-callback";
-        }, 500);
+        }, 2000);
       </script>
     </head>
     <body>
