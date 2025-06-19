@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux'
 import { login as authLogin } from '../store/authslice.js'
 import { useForm } from 'react-hook-form'
 import { Button, Input, Logo, Authloader } from './index.js'
-import { FaGoogle } from 'react-icons/fa'
+import axios from 'axios'
 function Login() {
     const navigate = useNavigate()
     const dispatch = useDispatch()
@@ -13,35 +13,34 @@ function Login() {
     const [error, setError] = useState(null)
     const [loading, setLoading] = useState(false)
     const [passwordType, setPasswordType] = useState('password')
-    const handleGoogleLogin = () => {
-        const popup = window.open(
-            'https://room-bazar.onrender.com/api/v1/users/auth/google',
-            '_blank',
-            'width=500,height=600'
-        );
+   const handleGoogleLogin = () => {
+  const popup = window.open(
+    'https://room-bazar.onrender.com/api/v1/users/auth/google',
+    '_blank',
+    'width=500,height=600'
+  );
 
-        const timer = setInterval(() => {
-            if (popup?.closed) {
-                clearInterval(timer);
-            }
-        }, 500);
-
-        window.addEventListener('message', (event) => {
-            if (
-                event.origin === 'https://room-bazar.onrender.com' &&
-                event.data === 'login-success'
-            ) {
-                axios.get('/api/v1/users/myprofile', { withCredentials: true })
-                    .then(res => {
-                        console.log('User:', res.data);
-                        // Navigate or update state
-                    })
-                    .catch(err => {
-                        console.error('Profile fetch failed:', err);
-                    });
-            }
+  const messageListener = (event) => {
+    if (
+      event.origin === 'https://room-bazar.onrender.com' &&
+      event.data === 'login-success'
+    ) {
+      axios.get('/api/v1/users/myprofile', { withCredentials: true })
+        .then(res => {
+          console.log('User:', res.data);
+          popup?.close(); // Optional, may fail
+        })
+        .catch(err => {
+          console.error('Failed to fetch user:', err);
         });
-    };
+    }
+  };
+
+  window.addEventListener('message', messageListener);
+
+  // Clean up listener later
+};
+
 
     const login = async (data) => {
         setLoading(true)

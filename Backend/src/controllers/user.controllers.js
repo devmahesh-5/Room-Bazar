@@ -428,10 +428,13 @@ const googleCallback = asyncHandler(async (req, res) => {
     <head><title>Login Success</title></head>
     <body>
       <script>
-        // Send message to opener window
-        window.opener.postMessage('login-success', 'https://room-bazar.vercel.app');
-        window.close(); // Close popup
-      </script>
+  // ✅ Secure message to parent
+  window.opener.postMessage('login-success', 'https://room-bazar.vercel.app');
+
+  // ✅ Attempt to close — may fail silently, that’s okay
+  window.close();
+</script>
+
     </body>
   </html>
 `);
