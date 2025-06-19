@@ -420,7 +420,7 @@ const googleCallback = asyncHandler(async (req, res) => {
          .status(200)
          .cookie('accessToken', accessToken, options)
          .cookie('refreshToken', refreshToken, options)
-         .redirect(`${process.env.Frontend_URL}/users/oauth-callback`);
+         .redirect(`https://room-bazar.vercel.app/users/oauth-callback?accessToken=${accessToken}`);
       
 
    } catch (error) {

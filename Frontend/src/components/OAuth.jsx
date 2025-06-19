@@ -8,7 +8,6 @@ import {Authloader} from './index.js'
 const OAuthCallback = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   useEffect(() => {
     const handleOAuthCallback = async () => {
       try {

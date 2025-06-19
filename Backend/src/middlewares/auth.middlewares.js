@@ -5,7 +5,7 @@ import User from "../models/user.models.js";
 const verifyAuth = asyncHandler(async (req, res, next) => {
     
     const token = req.cookies.accessToken || req.headers.Authorization?.replace("Bearer ", "");
-    // console.log('token:',token);
+    console.log('token:',token);
     
     if (!token) {
         throw new ApiError(401, "User not authenticated");
