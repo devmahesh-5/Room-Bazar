@@ -13,24 +13,36 @@ function Login() {
     const [error, setError] = useState(null)
     const [loading, setLoading] = useState(false)
     const [passwordType, setPasswordType] = useState('password')
-    // const continueWithGoogle = async () => {
-    //     setLoading(true)
-    //     setError(null)
-    //     try {
-    //         const userSession = await authService.continueWithGoogle();
-    //         if (userSession) {
-    //             const userData = await authService.getCurrentUser();
-    //             if (userData) {
-    //                 dispatch(authLogin({ userData }))
-    //             }
-    //             navigate('/rooms');
-    //         }
-    //     } catch (error) {
-    //         setError(error.response.data.error)
-    //     }finally{
-    //         setLoading(false)
-    //     }
-    // }
+    const handleGoogleLogin = () => {
+        const popup = window.open(
+            'https://room-bazar.onrender.com/api/v1/users/auth/google',
+            '_blank',
+            'width=500,height=600'
+        );
+
+        const timer = setInterval(() => {
+            if (popup?.closed) {
+                clearInterval(timer);
+            }
+        }, 500);
+
+        window.addEventListener('message', (event) => {
+            if (
+                event.origin === 'https://room-bazar.onrender.com' &&
+                event.data === 'login-success'
+            ) {
+                axios.get('/api/v1/users/myprofile', { withCredentials: true })
+                    .then(res => {
+                        console.log('User:', res.data);
+                        // Navigate or update state
+                    })
+                    .catch(err => {
+                        console.error('Profile fetch failed:', err);
+                    });
+            }
+        });
+    };
+
     const login = async (data) => {
         setLoading(true)
         setError(null)
@@ -110,8 +122,8 @@ function Login() {
                                     </svg>
                                 )}
                             </button>
-                            <Link to="/users/forgetpassword" className="absolute left-3 top-[68px] text-[#6C48E3] hover:text-indigo-600 transition-colors focus:outline-none rounded-md ">Forgot Password?</Link><br/>
-                            
+                            <Link to="/users/forgetpassword" className="absolute left-3 top-[68px] text-[#6C48E3] hover:text-indigo-600 transition-colors focus:outline-none rounded-md ">Forgot Password?</Link><br />
+
                         </div>
                         <Button
                             type="submit"
@@ -120,7 +132,7 @@ function Login() {
 
                         <Button
                             className="w-full mx-auto  flex items-center justify-center h-12 px-4 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#4285F4]/50"
-                            onClick={() => window.location.href = 'https://room-bazar.onrender.com/api/v1/users/auth/google'}
+                            onClick={handleGoogleLogin}
                         >
 
 

@@ -425,19 +425,17 @@ const googleCallback = asyncHandler(async (req, res) => {
 
       res.send(`
   <html>
-    <head>
-      <script>
-        // Wait a moment to ensure cookies are set
-        setTimeout(function () {
-          window.location.href = "${process.env.FRONTEND_URL}/users/oauth-callback";
-        }, 2000);
-      </script>
-    </head>
+    <head><title>Login Success</title></head>
     <body>
-      <p>Logging you in...</p>
+      <script>
+        // Send message to opener window
+        window.opener.postMessage('login-success', 'https://room-bazar.vercel.app');
+        window.close(); // Close popup
+      </script>
     </body>
   </html>
 `);
+
    } catch (error) {
       console.log(error);
       throw new ApiError(500, error.message);
