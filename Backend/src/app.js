@@ -27,7 +27,7 @@ const limiter = rateLimit({
 	limit: 2000, 
 	standardHeaders: 'draft-8', 
 	legacyHeaders: false, 
-    message:'Server Overloaded due to high traffic'
+  message:'Server Overloaded due to high traffic'
 })
 
 const emergencyLimiter = rateLimit({

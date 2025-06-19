@@ -425,10 +425,26 @@ const googleCallback = asyncHandler(async (req, res) => {
       .json(
          new ApiResponse(
             200,
-            {redirect_url: req.query.state},
+            user,
             'User logged in successfully'
          )
       )
+   
+   res.send(`
+  <html>
+    <head>
+      <script>
+        // Wait a moment to ensure cookies are set
+        setTimeout(function () {
+          window.location.href = "${process.env.FRONTEND_URL}/users/oauth-callback";
+        }, 500);
+      </script>
+    </head>
+    <body>
+      <p>Logging you in...</p>
+    </body>
+  </html>
+`);
 } catch (error) {
    console.log(error);
    throw new ApiError(500, error.message);

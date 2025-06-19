@@ -13,24 +13,24 @@ function Login() {
     const [error, setError] = useState(null)
     const [loading, setLoading] = useState(false)
     const [passwordType, setPasswordType] = useState('password')
-    const continueWithGoogle = async () => {
-        setLoading(true)
-        setError(null)
-        try {
-            const userSession = await authService.continueWithGoogle();
-            if (userSession) {
-                const userData = await authService.getCurrentUser();
-                if (userData) {
-                    dispatch(authLogin({ userData }))
-                }
-                navigate('/rooms');
-            }
-        } catch (error) {
-            setError(error.response.data.error)
-        }finally{
-            setLoading(false)
-        }
-    }
+    // const continueWithGoogle = async () => {
+    //     setLoading(true)
+    //     setError(null)
+    //     try {
+    //         const userSession = await authService.continueWithGoogle();
+    //         if (userSession) {
+    //             const userData = await authService.getCurrentUser();
+    //             if (userData) {
+    //                 dispatch(authLogin({ userData }))
+    //             }
+    //             navigate('/rooms');
+    //         }
+    //     } catch (error) {
+    //         setError(error.response.data.error)
+    //     }finally{
+    //         setLoading(false)
+    //     }
+    // }
     const login = async (data) => {
         setLoading(true)
         setError(null)
@@ -120,7 +120,7 @@ function Login() {
 
                         <Button
                             className="w-full mx-auto  flex items-center justify-center h-12 px-4 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#4285F4]/50"
-                            onClick={() => continueWithGoogle()}
+                            onClick={() => window.location.href = 'https://room-bazar.onrender.com/api/v1/users/auth/google'}
                         >
 
 

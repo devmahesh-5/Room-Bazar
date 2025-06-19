@@ -3,8 +3,6 @@ import {ApiError} from "../utils/ApiError.js";
 import {asyncHandler} from "../utils/asyncHandler.js";
 import User from "../models/user.models.js";
 const verifyAuth = asyncHandler(async (req, res, next) => {
-    //console.log(req.cookies);
-    //  console.log(req.headers);
     
     const token = req.cookies.accessToken || req.headers.Authorization?.replace("Bearer ", "");
     // console.log('token:',token);
