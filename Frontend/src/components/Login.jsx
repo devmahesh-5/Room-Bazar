@@ -13,34 +13,6 @@ function Login() {
     const [error, setError] = useState(null)
     const [loading, setLoading] = useState(false)
     const [passwordType, setPasswordType] = useState('password')
-   const handleGoogleLogin = () => {
-  const popup = window.open(
-    'https://room-bazar.onrender.com/api/v1/users/auth/google',
-    '_blank',
-    'width=500,height=600'
-  );
-
-  const messageListener = (event) => {
-    if (
-      event.origin === 'https://room-bazar.onrender.com' &&
-      event.data === 'login-success'
-    ) {
-      axios.get('/api/v1/users/myprofile', { withCredentials: true })
-        .then(res => {
-          console.log('User:', res.data);
-          popup?.close(); // Optional, may fail
-        })
-        .catch(err => {
-          console.error('Failed to fetch user:', err);
-        });
-    }
-  };
-
-  window.addEventListener('message', messageListener);
-
-  // Clean up listener later
-};
-
 
     const login = async (data) => {
         setLoading(true)
@@ -131,7 +103,7 @@ function Login() {
 
                         <Button
                             className="w-full mx-auto  flex items-center justify-center h-12 px-4 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#4285F4]/50"
-                            onClick={handleGoogleLogin}
+                            onClick={()=>window.location.href='https://room-bazar.onrender.com/api/v1/users/auth/google'}
                         >
 
 

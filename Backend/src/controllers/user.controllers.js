@@ -334,8 +334,6 @@ const logoutUser = asyncHandler(async (req, res) => {
 });
 
 const continueWithGoogle = asyncHandler(async (req, res) => {
-   //create oauth url
-   console.log(req.query.redirect_url);
 
    const oauth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
@@ -352,7 +350,7 @@ const continueWithGoogle = asyncHandler(async (req, res) => {
          'https://www.googleapis.com/auth/user.addresses.read',
          'https://www.googleapis.com/auth/user.gender.read'
       ],
-      state: req.query.redirect_url || '/'
+      state: req.query.redirect_url || '/rooms'
    });
 
    res.redirect(url);
@@ -422,25 +420,8 @@ const googleCallback = asyncHandler(async (req, res) => {
          .status(200)
          .cookie('accessToken', accessToken, options)
          .cookie('refreshToken', refreshToken, options)
-
-      res.setHeader('Cache-Control', 'no-store');
-      res.setHeader('Pragma', 'no-cache');
-
-      res.send(`
-  <html>
-    <head><title>Login Success</title></head>
-    <body>
-      <script>
-  // ✅ Secure message to parent
-  window.opener.postMessage('login-success', 'https://room-bazar.vercel.app');
-
-  // ✅ Attempt to close — may fail silently, that’s okay
-  window.close();
-</script>
-
-    </body>
-  </html>
-`);
+         .redirect('/rooms');
+      
 
    } catch (error) {
       console.log(error);
