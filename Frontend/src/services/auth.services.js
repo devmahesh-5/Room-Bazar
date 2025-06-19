@@ -4,25 +4,25 @@ const API = import.meta.env.VITE_API_BASE_URL;
 
 
 class authServices {
-    
+
     async registerUser(formData) {
-   
+
         try {
             const response = await axios.post(`${API}/api/v1/users/register`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-    
+
             if (!response || !response.data) {
                 throw new Error("Invalid response from server");
             }
-    
+
             return response.data;
         } catch (error) {
             console.error("Error registering user:", error.response?.data || error.message);
             throw error; // Rethrow the error so it can be handled in UI
         }
     }
-    
+
     async verifyOTP(data) {
         try {
             const response = await axios.post(`${API}/api/v1/users/verify-otp`, data);
@@ -54,7 +54,7 @@ class authServices {
     }
     async loginUser(data) {
         try {
-            const response = await axios.post(`${API}/api/v1/users/login`, data,{
+            const response = await axios.post(`${API}/api/v1/users/login`, data, {
                 withCredentials: true
             });
             if (!response) {
@@ -68,7 +68,7 @@ class authServices {
 
     async continueWithGoogle() {
         try {
-            const response = await api.get(`${API}/api/v1/users/auth/google`,{
+            const response = await api.get(`${API}/api/v1/users/auth/google`, {
                 withCredentials: true
             });
             if (!response) {
@@ -82,7 +82,7 @@ class authServices {
 
     async logoutUser() {
         try {
-            const response = await axios.post(`${API}/api/v1/users/logout`,{},
+            const response = await axios.post(`${API}/api/v1/users/logout`, {},
                 {
                     withCredentials: true
                 }
@@ -113,7 +113,11 @@ class authServices {
         try {
             const response = await axios.get(`${API}/api/v1/users/oauth-callback`,
                 {
-                    withCredentials: true
+                    withCredentials: true,
+                    headers: {
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
+                    }
                 }
             );
             if (!response) {
@@ -127,7 +131,7 @@ class authServices {
 
     async updatePassword({ oldPassword, newPassword }) {
         try {
-            const response = await axios.patch(`${API}/api/v1/users/change-password`, { oldPassword, newPassword },{
+            const response = await axios.patch(`${API}/api/v1/users/change-password`, { oldPassword, newPassword }, {
                 withCredentials: true
             });
             if (!response) {
@@ -141,7 +145,7 @@ class authServices {
 
     async updateProfile({ fullName, email, phone, address }) {
         try {
-            const response = await axios.patch(`${API}/api/v1/users/updateprofile`, { fullName, email, phone, address },{
+            const response = await axios.patch(`${API}/api/v1/users/updateprofile`, { fullName, email, phone, address }, {
                 withCredentials: true
             });
             if (!response) {
@@ -155,12 +159,12 @@ class authServices {
 
     async updateProfilePic(formData) {
         const newFormData = new FormData();
-        for(const [key, value] of formData.entries()) {
+        for (const [key, value] of formData.entries()) {
             if (key !== 'coverImage') {
                 newFormData.append(key, value);
             }
         }
-        
+
         try {
             const response = await axios.patch(`${API}/api/v1/users/updateprofilepicture`, newFormData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
@@ -177,7 +181,7 @@ class authServices {
     async updateCoverImage(formData) {
         const newFormData = new FormData();
         for (const [key, value] of formData.entries()) {
-            if(key !== 'avatar') {
+            if (key !== 'avatar') {
                 newFormData.append(key, value);
             }
         }
@@ -225,12 +229,12 @@ class authServices {
         } catch (error) {
             throw error.response.data.error;
         }
-    } 
-    
+    }
+
     async getUserDashboard(roommateId) {
         try {
-            
-             const response = await axios.get(`${API}/api/v1/users/dashboard/${roommateId}`,
+
+            const response = await axios.get(`${API}/api/v1/users/dashboard/${roommateId}`,
                 {
                     withCredentials: true
                 }
@@ -244,29 +248,29 @@ class authServices {
         }
     }
 
-    async getMyDashboard(){
+    async getMyDashboard() {
         try {
-            
+
             const response = await axios.get(`${API}/api/v1/users/get-my-dashboard`,
-               {
-                   withCredentials: true
-               }
-           );
-           if (!response) {
-               throw new Error("Error getting user dashboard");
-           }
-           return response.data;
-       } catch (error) {
-           console.error("Error getting user dashboard:", error);
-       }
+                {
+                    withCredentials: true
+                }
+            );
+            if (!response) {
+                throw new Error("Error getting user dashboard");
+            }
+            return response.data;
+        } catch (error) {
+            console.error("Error getting user dashboard:", error);
+        }
     }
-    
+
     async getUserByRoommateId({ roommateId }) {
         try {
             const response = await axios.get(`${API}/api/v1/users/getroommatesuserid/${roommateId}`,
                 {
                     withCredentials: true
-            });
+                });
             if (!response) {
                 throw new Error("Error getting user by roommate ID");
             }
@@ -277,7 +281,7 @@ class authServices {
     }
     async updateLocation({ address, latitude, longitude }) {
         try {
-            const response = await axios.patch(`${API}/api/v1/users/mylocation`, { address,latitude, longitude },{
+            const response = await axios.patch(`${API}/api/v1/users/mylocation`, { address, latitude, longitude }, {
                 withCredentials: true
             });
             if (!response) {
@@ -305,9 +309,9 @@ class authServices {
         }
     }
 
-    async reportOwner({ reason,ownerId }) {
+    async reportOwner({ reason, ownerId }) {
         try {
-            const response = await axios.patch(`${API}/api/v1/users/addreport/${ownerId}`, { reason },{
+            const response = await axios.patch(`${API}/api/v1/users/addreport/${ownerId}`, { reason }, {
                 withCredentials: true
             });
             if (!response) {
@@ -337,7 +341,7 @@ class authServices {
 
     async getUserById({ userId }) {
         try {
-            const response = await axios.get(`${API}/api/v1/users/${userId}`,{
+            const response = await axios.get(`${API}/api/v1/users/${userId}`, {
                 withCredentials: true
             });
             if (!response) {
@@ -351,7 +355,7 @@ class authServices {
 
     async refreshAccessToken() {
         try {
-            const response = await axios.post(`${API}/api/v1/users/refresh-token`,{},
+            const response = await axios.post(`${API}/api/v1/users/refresh-token`, {},
                 {
                     withCredentials: true
                 }
@@ -367,17 +371,17 @@ class authServices {
 
     async sendForgetPasswordEmail({ email }) {
         try {
-            const response = await axios.post(`${API}/api/v1/users/forgot-password`, { email },{
+            const response = await axios.post(`${API}/api/v1/users/forgot-password`, { email }, {
                 withCredentials: true
             });
         } catch (error) {
             throw error;
         }
-        } //sendForgetPasswordEmail
-    
-    async resetPassword(token, password ) {
+    } //sendForgetPasswordEmail
+
+    async resetPassword(token, password) {
         try {
-            const response = await axios.post(`${API}/api/v1/users/reset-password/${token}`, { password },{
+            const response = await axios.post(`${API}/api/v1/users/reset-password/${token}`, { password }, {
                 withCredentials: true
             });
             if (!response) {
