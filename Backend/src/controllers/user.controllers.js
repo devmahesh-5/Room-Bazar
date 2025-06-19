@@ -420,7 +420,7 @@ const googleCallback = asyncHandler(async (req, res) => {
          .status(200)
          .cookie('accessToken', accessToken, options)
          .cookie('refreshToken', refreshToken, options)
-         .redirect('/rooms');
+         .redirect(`${process.env.Frontend_URL}/users/oauth-callback`);
       
 
    } catch (error) {
