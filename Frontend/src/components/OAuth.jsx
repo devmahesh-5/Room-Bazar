@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 import authService from '../services/auth.services.js';
 import { login as authLogin } from '../store/authslice.js';
 import { Authloader } from './index.js'
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
 const OAuthCallback = () => {
   const dispatch = useDispatch();
@@ -12,7 +13,7 @@ const OAuthCallback = () => {
   useEffect(() => {
     const handleOAuthCallback = async () => {
       try {
-        const token = new URLSearchParams(window.location.search).get('token');
+        const {token} = useParams();
         if (token) {
           localStorage.setItem('token', token);
           axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;

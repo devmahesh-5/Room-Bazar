@@ -88,7 +88,7 @@ const router = createBrowserRouter([
             )
           },
           {
-            path: 'oauth-callback',
+            path: 'oauth-callback/:token',
             element: (
               <Protected authentication={false}>
 
