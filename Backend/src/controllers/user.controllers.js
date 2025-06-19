@@ -10,11 +10,11 @@ import Favourite from "../models/favourite.models.js";
 import Room from "../models/room.models.js";
 import Payment from "../models/payment.models.js";
 import Refund from "../models/refund.models.js";
-import { getRoommateByUserId, getUserByRoommateId,emailValidator } from "../constants.js";
+import { getRoommateByUserId, getUserByRoommateId, emailValidator } from "../constants.js";
 import RoommateRequest from "../models/roommateRequest.models.js";
-import { sendOtp, generateOtp,resetPasswordEmail } from "../constants.js";
+import { sendOtp, generateOtp, resetPasswordEmail } from "../constants.js";
 import RoommateAccount from "../models/roommateAccount.models.js";
-import {google} from 'googleapis';
+import { google } from 'googleapis';
 
 const generateAccessAndRefreshTokens = async (userId) => {
    const user = await User.findById(userId);
@@ -46,24 +46,24 @@ const registerUser = asyncHandler(async (req, res) => {
    if (!validEmail) {
       throw new ApiError(400, 'Invalid email');
    }
-   
+
    const avatarLocalPath = req.files?.avatar[0]?.path;
    const coverImagePath = req.files?.coverImage[0]?.path;
 
-   if(!avatarLocalPath) {
+   if (!avatarLocalPath) {
       throw new ApiError(400, 'Avatar image is required');
    }
 
    const avatarCloudinaryPath = await uploadOnCloudinary(avatarLocalPath);
    let coverImageCloudinaryPath;
-   if(coverImagePath){
+   if (coverImagePath) {
       coverImageCloudinaryPath = await uploadOnCloudinary(coverImagePath);
 
-      if(!coverImageCloudinaryPath) {
+      if (!coverImageCloudinaryPath) {
          throw new ApiError(500, 'Failed to upload cover image');
       }
    }
-   
+
    if (!avatarCloudinaryPath) {
       throw new ApiError(500, 'Failed to upload avatar image');
    }
@@ -146,7 +146,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
       throw new ApiError(500, 'User not found');
    }
 
-   if(user.verificationAttempts >= 2){
+   if (user.verificationAttempts >= 2) {
       await User.findByIdAndDelete(user._id);
       await Location.findOneAndDelete({ user: user._id });
       throw new ApiError(400, 'Too many attempts please Register again');
@@ -159,10 +159,10 @@ const verifyOtp = asyncHandler(async (req, res) => {
             unVerified_at: Date.now(),
             verificationAttempts: user.verificationAttempts + 1
          }
-       },
-       {
-         new: true
-       });
+      },
+         {
+            new: true
+         });
       throw new ApiError(400, 'Invalid OTP');
    }
 
@@ -189,10 +189,10 @@ const verifyOtp = asyncHandler(async (req, res) => {
          $set: {
             is_verified: false
          }
-       },
-       {
-         new: true
-       });
+      },
+         {
+            new: true
+         });
       throw new ApiError(500, 'Failed to verify user');
    }
 
@@ -255,8 +255,8 @@ const resendOtp = asyncHandler(async (req, res) => {
             200,
             updatedUser,
             'OTP sent successfully'
+         )
       )
-   )
 });
 
 const loginUser = asyncHandler(async (req, res) => {
@@ -287,7 +287,7 @@ const loginUser = asyncHandler(async (req, res) => {
       throw new ApiError(401, 'Invalid password');
    }
    // const isVerified = user?.is_verified;
-   
+
    // if (!isVerified) {
    //    throw new ApiError(400, 'User is not verified');
    // }
@@ -334,103 +334,96 @@ const logoutUser = asyncHandler(async (req, res) => {
 });
 
 const continueWithGoogle = asyncHandler(async (req, res) => {
-      //create oauth url
-      console.log(req.query.redirect_url);
-      
-      const oauth2Client = new google.auth.OAuth2(
-          process.env.GOOGLE_CLIENT_ID,
-          process.env.GOOGLE_CLIENT_SECRET,
-          process.env.GOOGLE_CALLBACK_URI 
-      );
-  
-      const url = oauth2Client.generateAuthUrl({
-          access_type: 'offline',
-          scope: [
-              'profile',
-              'email',
-              'https://www.googleapis.com/auth/user.phonenumbers.read',
-              'https://www.googleapis.com/auth/user.addresses.read',
-              'https://www.googleapis.com/auth/user.gender.read'
-          ],
-          state: req.query.redirect_url || '/'
-      });
-  
-      res.redirect(url);
+   //create oauth url
+   console.log(req.query.redirect_url);
+
+   const oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      process.env.GOOGLE_CALLBACK_URI
+   );
+
+   const url = oauth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope: [
+         'profile',
+         'email',
+         'https://www.googleapis.com/auth/user.phonenumbers.read',
+         'https://www.googleapis.com/auth/user.addresses.read',
+         'https://www.googleapis.com/auth/user.gender.read'
+      ],
+      state: req.query.redirect_url || '/'
+   });
+
+   res.redirect(url);
 });
 
 const googleCallback = asyncHandler(async (req, res) => {
-   
+
    const code = req.query.code;
    try {
       const oauth2Client = new google.auth.OAuth2(
          process.env.GOOGLE_CLIENT_ID,
          process.env.GOOGLE_CLIENT_SECRET,
-         process.env.GOOGLE_CALLBACK_URI 
-     );
-   
-     const { tokens } = await oauth2Client.getToken({
+         process.env.GOOGLE_CALLBACK_URI
+      );
+
+      const { tokens } = await oauth2Client.getToken({
          code,
          redirect_uri: process.env.GOOGLE_CALLBACK_URI
-     });
-     oauth2Client.setCredentials(tokens);
-   
-     const oauth2 = google.oauth2({
-      auth: oauth2Client,
-      version: 'v2'
-   });
-   const oauth2People = google.people({ version: 'v1', auth: oauth2Client });
-   
-   const { data:{id: googleId, email,picture, verified_email, name: fullName} } = await oauth2.userinfo.get();
-   const {data:{phoneNumbers, addresses,genders}} = await oauth2People.people.get({
-      resourceName: 'people/me',
-      personFields: 'phoneNumbers,addresses,genders'
-   
-   });
-
-   
-   let user = await User.findOne(
-      {
-         $or: [
-            { email },
-            { googleId }
-         ]
-      }
-   );
-   
-   if(!user){
-      user = await User.create({
-         fullName,
-         username:email.split('@')[0],
-         email,
-         googleId,
-         phone: phoneNumbers && phoneNumbers.length > 0 ? phoneNumbers[0].phoneNumber : null,
-         address: addresses && addresses.length > 0 ? addresses[0].formattedAddress : null,
-         avatar: picture,
-         coverImage: null,
-         is_verified: verified_email,
-         gender: genders && genders.length > 0 ? genders[0].value : null
       });
-   }else if(user){
-      if(!user.googleId){
-         user.googleId = googleId;
-         await user.save({validateBeforeSave: false});
+      oauth2Client.setCredentials(tokens);
+
+      const oauth2 = google.oauth2({
+         auth: oauth2Client,
+         version: 'v2'
+      });
+      const oauth2People = google.people({ version: 'v1', auth: oauth2Client });
+
+      const { data: { id: googleId, email, picture, verified_email, name: fullName } } = await oauth2.userinfo.get();
+      const { data: { phoneNumbers, addresses, genders } } = await oauth2People.people.get({
+         resourceName: 'people/me',
+         personFields: 'phoneNumbers,addresses,genders'
+
+      });
+
+
+      let user = await User.findOne(
+         {
+            $or: [
+               { email },
+               { googleId }
+            ]
+         }
+      );
+
+      if (!user) {
+         user = await User.create({
+            fullName,
+            username: email.split('@')[0],
+            email,
+            googleId,
+            phone: phoneNumbers && phoneNumbers.length > 0 ? phoneNumbers[0].phoneNumber : null,
+            address: addresses && addresses.length > 0 ? addresses[0].formattedAddress : null,
+            avatar: picture,
+            coverImage: null,
+            is_verified: verified_email,
+            gender: genders && genders.length > 0 ? genders[0].value : null
+         });
+      } else if (user) {
+         if (!user.googleId) {
+            user.googleId = googleId;
+            await user.save({ validateBeforeSave: false });
+         }
       }
-   }
-   
-   const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user?._id);
-   res
-      .status(200)
-      .cookie('accessToken', accessToken, options)
-      .cookie('refreshToken', refreshToken, options)
-      .json(
-         new ApiResponse(
-            200,
-            user,
-            'User logged in successfully'
-         )
-      )
-   
-   res.send(`
+
+      const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user?._id);
+      res
+         .status(200)
+         .cookie('accessToken', accessToken, options)
+         .cookie('refreshToken', refreshToken, options)
+
+      res.send(`
   <html>
     <head>
       <script>
@@ -445,11 +438,11 @@ const googleCallback = asyncHandler(async (req, res) => {
     </body>
   </html>
 `);
-} catch (error) {
-   console.log(error);
-   throw new ApiError(500, error.message);
-   // res.redirect(process.env.GOOGLE_REDIRECT_URL || '/rooms');
-}
+   } catch (error) {
+      console.log(error);
+      throw new ApiError(500, error.message);
+      // res.redirect(process.env.GOOGLE_REDIRECT_URL || '/rooms');
+   }
 
 });
 
@@ -1126,7 +1119,7 @@ const sendForgetPasswordEmail = asyncHandler(async (req, res) => {
    }
 
    const otp = await generateOtp(true);
-   if(!otp){
+   if (!otp) {
       throw new ApiError(500, 'Failed to generate OTP');
    }
 
@@ -1150,7 +1143,7 @@ const resetNewPassword = asyncHandler(async (req, res) => {
    const token = req.params?.token;
    const { password } = req.body;
    const user = await User.findOne({ otp: token });
-   
+
    if (!user || user.otpExpiry < Date.now()) {
       throw new ApiError(404, 'Token expired or user not found');
    }
