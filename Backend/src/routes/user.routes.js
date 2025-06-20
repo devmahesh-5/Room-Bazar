@@ -20,7 +20,8 @@ import {
     getUserById,
     getUserIdByRoommateId,
     resetNewPassword,
-    sendForgetPasswordEmail
+    sendForgetPasswordEmail,
+    afterGoogleLogin
 } from '../controllers/user.controllers.js';
 
 import { getLocationByUser,updateUserLocation } from '../controllers/location.controllers.js';
@@ -64,7 +65,7 @@ router.route('/login').post(
 router.route('/oauth-callback').get(verifyAuth,getUserProfile)
 router.route('/auth/google/my-google-profile').get(googleCallback);
 router.route('/auth/google').get(continueWithGoogle);
-
+router.route('/auth/google/login').post(afterGoogleLogin);
 router.route('/forgot-password').post(
     sendForgetPasswordEmail
 );

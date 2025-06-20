@@ -411,22 +411,21 @@ const googleCallback = asyncHandler(async (req, res) => {
       } else if (user) {
          if (!user.googleId) {
             user.googleId = googleId;
-            await user.save({ validateBeforeSave: false });
+            await user.save({ validateBeforeSave: false },{ new: true });
          }
       }
 
-      const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user?._id);
-      res
-         .status(200)
-         .cookie('accessToken', accessToken, options)
-         .cookie('refreshToken', refreshToken, options)
+      //const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user?._id);
+      // res
+      //    .status(200)
+      //    .cookie('accessToken', accessToken, options)
+      //    .cookie('refreshToken', refreshToken, options)
 
-
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
-      res.setHeader('Access-Control-Allow-Origin', 'https://room-bazar.vercel.app');
+      // res.setHeader('Access-Control-Allow-Credentials', 'true');
+      // res.setHeader('Access-Control-Allow-Origin', 'https://room-bazar.vercel.app');
 
       // Redirect to FRONTEND route that verifies cookies
-      res.redirect(`https://room-bazar.vercel.app/users/oauth-callback/${accessToken}`);
+      res.redirect(`https://room-bazar.vercel.app/users/oauth-callback/${encodeURIComponent(user?._id)}/${encodeURIComponent(user.googleId)}`);
 
 
    } catch (error) {
@@ -436,6 +435,30 @@ const googleCallback = asyncHandler(async (req, res) => {
    }
 
 });
+
+const afterGoogleLogin=asyncHandler(async(req,res)=>{
+   const {userId,googleId}=req.body;
+   if(!isValidObjectId(userId)){
+      throw new ApiError(400,'Invalid user id');
+   }
+   const user=await User.findById(userId);
+   if(!user || user.googleId!==googleId){
+      throw new ApiError(404,'User not found');
+   }
+   const {accessToken,refreshToken}=await generateAccessAndRefreshTokens(user?._id);
+   res
+   .status(200)
+   .cookie('accessToken', accessToken, options)
+   .cookie('refreshToken', refreshToken, options)
+   .json(
+      new ApiResponse(
+         200,
+         null,
+         'User logged in successfully'
+      )
+   )
+
+})
 
 const getUserProfile = asyncHandler(async (req, res) => {
    const userId = req.user?._id;
@@ -1161,6 +1184,7 @@ export {
    loginUser,
    googleCallback,
    continueWithGoogle,
+   afterGoogleLogin,
    logoutUser,
    getUserProfile,
    updateUserPassword,

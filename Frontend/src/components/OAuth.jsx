@@ -3,41 +3,41 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import authService from '../services/auth.services.js';
-import { login as authLogin } from '../store/authslice.js';
+import { login as authLogin } from '../store/authslice.js'
 import { Authloader } from './index.js'
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
 const OAuthCallback = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [error, setError] = useState(null);
+  const { userId, googleId } = useParams();
   useEffect(() => {
-    const handleOAuthCallback = async () => {
+    ;
+    (async () => {
+      setError(null);
       try {
-        const {token} = useParams();
-        if (token) {
-          localStorage.setItem('token', token);
-          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        }
-        const userData = await authService.getOauthCurrentUser();
-        if (userData) {
-          dispatch(authLogin({ userData }));
+        const response = await authService.afterGoogleLogin(userId, googleId);
+        if (response) {
+          const userData = await authService.getCurrentUser();
+
+          if (userData) {
+            dispatch(authLogin({ userData }))
+          }
           navigate('/rooms');
-        } else {
-          throw new Error('Authentication failed');
         }
       } catch (error) {
-        console.error('OAuth error:', error);
-        navigate('/users/login',);
+        setError(error);
       }
-    };
 
-    handleOAuthCallback();
+    })();
   }, []);
 
-  return (
+  return !error ? (
     <>
       <Authloader message='connecting to Room Bazar...' />
     </>
+  ) : (
+    <p className='text-red-500'>{error}</p>
   );
 };
 

@@ -129,6 +129,19 @@ class authServices {
         }
     }
 
+    async afterGoogleLogin(userId,googleId) {
+        try {
+            const response = await axios.post(`${API}/api/v1/users/auth/google/login`,{userId,googleId}, {
+                withCredentials: true
+            });
+            if (!response) {
+                throw new Error("Error logging in user");
+            }
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
     async updatePassword({ oldPassword, newPassword }) {
         try {
             const response = await axios.patch(`${API}/api/v1/users/change-password`, { oldPassword, newPassword }, {
