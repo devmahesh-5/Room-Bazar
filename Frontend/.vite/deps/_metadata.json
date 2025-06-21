@@ -1,103 +1,103 @@
 {
-  "hash": "ee42e068",
-  "configHash": "32dafbae",
+  "hash": "6217b1c9",
+  "configHash": "ac59be91",
   "lockfileHash": "f2d51334",
-  "browserHash": "780591b4",
+  "browserHash": "838534d1",
   "optimized": {
     "react": {
       "src": "../../node_modules/react/index.js",
       "file": "react.js",
-      "fileHash": "2ab5d55b",
+      "fileHash": "265e8bb1",
       "needsInterop": true
     },
     "react-dom": {
       "src": "../../node_modules/react-dom/index.js",
       "file": "react-dom.js",
-      "fileHash": "bb1b81f2",
+      "fileHash": "8a795434",
       "needsInterop": true
     },
     "react/jsx-dev-runtime": {
       "src": "../../node_modules/react/jsx-dev-runtime.js",
       "file": "react_jsx-dev-runtime.js",
-      "fileHash": "be9b77a3",
+      "fileHash": "229e32b0",
       "needsInterop": true
     },
     "react/jsx-runtime": {
       "src": "../../node_modules/react/jsx-runtime.js",
       "file": "react_jsx-runtime.js",
-      "fileHash": "e2a0990c",
+      "fileHash": "e6182ea7",
       "needsInterop": true
     },
     "@reduxjs/toolkit": {
       "src": "../../node_modules/@reduxjs/toolkit/dist/redux-toolkit.modern.mjs",
       "file": "@reduxjs_toolkit.js",
-      "fileHash": "751cba72",
+      "fileHash": "fdb50ab5",
       "needsInterop": false
     },
     "axios": {
       "src": "../../node_modules/axios/index.js",
       "file": "axios.js",
-      "fileHash": "fb4d1e6a",
+      "fileHash": "67af7ee9",
       "needsInterop": false
     },
     "framer-motion": {
       "src": "../../node_modules/framer-motion/dist/es/index.mjs",
       "file": "framer-motion.js",
-      "fileHash": "07818e66",
+      "fileHash": "acea7173",
       "needsInterop": false
     },
     "prop-types": {
       "src": "../../node_modules/prop-types/index.js",
       "file": "prop-types.js",
-      "fileHash": "6393827f",
+      "fileHash": "3255af45",
       "needsInterop": true
     },
     "react-dom/client": {
       "src": "../../node_modules/react-dom/client.js",
       "file": "react-dom_client.js",
-      "fileHash": "28b17c2d",
+      "fileHash": "dfb5b7f7",
       "needsInterop": true
     },
     "react-hook-form": {
       "src": "../../node_modules/react-hook-form/dist/index.esm.mjs",
       "file": "react-hook-form.js",
-      "fileHash": "e5d58a30",
+      "fileHash": "23d8f26f",
       "needsInterop": false
     },
     "react-icons/fa": {
       "src": "../../node_modules/react-icons/fa/index.mjs",
       "file": "react-icons_fa.js",
-      "fileHash": "d12a7178",
+      "fileHash": "b8d5e6cd",
       "needsInterop": false
     },
     "react-icons/gi": {
       "src": "../../node_modules/react-icons/gi/index.mjs",
       "file": "react-icons_gi.js",
-      "fileHash": "9f9a7543",
+      "fileHash": "82403d0f",
       "needsInterop": false
     },
     "react-icons/md": {
       "src": "../../node_modules/react-icons/md/index.mjs",
       "file": "react-icons_md.js",
-      "fileHash": "66a5903c",
+      "fileHash": "05e7f0fd",
       "needsInterop": false
     },
     "react-redux": {
       "src": "../../node_modules/react-redux/dist/react-redux.mjs",
       "file": "react-redux.js",
-      "fileHash": "f9493820",
+      "fileHash": "bd3fc31b",
       "needsInterop": false
     },
     "react-router-dom": {
       "src": "../../node_modules/react-router-dom/dist/index.mjs",
       "file": "react-router-dom.js",
-      "fileHash": "3aed642d",
+      "fileHash": "0f0205e3",
       "needsInterop": false
     },
     "unique-username-generator": {
       "src": "../../node_modules/unique-username-generator/dist/index.js",
       "file": "unique-username-generator.js",
-      "fileHash": "b920a21a",
+      "fileHash": "fde29e75",
       "needsInterop": true
     }
   },
@@ -105,11 +105,11 @@
     "chunk-IFXVA7FZ": {
       "file": "chunk-IFXVA7FZ.js"
     },
-    "chunk-MX6SYE36": {
-      "file": "chunk-MX6SYE36.js"
-    },
     "chunk-NWKZXVHX": {
       "file": "chunk-NWKZXVHX.js"
+    },
+    "chunk-MX6SYE36": {
+      "file": "chunk-MX6SYE36.js"
     },
     "chunk-YLDSBLSF": {
       "file": "chunk-YLDSBLSF.js"

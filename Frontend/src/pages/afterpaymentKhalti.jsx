@@ -1,4 +1,4 @@
-import React,{useEffect} from "react";
+import React,{useEffect, useState} from "react";
 import { Link, useNavigate,useParams } from "react-router-dom";
 import { Authloader } from "../components";
 import axios from "axios";
@@ -9,6 +9,7 @@ const Khalti=()=>{
     const {paymentId}=useParams();
     const urlParams = new URLSearchParams(window.location.search);
     const pidx = urlParams.get('pidx');
+    console.log(paymentId,pidx);
     // const transaction_id = urlParams.get('transaction_id');
     // const tidx = urlParams.get('tidx');
     // const amount = urlParams.get('amount');
