@@ -30,7 +30,7 @@ const PaymentCard = ({amount, onPayment}) => {
           className="w-full flex items-center justify-center gap-3 bg-[#5C2D91] hover:bg-[#7733BB] text-white py-3 px-4 rounded-lg transition-all duration-300 hover:shadow-md"
         >
           <img 
-            src="https://khalti.com/static/images/logo.svg" 
+            src="/khalti.png" 
             alt="Khalti" 
             className="h-5 object-contain" 
           />

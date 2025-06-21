@@ -33,7 +33,7 @@ const PrivacyPolicy = () => {
               <FaShieldAlt className="text-[#6C48E3] text-2xl" />
             </div>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Your privacy is important to us. This policy explains what personal data we collect and how we use it.
+              Your <strong className="text-[#6C48E3]">privacy</strong> is important to us. This policy explains what personal data we collect and how we use it.
             </p>
           </div>
 
@@ -47,8 +47,8 @@ const PrivacyPolicy = () => {
                   <ul className="list-disc pl-6 space-y-2 text-gray-700">
                     <li><strong>Personal Information:</strong> Name, email, phone number when you create an account</li>
                     <li><strong>Booking Details:</strong> Dates, payment information, special requests</li>
-                    <li><strong>Device Information:</strong> IP address, browser type, operating system</li>
-                    <li><strong>Usage Data:</strong> Pages visited, time spent on site</li>
+                    {/* <li><strong>Device Information:</strong> IP address, browser type, operating system</li>
+                    <li><strong>Usage Data:</strong> Pages visited, time spent on site</li> */}
                   </ul>
                 </div>
               </div>
@@ -105,7 +105,7 @@ const PrivacyPolicy = () => {
                   <li>Request a copy of your data in a portable format</li>
                   <li>Withdraw consent where processing is based on consent</li>
                 </ul>
-                <p>To exercise these rights, please contact us at <a href="mailto:privacy@roombazar.com" className="text-[#6C48E3] hover:underline">privacy@roombazar.com</a></p>
+                <p>To exercise these rights, please contact us at <a href="mailto:roombazar25@gmail.com" className="text-[#6C48E3] hover:underline">privacy@roombazar.com</a></p>
               </div>
             </section>
 
@@ -140,8 +140,8 @@ const PrivacyPolicy = () => {
               <p className="text-gray-700">
                 We may update this policy periodically. We'll notify you of significant changes via email or through our website. The "Last Updated" date below indicates when this policy was last revised.
               </p>
-              <div className="mt-4 p-3 bg-white rounded-lg inline-block">
-                <p className="font-medium text-[#6C48E3]">Last Updated: {new Date().toLocaleDateString()}</p>
+              <div className="mt-6 p-4 bg-[#F5F3FF] rounded-lg">
+                <p className="font-medium text-[#6C48E3]">Last Updated: 08/21/2025</p>
               </div>
             </section>
           </div>
@@ -162,7 +162,7 @@ const PrivacyPolicy = () => {
               <Link to="/legal/privacy-policy" className="text-gray-600 hover:text-[#6C48E3] text-sm">
                 Privacy Policy
               </Link>
-              <a href="mailto:support@roombazar.com" className="text-gray-600 hover:text-[#6C48E3] text-sm">
+              <a href="mailto:roombazar25@gmail.com" className="text-gray-600 hover:text-[#6C48E3] text-sm">
                 Contact Us
               </a>
             </div>

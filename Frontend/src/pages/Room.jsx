@@ -387,9 +387,11 @@ function Room() {
                 </div>
             )}
         </div>
-    ):(
+    ):!bookingLoading?(
         <Authloader fullScreen={true} message='please wait deleting room...' />
-    );
+    ):bookingLoading?(
+        <Authloader fullScreen={true} message='please wait Reserving room...' />
+    ):null;
 }
 
 export default Room;

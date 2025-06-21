@@ -55,7 +55,7 @@ const addBooking = asyncHandler(async (req, res) => {
     const notification = await Notification.create({
         receiver : room.owner,
         roomId : room._id,
-        message : `${user.fullName} have Reservd your room`,
+        message : `${user.fullName} have Reserved your room`,
         bookingId : Booking._id,
         roomId : room._id,
      });

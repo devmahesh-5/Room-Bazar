@@ -31,9 +31,9 @@ const TermsAndConditions = () => {
                 By accessing and using Room-Bazar, you accept and agree to be bound by these Terms and Conditions.
               </p>
               <ul className="list-disc pl-6 space-y-2 text-gray-700">
-                <li>You must be at least 18 years old to use our services</li>
+                {/* <li>You must be at least 18 years old to use our services</li> */}
                 <li>All information provided must be accurate and current</li>
-                <li>You are responsible for maintaining the confidentiality of your account</li>
+                {/* <li>You are responsible for maintaining the confidentiality of your account</li> */}
               </ul>
             </section>
 
@@ -47,7 +47,10 @@ const TermsAndConditions = () => {
                   <strong className="text-[#6C48E3]">Payments:</strong> Full payment may be required at the time of booking unless otherwise specified.
                 </p>
                 <p>
-                  <strong className="text-[#6C48E3]">Cancellations:</strong> Cancellations made within 48 hours of booking may receive a full refund.
+                  <strong className="text-[#6C48E3]">Cancellations:</strong> There is no refund policy for cancellations.
+                </p>
+                <p>
+                  <strong className="text-[#6C48E3]">Check-in:</strong> Room booked by user gets auto check-in after 24 hours if not checked in by user and room will never be available.
                 </p>
               </div>
             </section>
@@ -77,7 +80,7 @@ const TermsAndConditions = () => {
                 Room-Bazar reserves the right to modify these terms at any time. Continued use of the service after changes constitutes acceptance of the new terms.
               </p>
               <div className="mt-6 p-4 bg-[#F5F3FF] rounded-lg">
-                <p className="font-medium text-[#6C48E3]">Last Updated: {new Date().toLocaleDateString()}</p>
+                <p className="font-medium text-[#6C48E3]">Last Updated: {'8/21/2025'}</p>
               </div>
             </section>
           </div>
@@ -85,7 +88,7 @@ const TermsAndConditions = () => {
           <div className="mt-12 pt-6 border-t border-gray-200">
             <h3 className="text-lg font-medium text-gray-900">Have questions?</h3>
             <p className="mt-2 text-gray-600">
-              Contact us at <a href="mailto:support@roombazar.com" className="text-[#6C48E3] hover:underline">support@roombazar.com</a>
+              Contact us at <a href="mailto:roombazar25@gmail.com" className="text-[#6C48E3] hover:underline">support@roombazar.com</a>
             </p>
           </div>
         </div>
