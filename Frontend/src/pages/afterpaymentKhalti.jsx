@@ -1,7 +1,6 @@
 import React,{useEffect, useState} from "react";
 import { Link, useNavigate,useParams } from "react-router-dom";
 import { Authloader } from "../components";
-import axios from "axios";
 import paymentService from "../services/payment.services.js";
 const Khalti=()=>{
     const navigate = useNavigate();
@@ -17,9 +16,8 @@ const Khalti=()=>{
         (async()=>{
             try{
                 const response = await paymentService.afterPaymentKhalti({paymentId,pidx});
-                if(response){
-                    navigate('/payments/success');
-                }
+                navigate('/payments/success');
+                
             }catch(err){
                 navigate('/payments/failed');
             }

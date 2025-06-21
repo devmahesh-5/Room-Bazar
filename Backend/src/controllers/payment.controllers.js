@@ -193,7 +193,7 @@ const createPayment = asyncHandler(async (req, res) => {
       // Khalti implementation
       const payload = {
         return_url: `${process.env.FRONTEND_URL}/payments/khalti/success/${payment._id}`,
-        website_url: process.env.BASE_URL,
+        website_url: process.env.FRONTEND_URL,
         amount: total_amount * 100, // Khalti uses paisa
         purchase_order_id: payment._id,
         purchase_order_name: `Booking for ${room.title}`,
