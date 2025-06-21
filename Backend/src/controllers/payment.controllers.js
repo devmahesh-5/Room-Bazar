@@ -219,6 +219,9 @@ const createPayment = asyncHandler(async (req, res) => {
       payment.paymentGateway = JSON.stringify(khaltiResponse.data);
       await payment.save({ validateBeforeSave: false });
 
+      res.setHeader('Access-Control-Allow-Origin', 'https://room-bazar.vercel.app');
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+
       res.status(200).json(
         new ApiResponse(200, {
           gateway: 'khalti',
@@ -247,19 +250,19 @@ const handleEsewaSuccess = asyncHandler(async (req, res) => {
     const esewaData = req.query.data;//decode the data and store in paymentGatewayDetail
     const decodedData = Buffer.from(esewaData, 'base64').toString('utf-8');
     const paymentGatewayDetail = JSON.parse(decodedData);
-  
+
     const fieldsToSign = paymentGatewayDetail.signed_field_names.split(',');
-    
+
     // 2. Create the signing string
     const dataToSign = fieldsToSign
       .map(field => `${field}=${paymentGatewayDetail[field]}`)
       .join(',');
-    
+
     const signature = generateSignature(dataToSign);
-    
+
     if (signature !== paymentGatewayDetail.signature) {
       throw new ApiError(400, 'Invalid signature');
-      
+
     }
     const payment = await Payment.findByIdAndUpdate(payment_id, {
       $set: {
@@ -289,12 +292,14 @@ const handleEsewaSuccess = asyncHandler(async (req, res) => {
       paymentId: payment._id,
       roomId: payment.roomId,
     });
-  
+
     if (!notification) {
       throw new ApiError(500, 'Failed to create notification');
     }
 
-  
+    res.setHeader('Access-Control-Allow-Origin', 'https://room-bazar.vercel.app');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+
     return res.redirect(`${process.env.FRONTEND_URL}/payments/success`);
   } catch (error) {
     return res.redirect(`${process.env.FRONTEND_URL}/payments/failed`);
@@ -302,9 +307,7 @@ const handleEsewaSuccess = asyncHandler(async (req, res) => {
 });
 
 const handleKhaltiSuccess = asyncHandler(async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', 'https://room-bazar.vercel.app');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  console.log('handleKhaltiSuccess received');
+
   const paymentId = req.params.paymentId;
   const { pidx } = req.query;
   try {
