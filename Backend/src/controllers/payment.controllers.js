@@ -302,6 +302,8 @@ const handleEsewaSuccess = asyncHandler(async (req, res) => {
 });
 
 const handleKhaltiSuccess = asyncHandler(async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', 'https://room-bazar.vercel.app');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
   console.log('handleKhaltiSuccess received');
   const paymentId = req.params.paymentId;
   const { pidx } = req.query;

@@ -18,7 +18,9 @@ class paymentServices {
 
     async afterPaymentKhalti(data){
         try {
-            const response = await axios.get(`${API}/api/v1/payments/khalti/success/${data.paymentId}?pidx=${data.pidx}`);
+            const response = await axios.get(`${API}/api/v1/payments/khalti/success/${data.paymentId}?pidx=${data.pidx}`,{
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error creating payment");
             }

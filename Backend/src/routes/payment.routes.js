@@ -13,6 +13,6 @@ const router = Router();
 router.use(verifyAuth,checkVerified);
 //create payment from room route
 router.route('/:roomId').post(createPayment);
-router.route('/khalti/success/:paymentId').get(handleKhaltiSuccess);
+router.route('/khalti/success/:paymentId').get(verifyAuth,handleKhaltiSuccess);
 router.route('/esewa/success/:paymentId').get(handleEsewaSuccess);
 export default router
