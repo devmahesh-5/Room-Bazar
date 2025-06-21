@@ -57,8 +57,8 @@ const createPayment = asyncHandler(async (req, res) => {
       const amount = total_amount - total_amount * 0.1;
       const product_code = process.env.PRODUCT_CODE;
       const product_service_charge = total_amount * 0.1;
-      const success_url = `${process.env.BASE_URL}/payments/esewa/success/${payment._id}`;
-      const failure_url = `${process.env.BASE_URL}/payments/esewa/failure/${payment._id}`;
+      const success_url = `${process.env.FRONTEND_URL}/payments/esewa/success/${payment._id}`;
+      const failure_url = `${process.env.FRONTEND_URL}/payments/esewa/failure/${payment._id}`;
       const signed_field_names = 'total_amount,transaction_uuid,product_code';
       const dataToSign = `total_amount=${total_amount},transaction_uuid=${transaction_uuid},product_code=${product_code}`;
       const signature = generateSignature(dataToSign);
@@ -161,7 +161,7 @@ const createPayment = asyncHandler(async (req, res) => {
             
             <div class="form-group">
               <label>Product Code</label>
-              <input name="product_code" value="${product_code}" readonly>
+              <input name="product_code" type="hidden" value="${product_code}" readonly>
             </div>
             
             <div class="form-group">
@@ -192,7 +192,7 @@ const createPayment = asyncHandler(async (req, res) => {
     } else if (paymentGateway === 'Khalti') {
       // Khalti implementation
       const payload = {
-        return_url: `${process.env.BASE_URL}/payments/khalti/success/${payment._id}`,
+        return_url: `${process.env.FRONTEND_URL}/payments/khalti/success/${payment._id}`,
         website_url: process.env.BASE_URL,
         amount: total_amount * 100, // Khalti uses paisa
         purchase_order_id: payment._id,
@@ -293,6 +293,7 @@ const handleEsewaSuccess = asyncHandler(async (req, res) => {
     if (!notification) {
       throw new ApiError(500, 'Failed to create notification');
     }
+
   
     return res.redirect(`${process.env.FRONTEND_URL}/payments/success`);
   } catch (error) {
@@ -301,6 +302,7 @@ const handleEsewaSuccess = asyncHandler(async (req, res) => {
 });
 
 const handleKhaltiSuccess = asyncHandler(async (req, res) => {
+  console.log('handleKhaltiSuccess received');
   const paymentId = req.params.paymentId;
   const { pidx } = req.query;
   try {
@@ -346,6 +348,7 @@ const handleKhaltiSuccess = asyncHandler(async (req, res) => {
       if (!updatedRoom || !updatedBooking) {
         return res.redirect(`${process.env.FRONTEND_URL}/payment/failed`);
       }
+
 
       const notification = await Notification.create({
         receiver: updatedPayment.userId,

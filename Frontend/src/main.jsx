@@ -33,6 +33,8 @@ import FallBackPage from './pages/FallBackPage.jsx'
 import Updateroom from './pages/Updateroom.jsx'
 import ForgetPassword from './pages/ForgetPassword.jsx'
 import ResetPassword from './pages/ResetPassword.jsx'
+import Khalti from './pages/afterpaymentKhalti.jsx'
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -253,6 +255,14 @@ const router = createBrowserRouter([
             element: (<Protected authentication>
               {" "}
               <PaymentSuccess />
+            </Protected>
+            )
+          },
+          {
+            path: 'khalti/success/:paymentId',
+            element: (<Protected authentication>
+              {" "}
+              <Khalti />
             </Protected>
             )
           }
