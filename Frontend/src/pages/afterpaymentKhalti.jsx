@@ -9,7 +9,6 @@ const Khalti=()=>{
     const {paymentId}=useParams();
     const urlParams = new URLSearchParams(window.location.search);
     const pidx = urlParams.get('pidx');
-    console.log(paymentId,pidx);
     // const transaction_id = urlParams.get('transaction_id');
     // const tidx = urlParams.get('tidx');
     // const amount = urlParams.get('amount');

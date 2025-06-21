@@ -4,7 +4,9 @@ const API = import.meta.env.VITE_API_BASE_URL;
 class bookingServices {
     async getMyBookings() {
         try {
-            const response = await axios.get(`${API}/api/v1/bookings/my-bookings`)
+            const response = await axios.get(`${API}/api/v1/bookings/my-bookings`,{
+                withCredentials: true
+            })
             if (!response) {
                 throw new Error("Error getting bookings");
             }
