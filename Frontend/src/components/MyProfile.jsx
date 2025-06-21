@@ -26,10 +26,11 @@ const ProfilePage = () => {
   const [verifyLoading, setVerifyLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   
-  useEffect(() => {
-    const isMounted = true;
+   useEffect(() => {
+    let isMounted = true;
     setLoading(true);
-    (async () => {
+    
+    const fetchUserData = async () => {
       try {
         const [myAccountResponse, myRoommatesResponse] = await Promise.all([
           authService.getCurrentUser(),
@@ -43,73 +44,95 @@ const ProfilePage = () => {
       } catch (error) {
         setError(error.message);
       } finally {
-        isMounted && setLoading(false);
+        if (isMounted) setLoading(false);
       }
-    })();
-  }, [userData?._id]);
+    };
 
- 
-  
-  const handleReceivedRequestAccept = async () => {
-    fetchReceivedRequests();
-  }
+    fetchUserData();
 
-  const handleSentRequestCancel = async () => {
-    fetchSentRequests();
-  }
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
+  // Memoized fetch functions
   const fetchSentRequests = useCallback(async () => {
     try {
-      const sentRequest = await roommateService.getSentRoommateRequests();
-      if (sentRequest) {
-        setSentRequest(sentRequest.data);
+      const response = await roommateService.getSentRoommateRequests();
+      if (response) {
+        setSentRequest(response.data);
       }
     } catch (error) {
       setError(error);
     }
-  }, [setSentRequest, handleSentRequestCancel]);
+  }, []);
 
   const fetchReceivedRequests = useCallback(async () => {
     try {
-      const receivedRequest = await roommateService.getReceivedRoommateRequests();
-      if (receivedRequest) {
-        setReceivedRequest(receivedRequest.data);
+      const response = await roommateService.getReceivedRoommateRequests();
+      if (response) {
+        setReceivedRequest(response.data);
       }
     } catch (error) {
       setError(error);
     }
-  }, [setReceivedRequest, handleReceivedRequestAccept]);
-
-  const handleMyBookings = async (bookingId) => {
-    try {
-      const checkInBooking = await bookingService.updateBooking(bookingId);
-      fetchMyBookings();
-    } catch (error) {
-      setError(error);
-    }
-  }
+  }, []);
 
   const fetchMyBookings = useCallback(async () => {
     try {
-      const myBookings = await bookingService.getMyBookings();
-      if (myBookings) {
-        setMyBookings(myBookings.data);
+      const response = await bookingService.getMyBookings();
+      if (response) {
+        setMyBookings(response.data);
       }
     } catch (error) {
       setError(error);
     }
-  }, [setMyBookings, handleMyBookings]);
+  }, []);
 
+  // Handle section changes
   useEffect(() => {
-    if (activeSection === 'sent_requests') {
-      fetchSentRequests();
-    } else if (activeSection === 'received_requests') {
-      fetchReceivedRequests();
-    }else if (activeSection === 'my_bookings') {
-      fetchMyBookings();
-    }
-  }, [activeSection, fetchSentRequests, fetchReceivedRequests]);
+    let isMounted = true;
+    
+    const fetchSectionData = async () => {
+      if (!isMounted) return;
+      
+      try {
+        if (activeSection === 'sent_requests') {
+          await fetchSentRequests();
+        } else if (activeSection === 'received_requests') {
+          await fetchReceivedRequests();
+        } else if (activeSection === 'my_bookings') {
+          await fetchMyBookings();
+        }
+      } catch (error) {
+        setError(error);
+      }
+    };
 
+    fetchSectionData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [activeSection, fetchSentRequests, fetchReceivedRequests, fetchMyBookings]);
+
+  const handleReceivedRequestAccept = useCallback(async () => {
+    await fetchReceivedRequests();
+  }, [fetchReceivedRequests]);
+
+  const handleSentRequestCancel = useCallback(async () => {
+    await fetchSentRequests();
+  }, [fetchSentRequests]);
+
+  const handleMyBookings = useCallback(async (bookingId) => {
+    try {
+      console.log(bookingId);
+      await bookingService.updateBooking(bookingId);
+      await fetchMyBookings();
+    } catch (error) {
+      setError(error);
+    }
+  }, [fetchMyBookings]);
 
   const handleVerifyNow = async () => {
     try {
@@ -120,24 +143,24 @@ const ProfilePage = () => {
       }
     } catch (error) {
       setError(error);
-  }finally{
-    setVerifyLoading(false);
-  }
-  }
+    } finally {
+      setVerifyLoading(false);
+    }
+  };
 
-  const handleDelete = async () => {
-    try {
-      setDeleteLoading(true);
-      const response = await authService.deleteAccount();
-      if (response) {
-        navigate('/');
-      }
-    } catch (error) {
-      setError(error);
-  }finally{
-    setDeleteLoading(false);
-  }
-  }
+  // const handleDelete = async () => {
+  //   try {
+  //     setDeleteLoading(true);
+  //     const response = await authService.deleteAccount();
+  //     if (response) {
+  //       navigate('/');
+  //     }
+  //   } catch (error) {
+  //     setError(error);
+  // }finally{
+  //   setDeleteLoading(false);
+  // }
+  // }
 
   if (loading) {
     return <Authloader message="Loading Profile" />;

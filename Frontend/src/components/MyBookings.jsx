@@ -57,7 +57,7 @@ const BookingCard = ({ booking, handleCheckIn }) => {
             >
               View Room
             </Link>
-            <button className={`flex-1 bg-[#6C48E3] hover:bg-[#5a3acf] text-white px-4 py-2 rounded-lg transition-colors duration-200 ${status === 'CheckedIn' ? 'opacity-50 cursor-not-allowed' : '' }`}onClick={() => {handleCheckIn(bookingId)}}>
+            <button className={`flex-1 bg-[#6C48E3] hover:bg-[#5a3acf] text-white px-4 py-2 rounded-lg transition-colors duration-200 ${status === 'CheckedIn' ? 'opacity-50 cursor-not-allowed' : '' }`}onClick={() => handleCheckIn(bookingId)}>
               {status === 'Booked' ? 'Check In' : 'Checked In'}
             </button>
           </div>

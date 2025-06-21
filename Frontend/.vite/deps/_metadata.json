@@ -1,103 +1,103 @@
 {
-  "hash": "6217b1c9",
-  "configHash": "ac59be91",
+  "hash": "ee42e068",
+  "configHash": "32dafbae",
   "lockfileHash": "f2d51334",
-  "browserHash": "838534d1",
+  "browserHash": "780591b4",
   "optimized": {
     "react": {
       "src": "../../node_modules/react/index.js",
       "file": "react.js",
-      "fileHash": "265e8bb1",
+      "fileHash": "f2ba16b8",
       "needsInterop": true
     },
     "react-dom": {
       "src": "../../node_modules/react-dom/index.js",
       "file": "react-dom.js",
-      "fileHash": "8a795434",
+      "fileHash": "ab11b399",
       "needsInterop": true
     },
     "react/jsx-dev-runtime": {
       "src": "../../node_modules/react/jsx-dev-runtime.js",
       "file": "react_jsx-dev-runtime.js",
-      "fileHash": "229e32b0",
+      "fileHash": "cbbf7418",
       "needsInterop": true
     },
     "react/jsx-runtime": {
       "src": "../../node_modules/react/jsx-runtime.js",
       "file": "react_jsx-runtime.js",
-      "fileHash": "e6182ea7",
+      "fileHash": "0ba72571",
       "needsInterop": true
     },
     "@reduxjs/toolkit": {
       "src": "../../node_modules/@reduxjs/toolkit/dist/redux-toolkit.modern.mjs",
       "file": "@reduxjs_toolkit.js",
-      "fileHash": "fdb50ab5",
+      "fileHash": "e943d22c",
       "needsInterop": false
     },
     "axios": {
       "src": "../../node_modules/axios/index.js",
       "file": "axios.js",
-      "fileHash": "67af7ee9",
+      "fileHash": "09b27941",
       "needsInterop": false
     },
     "framer-motion": {
       "src": "../../node_modules/framer-motion/dist/es/index.mjs",
       "file": "framer-motion.js",
-      "fileHash": "acea7173",
+      "fileHash": "ecb7d38a",
       "needsInterop": false
     },
     "prop-types": {
       "src": "../../node_modules/prop-types/index.js",
       "file": "prop-types.js",
-      "fileHash": "3255af45",
+      "fileHash": "87d1197b",
       "needsInterop": true
     },
     "react-dom/client": {
       "src": "../../node_modules/react-dom/client.js",
       "file": "react-dom_client.js",
-      "fileHash": "dfb5b7f7",
+      "fileHash": "a5011bdf",
       "needsInterop": true
     },
     "react-hook-form": {
       "src": "../../node_modules/react-hook-form/dist/index.esm.mjs",
       "file": "react-hook-form.js",
-      "fileHash": "23d8f26f",
+      "fileHash": "29275c93",
       "needsInterop": false
     },
     "react-icons/fa": {
       "src": "../../node_modules/react-icons/fa/index.mjs",
       "file": "react-icons_fa.js",
-      "fileHash": "b8d5e6cd",
+      "fileHash": "98253ea1",
       "needsInterop": false
     },
     "react-icons/gi": {
       "src": "../../node_modules/react-icons/gi/index.mjs",
       "file": "react-icons_gi.js",
-      "fileHash": "82403d0f",
+      "fileHash": "d66eaa57",
       "needsInterop": false
     },
     "react-icons/md": {
       "src": "../../node_modules/react-icons/md/index.mjs",
       "file": "react-icons_md.js",
-      "fileHash": "05e7f0fd",
+      "fileHash": "87835ace",
       "needsInterop": false
     },
     "react-redux": {
       "src": "../../node_modules/react-redux/dist/react-redux.mjs",
       "file": "react-redux.js",
-      "fileHash": "bd3fc31b",
+      "fileHash": "b6403222",
       "needsInterop": false
     },
     "react-router-dom": {
       "src": "../../node_modules/react-router-dom/dist/index.mjs",
       "file": "react-router-dom.js",
-      "fileHash": "0f0205e3",
+      "fileHash": "a2bca3c3",
       "needsInterop": false
     },
     "unique-username-generator": {
       "src": "../../node_modules/unique-username-generator/dist/index.js",
       "file": "unique-username-generator.js",
-      "fileHash": "fde29e75",
+      "fileHash": "feb11125",
       "needsInterop": true
     }
   },
