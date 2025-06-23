@@ -150,7 +150,7 @@ function Room() {
 
     const thumbnail = room?.thumbnail || (room?.roomPhotos && room?.roomPhotos[0]);
 
-    return !loading? (
+    return !loading && !bookingLoading? (
         <div className="py-10 px-4 max-w-6xl mx-auto">
        { favAndDeleteError && (<div className="bg-[#F2F4F7] p-2 absolute top-4 right-6 transform -translate-x-1/2 -translate-y-1/2">
             <h2 className="text-xl text-red-600 text-center">{favAndDeleteError}<span className="absolute bottom-0 left-0 bg-[#F2F4F7] h-0.5 animate-underline z-10"></span></h2>
@@ -314,10 +314,12 @@ function Room() {
                 </div>
 
                 {/* Comment Box (Conditionally Rendered) */}
-                {showCommentBox &&!commentError? (
+                {showCommentBox &&!commentError ? (
                     <form onSubmit={handleSubmit(handleCommentPost)} className="mb-8 bg-white p-4 rounded-lg">
                         <h3 className="text-lg font-semibold mb-3">Write a Review</h3>
-                        <div className="flex space-x-1 mb-4">
+                        {!commentLoading &&(
+                            <div>
+                            <div className="flex space-x-1 mb-4">
                             {[...Array(5)].map((_, index) => (
                                 <FaStar
                                     key={index}
@@ -332,10 +334,12 @@ function Room() {
                             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6C48E3]"
                             rows="4"
                         ></textarea>
+                        </div>
+                        )}
                         <Button
                             type="submit"
                             bgColor="bg-[#6C48E3] hover:bg-blue-700 text-white"
-                            className="mt-3 px-6 py-2 rounded-lg"
+                            className={`mt-3 px-6 py-2 rounded-lg ${commentLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                         >
                             {commentLoading ? "Posting..." : "Post"}
                         </Button>

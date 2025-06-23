@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import favouriteService from '../services/favourite.services.js'
-import { RoomCard } from '../components'
+import { Authloader, RoomCard } from '../components'
 
 function Favourites() {
     const [favourites, setFavourites] = useState([]);
@@ -27,7 +27,7 @@ function Favourites() {
                 <h2 className="text-lg font-semibold">No favourites</h2>
             </div>
         ):(
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#6C48E3]"></div>
+            <Authloader message='Loading favourites...' fullScreen={false} inline={false} size='md' color='primary' />
         )
     }else{
         return (!loading && !error)?(
