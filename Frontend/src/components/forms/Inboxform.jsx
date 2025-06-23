@@ -18,7 +18,6 @@ function InboxForm({ userId,refreshData }) {
   const [loadingMore, setLoadingMore] = useState(false);
   const skipAutoScroll = useRef(false);
   const [sendingLoading, setSendingLoading] = useState(false);
-  //console.log(`limit for the user ${userId} is ${limit}`);
   
   const scrollToBottom = useCallback(() => {
     if (!skipAutoScroll.current) {
@@ -373,7 +372,7 @@ function InboxForm({ userId,refreshData }) {
       </div>
     </div>
   ):(
-    <Authloader message='Loading messages...' fullScreen={false} inline={false} size='md' color='primary'/>
+    <Authloader message='Loading conversations...' fullScreen={false} inline={false} size='md' color='primary'/>
   );
 }
 

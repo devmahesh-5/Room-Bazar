@@ -1,7 +1,7 @@
 import React from 'react';
 import messageService from '../services/message.services';
 import { useState, useEffect } from 'react';
-import { MessageCard } from '../components';
+import { Authloader, MessageCard } from '../components';
 
 function HollowMessage() {
   const [profiles, setProfiles] = useState([]);
@@ -24,10 +24,7 @@ function HollowMessage() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#6C48E3]"></div>
-        <span className="ml-4 text-lg font-semibold">Loading profiles...</span>
-      </div>
+      <Authloader message='Loading conversations...' fullScreen={false} inline={false} size='md' color='primary' />
     );
   }else if (error && typeof error === 'string') {
     return (
