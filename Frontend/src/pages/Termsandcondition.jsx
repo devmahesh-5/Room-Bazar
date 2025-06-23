@@ -80,7 +80,7 @@ const TermsAndConditions = () => {
                 Room-Bazar reserves the right to modify these terms at any time. Continued use of the service after changes constitutes acceptance of the new terms.
               </p>
               <div className="mt-6 p-4 bg-[#F5F3FF] rounded-lg">
-                <p className="font-medium text-[#6C48E3]">Last Updated: {'8/21/2025'}</p>
+                <p className="font-medium text-[#6C48E3]">Last Updated: {'6/26/2025'}</p>
               </div>
             </section>
           </div>

@@ -44,6 +44,7 @@ function App() {
   useEffect(() => {
     (async () => {
       try {
+        setError(null);
         const user = await authService.getCurrentUser();
         if (user.data[0]) {
           dispatch(login({userData:user.data[0]}));

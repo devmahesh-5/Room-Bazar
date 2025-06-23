@@ -141,7 +141,7 @@ const PrivacyPolicy = () => {
                 We may update this policy periodically. We'll notify you of significant changes via email or through our website. The "Last Updated" date below indicates when this policy was last revised.
               </p>
               <div className="mt-6 p-4 bg-[#F5F3FF] rounded-lg">
-                <p className="font-medium text-[#6C48E3]">Last Updated: 08/21/2025</p>
+                <p className="font-medium text-[#6C48E3]">Last Updated: 06/26/2025</p>
               </div>
             </section>
           </div>

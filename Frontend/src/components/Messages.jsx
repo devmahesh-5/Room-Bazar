@@ -2,7 +2,7 @@ import React, { useState,useEffect } from 'react';
 import messageService from '../services/message.services';
 import { useParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import {MessageCard} from '../components/index.js'
+import {Authloader, MessageCard} from '../components/index.js'
 import Inboxform from './forms/Inboxform.jsx';
 function Messages() {
     const {userId} = useParams();
@@ -39,7 +39,7 @@ function Messages() {
   //     </div>
   //   )
   // }
-  return !error?(    
+  return !error ?(    
     Array.isArray(profiles) && profiles.length > 0 ? (
       <div className='flex flex-row'>
       <div className="w-72 p-4 bg-[#F2F4F7] rounded-lg sticky top-0 h-screen overflow-y-auto hidden md:block custom-scroll">
@@ -69,7 +69,7 @@ function Messages() {
       </div>
       </div>
     )
-  ) : error && typeof error === 'string'?(
+  ) :(
     <div className='flex flex-row'>
     <div className="w-1/3 p-4 bg-[#F2F4F7] rounded-lg sticky top-0">
       <h2 className="text-lg font-semibold">{error}</h2>
@@ -78,8 +78,6 @@ function Messages() {
         <Inboxform userId={userId} refreshData={refreshData} />
     </div>
     </div>
-  ):(
-    null
   )
 }
 export default Messages

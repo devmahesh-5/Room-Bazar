@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef, use, useCallback } from 'react';
-import { useForm } from 'react-hook-form';
+import { set, useForm } from 'react-hook-form';
 import { MdSend, MdAttachFile, MdExitToApp} from 'react-icons/md';
 import messageService from '../../services/message.services';
 import authServices from '../../services/auth.services';
+import Authloader from '../Authloader';
 function InboxForm({ userId,refreshData }) {
   const { register, handleSubmit, reset, setValue, watch } = useForm();
   const [messages, setMessages] = useState([]);
@@ -16,6 +17,9 @@ function InboxForm({ userId,refreshData }) {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const skipAutoScroll = useRef(false);
+  const [sendingLoading, setSendingLoading] = useState(false);
+  //console.log(`limit for the user ${userId} is ${limit}`);
+  
   const scrollToBottom = useCallback(() => {
     if (!skipAutoScroll.current) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -27,6 +31,17 @@ function InboxForm({ userId,refreshData }) {
   useEffect(() => {
     scrollToBottom();
   }, [messages.length]);
+
+  useEffect(() => {
+  // Reset all conversation-specific state when userId changes
+  setLimit(1);
+  setMessages([]);
+  setReceiver(null);
+  setHasMore(true);
+  setSelectedFiles([]);
+  reset(); // Reset the form
+}, [userId, reset]);
+
   useEffect(() => {
     let isMounted = true;
 
@@ -35,6 +50,7 @@ function InboxForm({ userId,refreshData }) {
         if (!userId) return;
         setError(null);
         setLoadingMore(true);
+        setLoading(limit==1);
         const [userData, messagesData] = await Promise.all([
           authServices.getUserById({ userId }),
           messageService.getMessages(userId, limit * 10)
@@ -51,7 +67,10 @@ function InboxForm({ userId,refreshData }) {
           setError(error.response?.data?.error || "Failed to load messages");
         }
       } finally {
-        if (isMounted) setLoadingMore(false);
+        if (isMounted) {
+          setLoading(false);
+          setLoadingMore(false);
+        }
       }
     }
 
@@ -79,7 +98,7 @@ function InboxForm({ userId,refreshData }) {
   const handleSendMessage = async (data) => {
     try {
       setSendingError(null);
-      setLoading(true);
+      setSendingLoading(true);
       const formData = new FormData();
       for (const key in data) {
         if (key === 'messageFiles' && data[key]?.length > 0) {
@@ -99,7 +118,7 @@ function InboxForm({ userId,refreshData }) {
     } catch (error) {
       setSendingError(error.response?.data?.error || "Failed to send message");
     } finally {
-      setLoading(false);
+      setSendingLoading(false);
     }
   };
 
@@ -111,11 +130,11 @@ function InboxForm({ userId,refreshData }) {
   //   );
   // }
 
-  const handleSeeMore = () => {
+  const handleSeeMore = useCallback(() => {
     skipAutoScroll.current = true;
-    setLimit(limit + 1);
-  };
-  return !error ? (
+    setLimit(prev => prev + 1);
+  },[userId,setLimit,limit]);
+  return !error && !loading ? (
     <div className="flex flex-col h-full bg-[var(--color-primary)">
       {/* Header */}
       {receiver && (
@@ -127,7 +146,7 @@ function InboxForm({ userId,refreshData }) {
           />
           <div className="ml-3">
             <h3 className="font-medium text-gray-900">{receiver.fullName}</h3>
-            <p className="text-xs text-gray-500">Online</p>
+            <p className="text-xs text-gray-500">{receiver.username}</p>
           </div>
         </div>
       )}
@@ -317,7 +336,7 @@ function InboxForm({ userId,refreshData }) {
             <MdAttachFile size={20} />
             <input type="file" multiple className="hidden" onChange={handleFileChange} />
           </label>
-          {!loading ? (<textarea
+          {!sendingLoading ? (<textarea
             {...register('message')}
             placeholder="Type a message..."
             className="flex-1 border border-gray-200 rounded-full px-4 py-2 mx-2 focus:outline-none focus:ring-1 focus:ring-[#6C48E3] resize-none"
@@ -338,14 +357,14 @@ function InboxForm({ userId,refreshData }) {
           )}
           <button
             type={`${watch('message') ? 'submit' : 'button'}`}
-            className={`bg-[#6C48E3] text-white p-2 rounded-full hover:bg-[#5a3ac9] transition ${watch('message') == '' || loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`bg-[#6C48E3] text-white p-2 rounded-full hover:bg-[#5a3ac9] transition ${watch('message') == '' || sendingLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             <MdSend size={20} />
           </button>
         </div>
       </form>
     </div>
-  ) : typeof error === 'string' ? (
+  ) : error && typeof error === 'string' ? (
     <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 flex items-start">
       <MdExitToApp className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
       <div>
@@ -353,7 +372,9 @@ function InboxForm({ userId,refreshData }) {
         <p className="text-sm">{error}</p>
       </div>
     </div>
-  ):null;
+  ):(
+    <Authloader message='Loading messages...' fullScreen={false} inline={false} size='md' color='primary'/>
+  );
 }
 
 
