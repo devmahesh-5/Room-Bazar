@@ -297,9 +297,6 @@ const handleEsewaSuccess = asyncHandler(async (req, res) => {
       throw new ApiError(500, 'Failed to create notification');
     }
 
-    res.setHeader('Access-Control-Allow-Origin', 'https://room-bazar.vercel.app');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-
     return res.redirect(`${process.env.FRONTEND_URL}/payments/success`);
   } catch (error) {
     return res.redirect(`${process.env.FRONTEND_URL}/payments/failed`);

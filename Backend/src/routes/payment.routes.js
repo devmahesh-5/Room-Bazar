@@ -14,5 +14,5 @@ router.use(verifyAuth,checkVerified);
 //create payment from room route
 router.route('/:roomId').post(createPayment);
 router.route('/khalti/success/:paymentId').post(verifyAuth,handleKhaltiSuccess);
-router.route('/esewa/success/:paymentId').get(handleEsewaSuccess);
+router.route('/esewa/success/:paymentId').post(verifyAuth,handleEsewaSuccess);
 export default router

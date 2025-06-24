@@ -33,6 +33,8 @@ class paymentServices {
 
     async afterPaymentEsewa(data){
         try {
+            console.log("data",data.data);
+            
             const response = await axios.post(`${API}/api/v1/payments/esewa/success/${data.paymentId}?data=${data.data}`,{},{
                 withCredentials: true
             });

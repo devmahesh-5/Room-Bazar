@@ -7,6 +7,8 @@ const Esewa=()=>{
     const {paymentId}=useParams();
     const urlParams = new URLSearchParams(window.location.search);
     const data=urlParams.get('data');
+    console.log(data);
+    
     useEffect(() => {
         (async()=>{
             try{
