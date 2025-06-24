@@ -34,7 +34,7 @@ import Updateroom from './pages/Updateroom.jsx'
 import ForgetPassword from './pages/ForgetPassword.jsx'
 import ResetPassword from './pages/ResetPassword.jsx'
 import Khalti from './pages/afterpaymentKhalti.jsx'
-
+import Esewa from './pages/afterPaymentEsewa.jsx'
 const router = createBrowserRouter([
   {
     path: "/",
@@ -263,6 +263,14 @@ const router = createBrowserRouter([
             element: (<Protected authentication>
               {" "}
               <Khalti />
+            </Protected>
+            )
+          },
+          {
+            path: 'esewa/success/:paymentId',
+            element: (<Protected authentication>
+              {" "}
+              <Esewa />
             </Protected>
             )
           }

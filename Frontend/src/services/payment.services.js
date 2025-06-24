@@ -30,6 +30,22 @@ class paymentServices {
             throw error
         }
     }
+
+    async afterPaymentEsewa(data){
+        try {
+            const response = await axios.post(`${API}/api/v1/payments/esewa/success/${data.paymentId}?data=${data.data}`,{},{
+                withCredentials: true
+            });
+            if (!response) {
+                throw new Error("Error creating payment");
+            }
+            return response.data;
+            
+        } catch (error) {
+            throw error
+        }
+    }
+
 }
 
 const paymentService = new paymentServices();

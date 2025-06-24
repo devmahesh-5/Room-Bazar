@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 import { FaHeart, FaBook, FaStar, FaComment, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
 import reviewService from "../services/review.services.js";
 import { set, useForm } from "react-hook-form";
-import {Authloader} from "../components/index.js";
+import { Authloader } from "../components/index.js";
 function Room() {
     const [bookingLoading, setBookingLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -27,6 +27,7 @@ function Room() {
     const [reviewsError, setReviewsError] = useState(null);
     const [favAndDeleteError, setFavAndDeleteError] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [favLoading, setFavLoading] = useState(false);
     useEffect(() => {
         if (slug?.id) {
             (async () => {
@@ -36,25 +37,25 @@ function Room() {
                 } catch (error) {
                     setError(error);
                 }
-                 // Fetch reviews and calculate average rating
-                    try {
-                        const reviewResponse = await reviewService.getRoomReviews(slug.id);
-                        if (reviewResponse) {
-                            setReviews(reviewResponse.data);
-                            calculateAverageRating(reviewResponse.data); // Calculate average rating
-                        }
-                    } catch (error) {
-                        setReviewsError(error.response.data.error);
+                // Fetch reviews and calculate average rating
+                try {
+                    const reviewResponse = await reviewService.getRoomReviews(slug.id);
+                    if (reviewResponse) {
+                        setReviews(reviewResponse.data);
+                        calculateAverageRating(reviewResponse.data); // Calculate average rating
                     }
+                } catch (error) {
+                    setReviewsError(error.response.data.error);
+                }
                 //favourites
                 try {
-                        const favResponse = await favouriteService.getFavouriteByRoomId(slug.id);
-                        if (favResponse) {
-                            setIsFavourite(true);
-                        }
-                    } catch (error) {
-                        setIsFavourite(false);
+                    const favResponse = await favouriteService.getFavouriteByRoomId(slug.id);
+                    if (favResponse) {
+                        setIsFavourite(true);
                     }
+                } catch (error) {
+                    setIsFavourite(false);
+                }
             })();
         }
     }, [slug?.id]);
@@ -69,20 +70,20 @@ function Room() {
             }
         } catch (error) {
             setFavAndDeleteError(error.response.data.error);
-        }finally{
+        } finally {
             setLoading(false);
         }
     };
-    
+
     useEffect(() => {
-    if (favAndDeleteError) {
-        const timer = setTimeout(() => {
-            setFavAndDeleteError(null);
-        }, 3000);
-        return () => clearTimeout(timer);
-    }
-}, [favAndDeleteError]);
-    
+        if (favAndDeleteError) {
+            const timer = setTimeout(() => {
+                setFavAndDeleteError(null);
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [favAndDeleteError]);
+
     // Calculate average rating
     const calculateAverageRating = (reviews) => {
         if (reviews.length === 0) {
@@ -108,7 +109,7 @@ function Room() {
             setShowCommentBox(false); // Hide the comment box after submission
         } catch (error) {
             setCommentError(error.response.data.error);
-        }finally{
+        } finally {
             setCommentLoading(false);
         }
     };
@@ -122,22 +123,25 @@ function Room() {
             }
         } catch (error) {
             setError(error.response.data.error);
-        }finally{
+        } finally {
             setBookingLoading(false);
         }
-            
+
     };
 
     const handleFavourite = () => {
-            setFavAndDeleteError(null);
-            favouriteService.toggleFavourite(room._id).then((response) => {
+        setFavLoading(true);
+        setFavAndDeleteError(null);
+        favouriteService.toggleFavourite(room._id).then((response) => {
             setIsFavourite(response.data.isFavourite);
-            }).catch((error) => {
-                setFavAndDeleteError(error.response.data.error);
-            });
-       
+        }).catch((error) => {
+            setFavAndDeleteError(error.response.data.error);
+        }).finally(() => {
+            setFavLoading(false);
+        });
+
     };
-    
+
     // Toggle comment box visibility
     const toggleCommentBox = () => {
         setCommentError(null);
@@ -150,12 +154,12 @@ function Room() {
 
     const thumbnail = room?.thumbnail || (room?.roomPhotos && room?.roomPhotos[0]);
 
-    return !loading && !bookingLoading? (
+    return !loading && !bookingLoading ? (
         <div className="py-10 px-4 max-w-6xl mx-auto">
-       { favAndDeleteError && (<div className="bg-[#F2F4F7] p-2 absolute top-4 right-6 transform -translate-x-1/2 -translate-y-1/2">
-            <h2 className="text-xl text-red-600 text-center">{favAndDeleteError}<span className="absolute bottom-0 left-0 bg-[#F2F4F7] h-0.5 animate-underline z-10"></span></h2>
-        </div>)}
-    
+            {favAndDeleteError && (<div className="bg-[#F2F4F7] p-2 absolute top-4 right-6 transform -translate-x-1/2 -translate-y-1/2">
+                <h2 className="text-xl text-red-600 text-center">{favAndDeleteError}<span className="absolute bottom-0 left-0 bg-[#F2F4F7] h-0.5 animate-underline z-10"></span></h2>
+            </div>)}
+
             {/* Room Image and Owner Info Section */}
             <div className="flex flex-col lg:flex-row gap-8 mb-8">
                 {/* Room Image */}
@@ -200,18 +204,18 @@ function Room() {
                             </p>
                         </div>
                     </div>
-                    
+
                     <div className="space-y-3">
                         <div className="flex items-center space-x-2">
                             <FaPhone className="text-[#6C48E3]" />
                             <span className="text-gray-700">{room?.owner?.phone || "Not provided"}</span>
                         </div>
-                        
+
                         <div className="pt-4 border-t border-gray-200">
                             <h4 className="font-medium text-gray-800 mb-2">Room Details</h4>
                             <div className="grid grid-cols-2 gap-2">
                                 <div className="bg-[#F2F4F7] p-2 rounded">
-                                    <p className="text-xs text-gray-500">Price</p>
+                                    <p className="text-xs text-gray-500">Fee</p>
                                     <p className="font-semibold">Rs. {room?.price}</p>
                                 </div>
                                 <div className="bg-[#F2F4F7] p-2 rounded">
@@ -287,7 +291,12 @@ function Room() {
                         className="px-6 py-3 rounded-lg flex items-center space-x-2"
                     >
                         <FaHeart className="text-lg text-red-600" />
-                        <span className={`${isFavourite ? "text-red-600" : "text-gray-600"}`}>{isFavourite ? "Remove Favorite" : "Add to Favorites"}</span>
+                        {
+                            favLoading ? (
+                                        <span className="text-red-600">making changes...</span>
+                               
+                            ) : (<span className={`${isFavourite ? "text-red-600" : "text-gray-600"}`}>{isFavourite ? "Remove Favorite" : "Add to Favorites"}</span>)
+                        }
                     </Button>
                     <Button
                         bgColor="bg-[#F2F4F7]"
@@ -301,7 +310,7 @@ function Room() {
             )}
 
             {/* Rating and Reviews Section */}
-           { !reviewsError?(<div className="bg-white rounded-xl shadow-md p-6">
+            {!reviewsError ? (<div className="bg-white rounded-xl shadow-md p-6">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-bold text-gray-800">Reviews</h2>
                     <div className="flex items-center space-x-2">
@@ -314,27 +323,27 @@ function Room() {
                 </div>
 
                 {/* Comment Box (Conditionally Rendered) */}
-                {showCommentBox &&!commentError ? (
+                {showCommentBox && !commentError ? (
                     <form onSubmit={handleSubmit(handleCommentPost)} className="mb-8 bg-white p-4 rounded-lg">
                         <h3 className="text-lg font-semibold mb-3">Write a Review</h3>
-                        {!commentLoading &&(
+                        {!commentLoading && (
                             <div>
-                            <div className="flex space-x-1 mb-4">
-                            {[...Array(5)].map((_, index) => (
-                                <FaStar
-                                    key={index}
-                                    className={`text-2xl cursor-pointer ${index < rating ? "text-yellow-400" : "text-gray-300"}`}
-                                    onClick={() => setRating(index + 1)}
-                                />
-                            ))}
-                        </div>
-                        <textarea
-                            {...register("comment", { required: true })}
-                            placeholder="Share your experience..."
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6C48E3]"
-                            rows="4"
-                        ></textarea>
-                        </div>
+                                <div className="flex space-x-1 mb-4">
+                                    {[...Array(5)].map((_, index) => (
+                                        <FaStar
+                                            key={index}
+                                            className={`text-2xl cursor-pointer ${index < rating ? "text-yellow-400" : "text-gray-300"}`}
+                                            onClick={() => setRating(index + 1)}
+                                        />
+                                    ))}
+                                </div>
+                                <textarea
+                                    {...register("comment", { required: true })}
+                                    placeholder="Share your experience..."
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6C48E3]"
+                                    rows="4"
+                                ></textarea>
+                            </div>
                         )}
                         <Button
                             type="submit"
@@ -344,7 +353,7 @@ function Room() {
                             {commentLoading ? "Posting..." : "Post"}
                         </Button>
                     </form>
-                ):(
+                ) : (
                     <div className="mb-8 p-4 rounded-lg">
                         <p className="text-red-600">{commentError}</p>
                     </div>
@@ -385,17 +394,17 @@ function Room() {
                         </div>
                     ))}
                 </div>
-            </div>):(
+            </div>) : (
                 <div className="bg-[#F2F4F7] rounded-xl shadow-md p-6">
                     <h2 className="text-2xl font-bold text-red-600 text-center">{reviewsError}</h2>
                 </div>
             )}
         </div>
-    ):!bookingLoading?(
+    ) : !bookingLoading ? (
         <Authloader fullScreen={true} message='please wait deleting room...' />
-    ):bookingLoading?(
+    ) : bookingLoading ? (
         <Authloader fullScreen={true} message='please wait Reserving room...' />
-    ):null;
+    ) : null;
 }
 
 export default Room;
