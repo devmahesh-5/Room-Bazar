@@ -297,9 +297,17 @@ const handleEsewaSuccess = asyncHandler(async (req, res) => {
       throw new ApiError(500, 'Failed to create notification');
     }
 
-    return res.redirect(`${process.env.FRONTEND_URL}/payments/success`);
+    res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        updatedPayment,
+        'Payment updated successfully'
+      )
+    )
   } catch (error) {
-    return res.redirect(`${process.env.FRONTEND_URL}/payments/failed`);
+    throw new ApiError(500, 'Payment processing failed if your payment was successful, please contact Room Bazar');
   }
 });
 
@@ -363,12 +371,20 @@ const handleKhaltiSuccess = asyncHandler(async (req, res) => {
         throw new ApiError(500, 'Failed to create notification');
       }
 
-      return res.redirect(`${process.env.FRONTEND_URL}/payments/success`);
+      res
+        .status(200)
+        .json(
+          new ApiResponse(
+            200,
+            null,
+            'Payment updated successfully'
+          )
+        );
 
     }
 
   } catch (error) {
-    return res.redirect(`${process.env.FRONTEND_URL}/payments/failed`);
+    throw new ApiError(500, 'Payment processing failed if your payment was successful, please contact Room Bazar');
   }
 })
 
