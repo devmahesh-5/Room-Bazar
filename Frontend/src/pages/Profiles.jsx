@@ -127,28 +127,52 @@ const Profiles = () => {
           </div>
         )}
 
-          <form onSubmit={handleSubmit(getSearchResults)} className="bg-[#F2F4F7] p-3 rounded-lg">
-            <div className="flex flex-col sm:flex-row gap-3 w-full">
-              <Input
-                type="text"
-                placeholder="Search..."
-                className="px-3 py-2 rounded-lg bg-white text-black outline-none focus:bg-gray-50 duration-200 border border-gray-200 w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-[#6C48E3] w-1/2 sm:w-auto"
-                {...register("query")}
-              />
+         <form 
+  onSubmit={handleSubmit(getSearchResults)} 
+  className="bg-[#F2F4F7] p-4 rounded-lg w-full"
+>
+  <div className="flex flex-col sm:flex-row gap-3 w-full items-end">
+    {/* Search Input */}
+    <div className="w-full sm:w-auto flex-grow">
+      <label htmlFor="search-query" className="block text-sm font-medium text-gray-700 mb-1 sr-only">
+        Search query
+      </label>
+      <input
+        id="search-query"
+        type="text"
+        placeholder="Search by keyword..."
+        className="px-4 py-3 rounded-lg bg-white text-black outline-none w-full focus:ring-2 focus:ring-[#6C48E3] border border-gray-300 transition-all"
+        {...register("query")}
+      />
+    </div>
 
-              <Select
-                options={["location", "gender", "job", 'age']}
-                className="px-3 py-2 rounded-lg bg-white text-black outline-none focus:bg-gray-50 duration-200 border border-gray-200 w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-[#6C48E3]"
-                {...register("field")}
-              />
+    {/* Dropdown Select */}
+    <div className="w-full sm:w-auto">
+      <label htmlFor="search-field" className="block text-sm font-medium text-gray-700 mb-1 sr-only">
+        Search field
+      </label>
+      <select
+        id="search-field"
+        className="px-4 py-3 rounded-lg bg-white text-black outline-none w-full focus:ring-2 focus:ring-[#6C48E3] border border-gray-300 appearance-none"
+        {...register("field")}
+      >
+        <option value="location">Location</option>
+        <option value="gender">Gender</option>
+        <option value="job">Job</option>
+        <option value="age">Age</option>
+      </select>
+    </div>
 
-              <button 
-              type = {`${watch('query')? 'submit' : 'button'}`}
-              className="bg-[#6C48E3] text-white px-3 py-2 rounded-lg hover:opacity-80 hover:text-[#F2F4F7] w-full w-1/2 sm:w-auto">
-                Search
-              </button>
-            </div>
-          </form>
+    {/* Search Button */}
+    <button
+      type={watch('query') ? 'submit' : 'button'}
+      disabled={!watch('query')}
+      className="bg-[#6C48E3] text-white px-6 py-3 rounded-lg hover:bg-[#5a3acf] transition-colors w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      Search
+    </button>
+  </div>
+</form>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 py-4">
