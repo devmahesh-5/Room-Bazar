@@ -92,10 +92,11 @@ const createRoom = asyncHandler(async (req, res) => {
     res
         .status(200)
         .json(
-            new ApiResponse({
-                message: 'Room created successfully',
-                data: room
-            })
+            new ApiResponse(
+                200,
+                room,
+                'Room created successfully'
+            )
         )
 
 });
@@ -185,10 +186,11 @@ const updateRoom = asyncHandler(async (req, res) => {
     res
         .status(200)
         .json(
-            new ApiResponse({
-                message: 'Room updated successfully',
-                data: updatedRoom
-            })
+            new ApiResponse(
+                200,
+                updatedRoom,
+                'Room updated successfully'
+            )
         )
 
 });

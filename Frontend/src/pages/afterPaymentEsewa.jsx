@@ -2,7 +2,6 @@ import React,{useEffect, useState} from "react";
 import { Link, useNavigate,useParams } from "react-router-dom";
 import { Authloader } from "../components";
 import paymentService from "../services/payment.services.js";
-import { set } from "mongoose";
 const Esewa=()=>{
     const navigate = useNavigate();
     const [error, setError] = useState(null);

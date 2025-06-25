@@ -346,9 +346,9 @@ const continueWithGoogle = asyncHandler(async (req, res) => {
       scope: [
          'profile',
          'email',
-         'https://www.googleapis.com/auth/user.phonenumbers.read',
-         'https://www.googleapis.com/auth/user.addresses.read',
-         'https://www.googleapis.com/auth/user.gender.read'
+         // 'https://www.googleapis.com/auth/user.phonenumbers.read',
+         // 'https://www.googleapis.com/auth/user.addresses.read',
+         // 'https://www.googleapis.com/auth/user.gender.read'
       ],
       state: req.query.redirect_url || '/rooms'
    });
@@ -376,14 +376,14 @@ const googleCallback = asyncHandler(async (req, res) => {
          auth: oauth2Client,
          version: 'v2'
       });
-      const oauth2People = google.people({ version: 'v1', auth: oauth2Client });
+      // const oauth2People = google.people({ version: 'v1', auth: oauth2Client });
 
       const { data: { id: googleId, email, picture, verified_email, name: fullName } } = await oauth2.userinfo.get();
-      const { data: { phoneNumbers, addresses, genders } } = await oauth2People.people.get({
-         resourceName: 'people/me',
-         personFields: 'phoneNumbers,addresses,genders'
+      // const { data: { phoneNumbers, addresses, genders } } = await oauth2People.people.get({
+      //    resourceName: 'people/me',
+      //    personFields: 'phoneNumbers,addresses,genders'
 
-      });
+      // });
 
 
       let user = await User.findOne(
@@ -401,12 +401,12 @@ const googleCallback = asyncHandler(async (req, res) => {
             username: email.split('@')[0],
             email,
             googleId,
-            phone: phoneNumbers && phoneNumbers.length > 0 ? phoneNumbers[0].phoneNumber : null,
-            address: addresses && addresses.length > 0 ? addresses[0].formattedAddress : null,
+            // phone: phoneNumbers && phoneNumbers.length > 0 ? phoneNumbers[0].phoneNumber : null,
+            // address: addresses && addresses.length > 0 ? addresses[0].formattedAddress : null,
             avatar: picture,
             coverImage: null,
             is_verified: verified_email,
-            gender: genders && genders.length > 0 ? genders[0].value : null
+            //gender: genders && genders.length > 0 ? genders[0].value : null
          });
       } else if (user) {
          if (!user.googleId) {
