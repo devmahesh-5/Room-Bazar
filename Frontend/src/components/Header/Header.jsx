@@ -6,8 +6,7 @@ import { Logo } from '../index.js';
 import { MdHome, MdGroup, MdAddBox, MdFavorite, MdPerson, MdChat, MdNotifications, MdMenu } from "react-icons/md";
 import authService from '../../services/auth.services.js';
 import {Authloader} from '../index.js';
-import { set } from 'react-hook-form';
-function Header({ isNotification }) {
+function Header({ isNotification,unreadMessages,unreadNotifications }) {
   const location = useLocation();
   const authStatus = useSelector((state) => state.auth.status);
   const userData = useSelector((state) => state.auth.userData);
@@ -125,6 +124,12 @@ function Header({ isNotification }) {
             (item) =>
               item.active && (
                 <li key={item.slug}>
+                  {item.name === 'messages' && unreadMessages > 0 && (
+                  
+                      <span className="absolute top-0 right-0 inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 rounded-full">
+                        {unreadMessages}
+                      </span>
+                  )}
                   <button
                     title={item.name} // Displays a tooltip on hover
                     onClick={() => navigate(item.slug)}
@@ -142,6 +147,11 @@ function Header({ isNotification }) {
           {
             authStatus && (
               <li>
+                {unreadNotifications > 0 && (
+                  <span className="absolute top-0 right-0 inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 rounded-full">
+                    {unreadNotifications}
+                  </span>
+                )}
                 <button
                   title='Notifications' // Displays a tooltip on hover
                   onClick={() => (isNotification())}

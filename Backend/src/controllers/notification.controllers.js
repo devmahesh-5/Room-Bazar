@@ -31,7 +31,7 @@ const getNotificationsByReceiver = asyncHandler(async (req, res) => {
             }
         }
     ]);
-    
+    const unreadCount = notifications.filter(notification => !notification.isRead).length;
     if(!notifications){
         throw new ApiError(500, 'Failed to fetch notifications');
     }
@@ -54,7 +54,10 @@ const getNotificationsByReceiver = asyncHandler(async (req, res) => {
     .json(
         new ApiResponse(
             200,
-            notifications,
+            {
+                notifications,
+                unreadCount
+            },
             'Notifications fetched successfully'
         )
     );

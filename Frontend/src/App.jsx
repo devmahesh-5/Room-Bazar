@@ -11,6 +11,8 @@ import { Authloader } from './components/index.js'
 import { useSelector } from 'react-redux'
 import notificationService from './services/notification.services.js'
 import { NotificationCard } from './components/index.js'
+import messageService from './services/message.services.js'
+import { set } from 'mongoose'
 
 function App() {
   const authStatus = useSelector((state) => state.auth.status);
@@ -20,6 +22,9 @@ function App() {
   const dispatch = useDispatch();
   const [notificationSection, setNotificationSection] = useState(false);
   const [user, setUser] = useState(null);
+  const [unreadMessages, setUnreadMessages] = useState(0);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+
   const notificationHandler = () => {
     setNotificationSection((prev) => !prev);
   };
@@ -33,7 +38,11 @@ function App() {
 
       const notification = await notificationService.getMyNotifications();
         if (notification) {
-          setNotifications(notification.data);
+          console.log(notification.data);
+          
+          setNotifications(notification.data.notifications);
+          setUnreadNotifications(notification.data.unreadCount);
+          
         }
     } catch (error) {
       setError(error.response?.data?.error || "Failed to fetch notifications");
@@ -41,15 +50,30 @@ function App() {
     }
   }, [authStatus]);
 
+
+  const fetchUnreadMessages = useCallback(async () => {
+    try {
+      const response = await messageService.getUnreadMessages();
+      setUnreadMessages(response.data.unreadCount);
+    } catch (error) {
+      setError(error.response?.data?.error || "Failed to fetch unread messages");
+    }
+  }, [authStatus]);
+
+
+
+
   useEffect(() => {
     (async () => {
       try {
         setError(null);
         const user = await authService.getCurrentUser();
+
         if (user.data[0]) {
           dispatch(login({userData:user.data[0]}));
           setUser(user.data[0]);
           fetchNotifications();
+          fetchUnreadMessages();
           setLoading(false);
         } else {
           setLoading(false);
@@ -61,13 +85,13 @@ function App() {
         setLoading(false);
       }
     })();
-  }, [dispatch, fetchNotifications]);
+  }, [dispatch, fetchNotifications, fetchUnreadMessages]);
 
 
 
   return !loading? (
     <div className="min-h-screen flex flex-col relative">
-      <Header isNotification={notificationHandler} />
+      <Header isNotification={notificationHandler} unreadMessages={unreadMessages} unreadNotifications={unreadNotifications}/>
       
       <main className="flex-grow bg-[var(--color-card)] relative">
         <Outlet />

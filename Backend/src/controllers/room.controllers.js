@@ -8,7 +8,6 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import uploadOnCloudinary, { uploadMultipleFilesOnCloudinary, deleteImageFromCloudinary } from "../utils/Cloudinary.js";
 const createRoom = asyncHandler(async (req, res) => {
-    console.log(req.body);
     
     const { title, description, capacity, price, category, status, totalRooms, esewaId,khaltiId, rentPerMonth} = req.body;
 
@@ -112,6 +111,8 @@ const updateRoom = asyncHandler(async (req, res) => {
     // const address = roomDetails?.location?.address;
     delete roomDetails?.location;
     delete roomDetails?.owner;
+    delete roomDetails?.esewaId;
+    delete roomDetails?.khaltiId;
     //user pass empty fields do not change that specific field
     Object.keys(roomDetails).forEach((key) => {
         if (!roomDetails[key]) {

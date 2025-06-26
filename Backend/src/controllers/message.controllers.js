@@ -341,6 +341,40 @@ res
 
 });
 
+const getUnreadMessageCount = asyncHandler(async (req, res) => {
+    const userId = req.user?._id;
+    const unreadCount = await Message.aggregate([
+        {
+            $match:{
+                $and:[
+                    {receiver: new mongoose.Types.ObjectId(userId)},
+                    {isRead: false}
+                ]
+            }
+        },
+        {
+            $group: {
+                _id: '$sender',
+                unreadCount:{
+                    $sum: 1
+                }
+            }
+        }
+
+    ])
+    console.log(unreadCount);
+    
+    res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                unreadCount,
+                'Unread message count fetched successfully'
+            )
+        )
+})
+
 // const markRead = asyncHandler(async (req, res) => {
 //     const sender = req?.user?.id;
 //     const receiver = req.params.userId;
@@ -383,5 +417,6 @@ export {
     getUserMessages,
     deleteMessage,
     getMessageProfile,
+    getUnreadMessageCount
     // markRead
 }

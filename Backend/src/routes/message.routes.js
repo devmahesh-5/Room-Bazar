@@ -4,7 +4,8 @@ import {
     createMessage,
     getUserMessages,
     deleteMessage,
-    getMessageProfile
+    getMessageProfile,
+    getUnreadMessageCount
 } from '../controllers/message.controllers.js';
 
 import {verifyAuth} from '../middlewares/auth.middlewares.js';
@@ -27,5 +28,5 @@ router.route('/ib/:userId')
 .get(getUserMessages)
 router.route('/').get(getMessageProfile);
 router.route('/ib/:userId/:messageId').delete(deleteMessage);
-
+router.route('/unread').get(getUnreadMessageCount);
 export default router

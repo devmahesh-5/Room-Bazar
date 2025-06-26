@@ -272,7 +272,7 @@ const loginUser = asyncHandler(async (req, res) => {
       {
          $or: [
             { email },
-            { username }
+            { username:email }
          ]
       }
    );

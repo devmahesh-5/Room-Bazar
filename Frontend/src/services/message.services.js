@@ -32,6 +32,20 @@ class messageServices {
         }
     }
 
+    async getUnreadMessagesPerson(){
+        try {
+            const response = await axios.get(`${API}/api/v1/messages/unread`,{
+                withCredentials: true
+            });
+            if (!response) {
+                throw new Error("Error getting messages");
+            }
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
     async getMessageProfile() {
         try {
             const response = await axios.get(`${API}/api/v1/messages`,{
