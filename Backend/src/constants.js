@@ -466,6 +466,14 @@ export const emailValidator = async (email) => {
     }
 };
 
+// export const checkinBookedRoom = async()=>{
+//     cron.schedule('0 3 * * *',async()=>{
+//         await Room.updateMany({
+
+//         })
+//     })
+// };
+
 export const makeRoomAvailable = async () => {
     cron.schedule('* * * * *', async () => {
         try {

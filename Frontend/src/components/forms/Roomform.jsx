@@ -6,12 +6,10 @@ import { useSelector } from 'react-redux';
 import { Input, Button, Select, Authloader } from '../../components/index';
 import { useId } from 'react';
 const Roomform = ({ room }) => {
-  // console.log(room);
-  
   const id = useId();
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.userData);
-  const { register, handleSubmit,reset,formState: { errors} } = useForm({
+  const { register, handleSubmit, reset,watch, formState: { errors } } = useForm({
     mode: "onBlur",
     defaultValues: {
       title: room?.title || '',
@@ -26,21 +24,22 @@ const Roomform = ({ room }) => {
       status: room?.status || '',
       totalRooms: room?.totalRooms || '',
       rentPerMonth: room?.rentPerMonth || '',
-      owner: room?.owner || user._id
+      owner: room?.owner || user._id,
+      khaltiId:room?.khaltiId || ''
     }
   });
   const [loading, setLoading] = React.useState(false);
-  const [error,setError]=React.useState(null)
+  const [error, setError] = React.useState(null)
   React.useEffect(() => {
-        if (room) {
-            reset(room);
-        }
-    }, [room, reset]);
+    if (room) {
+      reset(room);
+    }
+  }, [room, reset]);
   const submit = async (data) => {
     try {
       setError(null)
       setLoading(true);
-      
+
       const formData = new FormData();
       for (const key in data) {
         if (key === 'thumbnail' || key === 'video') {
@@ -48,7 +47,7 @@ const Roomform = ({ room }) => {
             formData.append(key, data[key][0]); // Single file
           }
         } else if (key === 'roomPhotos') {
-          if (data[key] && data[key].length > 0  ) {
+          if (data[key] && data[key].length > 0) {
             for (let i = 0; i < data[key].length; i++) {
               formData.append('roomPhotos', data[key][i]);
             }
@@ -67,23 +66,23 @@ const Roomform = ({ room }) => {
       } else {
         const newRoom = await roomServices.addRoom(formData);
         console.log(newRoom);
-        
+
         if (!newRoom) {
           throw new Error("Error adding room");
         }
         navigate(`/rooms/${newRoom?._id}`);
       }
     } catch (error) {
-      setError(error)
-    }finally{
+      setError(error.response.data.error);
+    } finally {
       setLoading(false);
     }
   };
 
-  return !loading?(
+  return !loading ? (
     <form onSubmit={handleSubmit(submit)} className="w-full grid grid cols-1  sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
       {/* Left Section (2 columns) */}
-      {error && <div className="bg-red-500 text-white p-2 rounded-lg">{error.response.data.error ||"Something went wrong While adding room please try again later"}</div>}
+      {error && <div className="bg-red-500 text-white p-2 rounded-lg">{error|| "Something went wrong While adding room please try again later"}</div>}
       <div className="md:col-span-2 space-y-4">
         <Input
           label="Title :"
@@ -111,7 +110,7 @@ const Roomform = ({ room }) => {
           type="file"
           className="w-full"
           accept="image/png, image/jpg, image/jpeg, image/gif"
-          {...register("thumbnail", { required: !room? "Thumbnail is required" : false  })}
+          {...register("thumbnail", { required: !room ? "Thumbnail is required" : false })}
           error={errors.thumbnail?.message}
         />
         {room && (
@@ -149,10 +148,17 @@ const Roomform = ({ room }) => {
       {/* Right Section (1 column) */}
       <div className="md:col-span-1 space-y-4">
         <Input
-          type="number"
+          type="text"
           label="Price :"
           className="w-full p-3 border rounded-lg appearance-none"
-          {...register("price", { required: "Price is required" })}
+          {...register("price", {
+            required: "Price is required",
+            validate: (value) => {
+              if (!/^\d+(\.\d{1,2})?$/.test(value)) return "Enter a valid price (e.g., 123 or 123.45)";
+              return true;
+            }
+
+          })}
           error={errors.price?.message}
         />
 
@@ -176,20 +182,27 @@ const Roomform = ({ room }) => {
 
         <Input
           label="Rent Per Month :"
-          type="number"
+          type="text"
           className="w-full"
           defaultValue={room?.rentPerMonth}
-          {...register("rentPerMonth", { required: "Rent Per Month is required" })}
+          {...register("rentPerMonth", {
+            required: "Rent Per Month is required",
+            validate: (value) => {
+              if (!/^\d+(\.\d{1,2})?$/.test(value)) return "Enter a valid price (e.g., 123 or 123.45)";
+              return true;
+            }
+
+          })}
           error={errors.rentPerMonth?.message}
         />
 
         <Input
-          label="Room Photos :"
+          label="Room Photos[less than or equal to 4 photos] :"
           type="file"
           className="w-full"
           accept="image/png, image/jpg, image/jpeg, image/gif"
           multiple
-          {...register("roomPhotos", { required: !room? "Room Photos is required" : false })}
+          {...register("roomPhotos", { required: !room ? "Room Photos is required" : false })}
           error={errors.roomPhotos?.message}
         />
         {room && (
@@ -205,7 +218,7 @@ const Roomform = ({ room }) => {
           type="file"
           className="w-full"
           accept="video/mp4, video/webm"
-          {...register("video",{ required: !room? "Room Video is required" : false })}
+          {...register("video", { required: !room ? "Room Video is required" : false })}
           error={errors.video?.message}
         />)}
         {room && (
@@ -216,7 +229,17 @@ const Roomform = ({ room }) => {
           </div>
         )}
 
-        <Input
+       <Select
+          options={['E-SEWA', 'Khalti']}
+          label="Payment Type"
+          className="w-full"
+          defaultValue={room?.category}
+          {...register("paymentType", { required: true })}
+        />
+
+        {
+          watch('paymentType')=='E-SEWA'?(
+            <Input
           label="Esewa Id :"
           type="tel"
           inputMode="numeric"
@@ -230,34 +253,51 @@ const Roomform = ({ room }) => {
           })}
           error={errors.esewaId?.message}
         />
+          ):(
+            <Input
+          label="Khalti Id :"
+          type="tel"
+          inputMode="numeric"
+          placeholder="98665....."
+          className="w-full"
+          defaultValue={room?.khaltiId}
+          {...register("khaltiId", {
+            required: "Khalti Id is required",
+            pattern: /^[0-9]{10}$/,
+            message: "Khalti Id must be 10 digits",
+          })}
+          error={errors.khaltiId?.message}
+        />
+          )
+        }
       </div>
 
       {/* Submit Button - Full Width */}
       <div className="col-span-3">
         {
-        !loading?(<Button
-          type="submit"
-          //bgColor={room ? "bg-[#F2F4F7] text-[#6C48E3]" : undefined}
-          className="w-full border hover:bg-gray-100 border-[#6C48E3] hover:text-[#6C48E3]"
-        >
-          {room ? "Update" : "Submit"}
-        </Button>)
-        :
-        (
-          <Button
-          type="submit"
-          disabled
-          bgColor={room ? "bg-[#F2F4F7]" : undefined}
-          className="w-full border border-[#6C48E3] hover:text-[#6C48E3]"
-        >
-          {room ? "Updating..." : "Submitting..."}
-        </Button>
-        )
+          !loading ? (<Button
+            type="submit"
+            //bgColor={room ? "bg-[#F2F4F7] text-[#6C48E3]" : undefined}
+            className="w-full border hover:bg-gray-100 border-[#6C48E3] hover:text-[#6C48E3]"
+          >
+            {room ? "Update" : "Submit"}
+          </Button>)
+            :
+            (
+              <Button
+                type="submit"
+                disabled
+                bgColor={room ? "bg-[#F2F4F7]" : undefined}
+                className="w-full border border-[#6C48E3] hover:text-[#6C48E3]"
+              >
+                {room ? "Updating..." : "Submitting..."}
+              </Button>
+            )
         }
       </div>
     </form>
-  ):(
-    <Authloader message="Uploading... this may take some time."/>
+  ) : (
+    <Authloader message="Uploading... this may take some time." />
   )
 };
 

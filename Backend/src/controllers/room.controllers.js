@@ -8,10 +8,13 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import uploadOnCloudinary, { uploadMultipleFilesOnCloudinary, deleteImageFromCloudinary } from "../utils/Cloudinary.js";
 const createRoom = asyncHandler(async (req, res) => {
-    const { title, description, capacity, price, category, status, totalRooms, esewaId, rentPerMonth } = req.body;
+    const { title, description, capacity, price, category, status, totalRooms, esewaId, rentPerMonth,khaltiId } = req.body;
 
-    if ([title, description, capacity, price, category, status, totalRooms, esewaId, rentPerMonth].some((field) => !field || field.trim() === '')) {
+    if ([title, description, capacity, price, category, status, totalRooms, rentPerMonth].some((field) => !field || field.trim() === '')) {
         throw new ApiError(400, 'All fields are required');
+    }
+    if(!esewaId && !khaltiId){
+        throw new ApiError(400, 'atleast one payment method is required');
     }
     const thumbnailLocalPath = req.files?.thumbnail[0]?.path;
     
@@ -55,6 +58,7 @@ const createRoom = asyncHandler(async (req, res) => {
         roomPhotos: roomPhotosCloudinaryPath,
         thumbnail: thumbnailCloudinaryPath.secure_url || thumbnailCloudinaryPath.url,
         esewaId,
+        khaltiId,
         owner: req.user._id,
         rentPerMonth,
         video: videoCloudinaryPath.url
@@ -286,6 +290,7 @@ const getRoomById = asyncHandler(async (req, res) => {
                 video: 1,
                 thumbnail: 1,
                 esewaId: 1,
+                khaltiId,
                 createdAt: 1,
                 updatedAt: 1
             }
@@ -385,6 +390,7 @@ const getAllRooms = asyncHandler(async (req, res) => {
                 thumbnail: 1,
                 rentPerMonth: 1,
                 esewaId: 1,
+                khaltiId,
                 createdAt: 1,
                 updatedAt: 1
             }

@@ -47,7 +47,7 @@ const TermsAndConditions = () => {
                   <strong className="text-[#6C48E3]">Payments:</strong> Full payment may be required at the time of booking unless otherwise specified.
                 </p>
                 <p>
-                  <strong className="text-[#6C48E3]">Cancellations:</strong> There is no refund policy for cancellations.
+                  <strong className="text-[#6C48E3]">Cancellations:</strong> There is no refund policy for cancellations for now.
                 </p>
                 <p>
                   <strong className="text-[#6C48E3]">Check-in:</strong> Room booked by user gets auto check-in after 24 hours if not checked in by user and room will never be available.
