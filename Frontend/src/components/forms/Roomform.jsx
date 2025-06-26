@@ -229,7 +229,9 @@ const Roomform = ({ room }) => {
           </div>
         )}
 
-       <Select
+      {!room && (
+        <div>
+        <Select
           options={['E-SEWA', 'Khalti']}
           label="Payment Type"
           className="w-full"
@@ -270,6 +272,9 @@ const Roomform = ({ room }) => {
         />
           )
         }
+
+        </div>
+      )}
       </div>
 
       {/* Submit Button - Full Width */}
