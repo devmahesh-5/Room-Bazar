@@ -362,7 +362,7 @@ const getUnreadMessageCount = asyncHandler(async (req, res) => {
         }
 
     ])
-    console.log(unreadCount);
+    console.log('unread count',unreadCount);
     
     res
         .status(200)

@@ -12,7 +12,6 @@ import { useSelector } from 'react-redux'
 import notificationService from './services/notification.services.js'
 import { NotificationCard } from './components/index.js'
 import messageService from './services/message.services.js'
-import { set } from 'mongoose'
 
 function App() {
   const authStatus = useSelector((state) => state.auth.status);
@@ -38,10 +37,9 @@ function App() {
 
       const notification = await notificationService.getMyNotifications();
         if (notification) {
-          console.log(notification.data);
           
-          setNotifications(notification.data.notifications);
-          setUnreadNotifications(notification.data.unreadCount);
+          setNotifications(notification.data['notifications']);
+          setUnreadNotifications(notification.data['unreadCount']);
           
         }
     } catch (error) {
@@ -53,6 +51,8 @@ function App() {
 
   const fetchUnreadMessages = useCallback(async () => {
     try {
+      console.log('fetching...');
+      
       const response = await messageService.getUnreadMessagesPerson();
       setUnreadMessages(response.data.unreadCount);
     } catch (error) {
