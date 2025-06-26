@@ -8,7 +8,9 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import uploadOnCloudinary, { uploadMultipleFilesOnCloudinary, deleteImageFromCloudinary } from "../utils/Cloudinary.js";
 const createRoom = asyncHandler(async (req, res) => {
-    const { title, description, capacity, price, category, status, totalRooms, esewaId, rentPerMonth,khaltiId } = req.body;
+    console.log(req.body);
+    
+    const { title, description, capacity, price, category, status, totalRooms, esewaId,khaltiId, rentPerMonth} = req.body;
 
     if ([title, description, capacity, price, category, status, totalRooms, rentPerMonth].some((field) => !field || field.trim() === '')) {
         throw new ApiError(400, 'All fields are required');
@@ -290,7 +292,7 @@ const getRoomById = asyncHandler(async (req, res) => {
                 video: 1,
                 thumbnail: 1,
                 esewaId: 1,
-                khaltiId,
+                khaltiId:1,
                 createdAt: 1,
                 updatedAt: 1
             }
@@ -371,12 +373,12 @@ const getAllRooms = asyncHandler(async (req, res) => {
                 createdAt: -1
             }
         },
-        {
-            $skip: (page - 1) * Number(limit)
-        },
-        {
-            $limit: Number(limit)
-        },
+        // {
+        //     $skip: (page - 1) * Number(limit)
+        // },
+        // {
+        //     $limit: Number(limit)
+        // },
         {
             $project: {
                 owner: 1,
@@ -389,8 +391,6 @@ const getAllRooms = asyncHandler(async (req, res) => {
                 totalRooms: 1,
                 thumbnail: 1,
                 rentPerMonth: 1,
-                esewaId: 1,
-                khaltiId,
                 createdAt: 1,
                 updatedAt: 1
             }
