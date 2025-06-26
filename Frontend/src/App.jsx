@@ -53,7 +53,7 @@ function App() {
 
   const fetchUnreadMessages = useCallback(async () => {
     try {
-      const response = await messageService.getUnreadMessages();
+      const response = await messageService.getUnreadMessagesPerson();
       setUnreadMessages(response.data.unreadCount);
     } catch (error) {
       setError(error.response?.data?.error || "Failed to fetch unread messages");
