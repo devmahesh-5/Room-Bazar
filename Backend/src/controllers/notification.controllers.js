@@ -1,10 +1,10 @@
-import {ApiError} from "../utils/ApiError.js";
-import {ApiResponse} from "../utils/ApiResponse.js";
-import {asyncHandler} from "../utils/asyncHandler.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import Notification from "../models/notification.models.js";
 
 const getNotificationsByReceiver = asyncHandler(async (req, res) => {
-    
+
     const notifications = await Notification.aggregate([
         {
             $match: {
@@ -26,45 +26,64 @@ const getNotificationsByReceiver = asyncHandler(async (req, res) => {
                 roommateId: 1,
                 paymentId: 1,
                 bookingId: 1,
-                messageId:1,
+                messageId: 1,
                 isRead: 1
             }
         }
     ]);
     const unreadCount = notifications.filter(notification => !notification.isRead).length;
-    
-    
-    if(!notifications){
+
+
+    if (!notifications) {
         throw new ApiError(500, 'Failed to fetch notifications');
     }
+
+
+    res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                {
+                    notifications,
+                    unreadCount
+                },
+                'Notifications fetched successfully'
+            )
+        );
+});
+
+const markReadNotifications = asyncHandler(async (req, res) => {
 
     const updatedNotifications = await Notification.updateMany({
         receiver: req.user?._id
     },
-    {
-        $set: {
-            isRead: true
+        {
+            $set: {
+                isRead: true
+            }
+        },
+        {
+            new: true
         }
-    },
-    {
-        new: true
+    )
+    if(!updatedNotifications) {
+        throw new ApiError(500, 'Failed to mark notifications as read');
     }
-)
-console.log(notifications, unreadCount);
+
     res
     .status(200)
     .json(
         new ApiResponse(
             200,
-            {
-                notifications,
-                unreadCount
-            },
-            'Notifications fetched successfully'
+            null,
+            'Notifications marked as read successfully'
         )
     );
+
 });
 
 export {
-    getNotificationsByReceiver
+    getNotificationsByReceiver,
+    markReadNotifications
 }

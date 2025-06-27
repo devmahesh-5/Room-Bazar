@@ -6,7 +6,10 @@ import { Logo } from '../index.js';
 import { MdHome, MdGroup, MdAddBox, MdFavorite, MdPerson, MdChat, MdNotifications, MdMenu } from "react-icons/md";
 import authService from '../../services/auth.services.js';
 import {Authloader} from '../index.js';
-function Header({ isNotification,unreadMessages,unreadNotifications }) {
+import notificationService from '../../services/notification.services.js';
+
+
+function Header({ isNotification,unreadMessages,unreadNotifications,fetchNotifications }) {
   console.log("total notifications",unreadMessages,unreadNotifications);
   
   const location = useLocation();
@@ -33,6 +36,17 @@ function Header({ isNotification,unreadMessages,unreadNotifications }) {
     { name: 'List Room', slug: '/rooms/add', active: authStatus, icon: <MdAddBox /> },
     { name: 'messages', slug: '/messages/ib', active: authStatus, icon: <MdChat /> },
   ]
+
+  const markAsRead = async () => {
+    try {
+      const response = await notificationService.readNotification();
+      if (response) {
+        fetchNotifications();
+      }
+    } catch (error) {
+      console.log(error);
+    } 
+  }
 
   const handleDeleteAccount = async () => {
     try {
@@ -101,7 +115,7 @@ function Header({ isNotification,unreadMessages,unreadNotifications }) {
               <li>
                 <button
                   title='Notifications' // Displays a tooltip on hover
-                  onClick={() => (isNotification())}
+                  onClick={markAsRead}
                   className={`inline-block px-4 py-2 duration-200 text-[#6C48E3] rounded-lg ${location.pathname === '/notifications'
                     ? 'bg-[#6C48E3] text-white hover:bg-[#6C48E3] hover:text-white' // Active state
                     : 'bg-[#F2F4F7] text-[#131038] hover:bg-[#6C48E3] hover:text-white' // Inactive state

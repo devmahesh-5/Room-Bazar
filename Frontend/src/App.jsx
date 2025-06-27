@@ -37,10 +37,8 @@ function App() {
 
       const notification = await notificationService.getMyNotifications();
         if (notification) {
-          
           setNotifications(notification.data['notifications']);
           setUnreadNotifications(notification.data['unreadCount']);
-          
         }
     } catch (error) {
       setError(error.response?.data?.error || "Failed to fetch notifications");
@@ -55,7 +53,7 @@ function App() {
       const response = await messageService.getUnreadMessagesPerson();
       console.log(response);
       
-      setUnreadMessages(response.unreadCount);
+      setUnreadMessages(response?.data[0]?.unreadCount);
     } catch (error) {
       setError(error.response?.data?.error || "Failed to fetch unread messages");
     }
@@ -92,7 +90,7 @@ function App() {
 
   return !loading? (
     <div className="min-h-screen flex flex-col relative">
-      <Header isNotification={notificationHandler} unreadMessages={unreadMessages} unreadNotifications={unreadNotifications}/>
+      <Header isNotification={notificationHandler} unreadMessages={unreadMessages} unreadNotifications={unreadNotifications} fetchNotifications={fetchNotifications}/>
       
       <main className="flex-grow bg-[var(--color-card)] relative">
         <Outlet />
