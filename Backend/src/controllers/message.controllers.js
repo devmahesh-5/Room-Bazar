@@ -355,14 +355,14 @@ const getUnreadMessageCount = asyncHandler(async (req, res) => {
         {
             $group: {
                 _id: '$sender',
-                unreadCount:{
-                    $sum: 1
-                }
             }
+        },
+        {
+            $count: 'unreadCount'
         }
+        
 
     ])
-    console.log('unread count',unreadCount);
     
     res
         .status(200)

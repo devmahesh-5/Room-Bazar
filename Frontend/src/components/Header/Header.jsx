@@ -7,6 +7,8 @@ import { MdHome, MdGroup, MdAddBox, MdFavorite, MdPerson, MdChat, MdNotification
 import authService from '../../services/auth.services.js';
 import {Authloader} from '../index.js';
 function Header({ isNotification,unreadMessages,unreadNotifications }) {
+  console.log("total notifications",unreadMessages,unreadNotifications);
+  
   const location = useLocation();
   const authStatus = useSelector((state) => state.auth.status);
   const userData = useSelector((state) => state.auth.userData);
@@ -72,23 +74,28 @@ function Header({ isNotification,unreadMessages,unreadNotifications }) {
         {/* Navigation Items */}
         <ul className="space-x-6 items-center hidden md:flex">
           {navItems.map(
-            (item) =>
-              item.active && (
-                <li key={item.slug}>
-                  <button
-                    title={item.name} // Displays a tooltip on hover
-                    onClick={() => navigate(item.slug)}
-                    className={`inline-block px-4 py-2 duration-200 text-[#6C48E3] rounded-lg ${location.pathname === item.slug
-                      ? 'bg-[#6C48E3] text-white hover:bg-[#6C48E3] hover:text-white' // Active state
-                      : 'bg-[#F2F4F7] text-[#131038] hover:bg-[#6C48E3] hover:text-white' // Inactive state
-                      }`}
-                  >
-                    {item.icon}
-                  </button>
-
-                </li>
-              )
+  (item) =>
+    item.active && (
+      <li key={item.slug} className="relative">
+        <button
+          title={item.name}
+          onClick={() => navigate(item.slug)}
+          className={`inline-block px-4 py-2 duration-200 text-[#6C48E3] rounded-lg ${
+            location.pathname === item.slug
+              ? 'bg-[#6C48E3] text-white hover:bg-[#6C48E3] hover:text-white'
+              : 'bg-[#F2F4F7] text-[#131038] hover:bg-[#6C48E3] hover:text-white'
+          }`}
+        >
+          {item.icon}
+          {item.name === 'messages' && unreadMessages > 0 && (
+            <span className="absolute -top-2 -right-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+              {unreadMessages}
+            </span>
           )}
+        </button>
+      </li>
+    )
+)}
           {
             authStatus && (
               <li>
