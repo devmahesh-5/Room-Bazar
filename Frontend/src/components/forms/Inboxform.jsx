@@ -18,7 +18,9 @@ function InboxForm({ userId,refreshData }) {
   const [loadingMore, setLoadingMore] = useState(false);
   const skipAutoScroll = useRef(false);
   const [sendingLoading, setSendingLoading] = useState(false);
-  
+  const [newMessage, setNewMessage] = useState('');
+
+
   const scrollToBottom = useCallback(() => {
     if (!skipAutoScroll.current) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -40,6 +42,8 @@ function InboxForm({ userId,refreshData }) {
   setSelectedFiles([]);
   reset(); // Reset the form
 }, [userId, reset]);
+
+
 
   useEffect(() => {
     let isMounted = true;
@@ -78,16 +82,7 @@ function InboxForm({ userId,refreshData }) {
     return () => { isMounted = false }; // Cleanup
   }, [userId, limit, refreshData]); // Only depend on userId
 
-  // Add refresh capability
-  // const refreshMessages = useCallback(async () => {
-  //   try {
-  //     const { data } = await messageService.getMessages(userId);
-  //     setMessages(data);
-  //   } catch (error) {
-  //     setError(error.response?.data?.error || "Refresh failed");
-  //   }
-  // }, [userId]);
-
+ 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
     setSelectedFiles(files.map(file => file.name));
@@ -96,6 +91,7 @@ function InboxForm({ userId,refreshData }) {
 
   const handleSendMessage = async (data) => {
     try {
+      setNewMessage[data.message];
       setSendingError(null);
       setSendingLoading(true);
       const formData = new FormData();
@@ -118,6 +114,7 @@ function InboxForm({ userId,refreshData }) {
       setSendingError(error.response?.data?.error || "Failed to send message");
     } finally {
       setSendingLoading(false);
+      setNewMessage('');
     }
   };
 
@@ -133,6 +130,13 @@ function InboxForm({ userId,refreshData }) {
     skipAutoScroll.current = true;
     setLimit(prev => prev + 1);
   },[userId,setLimit,limit]);
+
+
+
+
+
+
+
   return !error && !loading ? (
     <div className="flex flex-col h-full bg-[var(--color-primary)">
       {/* Header */}
@@ -372,7 +376,7 @@ function InboxForm({ userId,refreshData }) {
       </div>
     </div>
   ):(
-    <Authloader message='Loading conversations...' fullScreen={false} inline={false} size='md' color='primary'/>
+    null
   );
 }
 

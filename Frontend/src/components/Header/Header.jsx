@@ -5,11 +5,12 @@ import LogoutBtn from './LogoutBtn.jsx';
 import { Logo } from '../index.js';
 import { MdHome, MdGroup, MdAddBox, MdFavorite, MdPerson, MdChat, MdNotifications, MdMenu } from "react-icons/md";
 import authService from '../../services/auth.services.js';
-import {Authloader} from '../index.js';
+import { Authloader } from '../index.js';
 import notificationService from '../../services/notification.services.js';
 
 
-function Header({ isNotification,unreadMessages,unreadNotifications,fetchNotifications }) {
+function Header({ isNotification, unreadMessages, unreadNotifications, fetchNotifications }) {
+
   const location = useLocation();
   const authStatus = useSelector((state) => state.auth.status);
   const userData = useSelector((state) => state.auth.userData);
@@ -23,7 +24,7 @@ function Header({ isNotification,unreadMessages,unreadNotifications,fetchNotific
     { name: 'Rooms', slug: '/rooms', active: authStatus, icon: <MdHome /> },
     { name: 'Roommates', slug: '/roommates', active: authStatus, icon: <MdGroup /> },
     { name: 'List Room', slug: '/rooms/add', active: authStatus, icon: <MdAddBox /> },
-    { name: 'Favourites', slug: '/favourites/myfavourites', active: authStatus, icon: <MdFavorite />  },
+    { name: 'Favourites', slug: '/favourites/myfavourites', active: authStatus, icon: <MdFavorite /> },
     { name: 'messages', slug: '/messages/ib', active: authStatus, icon: <MdChat /> },
     // { name: 'Profile', slug: '/users/myprofile', active: authStatus, icon: <MdPerson /> },
   ];
@@ -44,14 +45,14 @@ function Header({ isNotification,unreadMessages,unreadNotifications,fetchNotific
       }
     } catch (error) {
       console.log(error);
-    } 
+    }
   }
 
   const handleDeleteAccount = async () => {
     try {
       setLoading(true);
       const response = await authService.deleteUserAccount();
-      if(response){
+      if (response) {
         navigate('/users/signup');
       }
     } catch (error) {
@@ -61,7 +62,7 @@ function Header({ isNotification,unreadMessages,unreadNotifications,fetchNotific
     }
   }
 
-  const clearNav= () => {
+  const clearNav = () => {
     setPopUp(false);
     setShowDeleteConfirm(false);
   }
@@ -70,14 +71,14 @@ function Header({ isNotification,unreadMessages,unreadNotifications,fetchNotific
     return <div className="text-red-500">Error Occured: {error}</div>;
   }
 
-  return !loading ?(
+  return !loading ? (
     <header className="bg-[#F2F4F7] sticky top-0 z-50 ">
       <div className="text-2xl font-bold text-[#2C2C2C] block md:hidden flex items-center justify-between px-6 py-4">
-          <Logo msg='Room Bazar'/> 
-    {authStatus &&(<div className='flex items-center text-[#6C48E3]'>
-      <MdMenu className='cursor-pointer' onClick={() => setPopUp(!popUp)}/>
-    </div>)}
-        </div>
+        <Logo msg='Room Bazar' />
+        {authStatus && (<div className='flex items-center text-[#6C48E3]'>
+          <MdMenu className='cursor-pointer' onClick={() => setPopUp(!popUp)} />
+        </div>)}
+      </div>
       <nav className="container mx-auto flex items-center justify-between px-6 py-4">
         {/* Logo */}
         <div className="hidden md:block text-2xl font-bold text-[#2C2C2C]">
@@ -87,46 +88,50 @@ function Header({ isNotification,unreadMessages,unreadNotifications,fetchNotific
         {/* Navigation Items */}
         <ul className="space-x-6 items-center hidden md:flex">
           {navItems.map(
-  (item) =>
-    item.active && (
-      <li key={item.slug} className="relative">
-        <button
-          title={item.name}
-          onClick={() => navigate(item.slug)}
-          className={`inline-block px-4 py-2 duration-200 text-[#6C48E3] rounded-lg ${
-            location.pathname === item.slug
-              ? 'bg-[#6C48E3] text-white hover:bg-[#6C48E3] hover:text-white'
-              : 'bg-[#F2F4F7] text-[#131038] hover:bg-[#6C48E3] hover:text-white'
-          }`}
-        >
-          {item.icon}
-          {item.name === 'messages' && unreadMessages > 0 && (
-            <span className="absolute -top-2 -right-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
-              {unreadMessages}
-            </span>
+            (item) =>
+              item.active && (
+                <li key={item.slug} className="relative">
+                  <button
+                    title={item.name}
+                    onClick={() => navigate(item.slug)}
+                    className={`inline-block px-4 py-2 duration-200 text-[#6C48E3] rounded-lg ${location.pathname === item.slug
+                      ? 'bg-[#6C48E3] text-white hover:bg-[#6C48E3] hover:text-white'
+                      : 'bg-[#F2F4F7] text-[#131038] hover:bg-[#6C48E3] hover:text-white'
+                      }`}
+                  >
+                    {item.icon}
+                    {item.name === 'messages' && unreadMessages > 0 && (
+                      <span className="absolute -top-2 -right-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+                        {unreadMessages}
+                      </span>
+                    )}
+                  </button>
+                </li>
+              )
           )}
-        </button>
-      </li>
-    )
-)}
           {
             authStatus && (
-              <li>
+              <li className="relative"> {/* Added relative positioning here */}
                 <button
-                  title='Notifications' // Displays a tooltip on hover
+                  title='Notifications'
                   onClick={markAsRead}
-                  className={`inline-block px-4 py-2 duration-200 text-[#6C48E3] rounded-lg ${location.pathname === '/notifications'
-                    ? 'bg-[#6C48E3] text-white hover:bg-[#6C48E3] hover:text-white' // Active state
-                    : 'bg-[#F2F4F7] text-[#131038] hover:bg-[#6C48E3] hover:text-white' // Inactive state
+                  className={`relative inline-block px-4 py-2 duration-200 text-[#6C48E3] rounded-lg ${location.pathname === '/notifications'
+                    ? 'bg-[#6C48E3] text-white hover:bg-[#6C48E3] hover:text-white'
+                    : 'bg-[#F2F4F7] text-[#131038] hover:bg-[#6C48E3] hover:text-white'
                     }`}
                 >
                   <MdNotifications />
+                  {unreadNotifications > 0 && (
+                    <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-5 h-5 text-xs font-bold leading-none text-white bg-red-600 rounded-full transform translate-x-1/2 -translate-y-1/2">
+                      {unreadNotifications}
+                    </span>
+                  )}
                 </button>
               </li>
             )
           }
           {authStatus && (
-            //here profile picture which on click will open pop up on top right in which there is at top the a name with profile picture of loged in user then logout button then delete account button
+          
             <li>
               <div className='rounded-full w-10 h-10 cursor-pointer' onClick={() => setPopUp(!popUp)}>
                 <img
@@ -144,12 +149,7 @@ function Header({ isNotification,unreadMessages,unreadNotifications,fetchNotific
             (item) =>
               item.active && (
                 <li key={item.slug}>
-                  {item.name === 'messages' && unreadMessages > 0 && (
-                  
-                      <span className="absolute top-0 right-0 inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 rounded-full">
-                        {unreadMessages}
-                      </span>
-                  )}
+
                   <button
                     title={item.name} // Displays a tooltip on hover
                     onClick={() => navigate(item.slug)}
@@ -159,6 +159,11 @@ function Header({ isNotification,unreadMessages,unreadNotifications,fetchNotific
                       }`}
                   >
                     {item.icon}
+                    {item.name === 'messages' && unreadMessages > 0 && (
+                      <span className="absolute -top-2 -right-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+                        {unreadMessages}
+                      </span>
+                    )}
                   </button>
 
                 </li>
@@ -166,26 +171,26 @@ function Header({ isNotification,unreadMessages,unreadNotifications,fetchNotific
           )}
           {
             authStatus && (
-              <li>
-                {unreadNotifications > 0 && (
-                  <span className="absolute top-0 right-0 inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 rounded-full">
-                    {unreadNotifications}
-                  </span>
-                )}
+              <li className="relative"> 
                 <button
-                  title='Notifications' // Displays a tooltip on hover
-                  onClick={() => (isNotification())}
-                  className={`inline-block px-4 py-2 duration-200 text-[#6C48E3] rounded-lg ${location.pathname === '/notifications'
-                    ? 'bg-[#6C48E3] text-white hover:bg-[#6C48E3] hover:text-white' // Active state
-                    : 'bg-[#F2F4F7] text-[#131038] hover:bg-[#6C48E3] hover:text-white' // Inactive state
+                  title='Notifications'
+                  onClick={markAsRead}
+                  className={`relative inline-block px-4 py-2 duration-200 text-[#6C48E3] rounded-lg ${location.pathname === '/notifications'
+                      ? 'bg-[#6C48E3] text-white hover:bg-[#6C48E3] hover:text-white'
+                      : 'bg-[#F2F4F7] text-[#131038] hover:bg-[#6C48E3] hover:text-white'
                     }`}
                 >
                   <MdNotifications />
+                  {unreadNotifications > 0 && (
+                    <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-5 h-5 text-xs font-bold leading-none text-white bg-red-600 rounded-full transform translate-x-1/2 -translate-y-1/2">
+                      {unreadNotifications}
+                    </span>
+                  )}
                 </button>
               </li>
             )
           }
-        
+
         </ul>
       </nav>
       {
@@ -208,19 +213,19 @@ function Header({ isNotification,unreadMessages,unreadNotifications,fetchNotific
               <h1 className="text-lg font-semibold">{userData?.fullName}</h1>
             </div>
 
-             
+
             <div className="p-4 space-y-3">
 
-              <LogoutBtn clearNav={clearNav}/>
+              <LogoutBtn clearNav={clearNav} />
 
               <button
-              className="inline-bock px-6 py-2 duration-200 text-[#6C48E3] bg-[#F2F4F7] border border-[#6C48E3] rounded-lg hover:bg-[#6C48E3] hover:text-white flex items-center gap-2 w-full justify-center"
-              onClick={
-                ()=>{
-                navigate('/favourites/myfavourites')
-                setPopUp(false)
+                className="inline-bock px-6 py-2 duration-200 text-[#6C48E3] bg-[#F2F4F7] border border-[#6C48E3] rounded-lg hover:bg-[#6C48E3] hover:text-white flex items-center gap-2 w-full justify-center"
+                onClick={
+                  () => {
+                    navigate('/favourites/myfavourites')
+                    setPopUp(false)
+                  }
                 }
-              }
               >
                 <MdFavorite className="text-2xl text-[#6C48E3] mr-2" /><p>Favourites</p>
               </button>
@@ -289,8 +294,8 @@ function Header({ isNotification,unreadMessages,unreadNotifications,fetchNotific
       )}
 
     </header>
-  ):(
-<Authloader fullScreen={true} message='deleting your account...'/>
+  ) : (
+    <Authloader fullScreen={true} message='deleting your account...' />
   )
 }
 
