@@ -10,8 +10,6 @@ import notificationService from '../../services/notification.services.js';
 
 
 function Header({ isNotification,unreadMessages,unreadNotifications,fetchNotifications }) {
-  console.log("total notifications",unreadMessages,unreadNotifications);
-  
   const location = useLocation();
   const authStatus = useSelector((state) => state.auth.status);
   const userData = useSelector((state) => state.auth.userData);
@@ -39,6 +37,7 @@ function Header({ isNotification,unreadMessages,unreadNotifications,fetchNotific
 
   const markAsRead = async () => {
     try {
+      isNotification();
       const response = await notificationService.readNotification();
       if (response) {
         fetchNotifications();

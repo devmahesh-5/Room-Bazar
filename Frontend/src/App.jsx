@@ -51,15 +51,11 @@ function App() {
     try {
       setError(null);
       const response = await messageService.getUnreadMessagesPerson();
-      console.log(response);
-      
       setUnreadMessages(response?.data[0]?.unreadCount);
     } catch (error) {
       setError(error.response?.data?.error || "Failed to fetch unread messages");
     }
   }, [authStatus]);
-
-
 
 
   useEffect(() => {

@@ -13,5 +13,5 @@ const router = Router();
 router.use(verifyAuth,checkVerified);
 
 router.route('/').get(getNotificationsByReceiver);
-router.route('/markasread').post(verifyAuth,getNotificationsByReceiver);
+router.route('/markasread').post(verifyAuth,markReadNotifications);
 export default router
