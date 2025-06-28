@@ -1032,7 +1032,7 @@ const cancelRoommateRequest = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'Invalid user id');
     }
     const myRoommateAccount = await getRoommateByUserId(user);
-
+    
     const cancelledRoommateRequest = await RoommateRequest.findOneAndDelete(
         {
             sender: myRoommateAccount._id,

@@ -80,7 +80,7 @@ const ProfileCard = ({ avatar, _id, userId, fullName, location, haveRoom, job, a
               e.preventDefault();
               sendRequest();
             }}>
-              Add Friend
+              Request 
             </button>) : (
             <button 
             className="flex-1 mr-2 px-3 py-1 bg-[#6C48E3] text-white text-sm font-semibold rounded hover:opacity-80 transition duration-300" 
