@@ -578,7 +578,11 @@ const updateUserProfile = asyncHandler(async (req, res) => {
          }
       },
       { new: true }
-   )
+   ).select('-password');
+
+   if (!updatedUser) {
+      throw new ApiError(500, 'User not updated');
+   }
    res
       .status(200)
       .json(
@@ -686,7 +690,7 @@ const updateProfilePicture = asyncHandler(async (req, res) => {
          }
       },
       { new: true }
-   )
+   ).select('-password');
    if (!updatedUser) {
       throw new ApiError(500, 'Error updating profile picture');
    }
@@ -736,7 +740,7 @@ const updateCoverPicture = asyncHandler(async (req, res) => {
          }
       },
       { new: true }
-   )
+   ).select('-password -refreshToken');
    if (!updatedUser) {
       throw new ApiError(500, 'Error updating cover picture');
    }
