@@ -215,7 +215,7 @@ function Room() {
                             <h4 className="font-medium text-gray-800 mb-2">Room Details</h4>
                             <div className="grid grid-cols-2 gap-2">
                                 <div className="bg-[#F2F4F7] p-2 rounded">
-                                    <p className="text-xs text-gray-500">Fee</p>
+                                    <p className="text-xs text-gray-500">Agent Service Fee</p>
                                     <p className="font-semibold">Rs. {room?.price}</p>
                                 </div>
                                 <div className="bg-[#F2F4F7] p-2 rounded">

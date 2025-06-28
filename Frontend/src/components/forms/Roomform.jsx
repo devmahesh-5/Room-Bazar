@@ -149,7 +149,7 @@ const Roomform = ({ room }) => {
       <div className="md:col-span-1 space-y-4">
         <Input
           type="text"
-          label="Price :"
+          label="Agent Service Fee (NPR):"
           className="w-full p-3 border rounded-lg appearance-none"
           {...register("price", {
             required: "Price is required",
