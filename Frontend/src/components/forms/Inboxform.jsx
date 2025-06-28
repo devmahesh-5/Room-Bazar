@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef, use, useCallback } from 'react';
 import { set, useForm } from 'react-hook-form';
-import { MdSend, MdAttachFile, MdExitToApp} from 'react-icons/md';
+import { MdSend, MdAttachFile, MdExitToApp } from 'react-icons/md';
 import messageService from '../../services/message.services';
 import authServices from '../../services/auth.services';
 import Authloader from '../Authloader';
-function InboxForm({ userId,refreshData }) {
+function InboxForm({ userId, refreshData }) {
   const { register, handleSubmit, reset, setValue, watch } = useForm();
   const [messages, setMessages] = useState([]);
   const [receiver, setReceiver] = useState(null);
@@ -18,8 +18,8 @@ function InboxForm({ userId,refreshData }) {
   const [loadingMore, setLoadingMore] = useState(false);
   const skipAutoScroll = useRef(false);
   const [sendingLoading, setSendingLoading] = useState(false);
-  const [newMessage, setNewMessage] = useState('');
-
+  const [newMessage, setNewMessage] = useState(null);
+  const [newFiles, setNewFiles] = useState(null);
 
   const scrollToBottom = useCallback(() => {
     if (!skipAutoScroll.current) {
@@ -34,15 +34,31 @@ function InboxForm({ userId,refreshData }) {
   }, [messages.length]);
 
   useEffect(() => {
-  // Reset all conversation-specific state when userId changes
-  setLimit(1);
-  setMessages([]);
-  setReceiver(null);
-  setHasMore(true);
-  setSelectedFiles([]);
-  reset(); // Reset the form
-}, [userId, reset]);
+    // Reset all conversation-specific state when userId changes
+    setLimit(1);
+    setMessages([]);
+    setReceiver(null);
+    setHasMore(true);
+    setSelectedFiles([]);
+    reset(); // Reset the form
+  }, [userId, reset]);
 
+
+  const fetchMessagesAfterSending = async () => {
+    try {
+      setSendingLoading(true);
+      const response = await messageService.getMessages(userId, limit * 10);
+      if (response) {
+        setMessages(response.data.messages);
+        setHasMore(response.data.messageCount > messages.length);
+
+      }
+    } catch (error) {
+      setError(error.response?.data?.error || "Failed to load messages");
+    } finally {
+      setSendingLoading(false);
+    }
+  }
 
 
   useEffect(() => {
@@ -53,7 +69,7 @@ function InboxForm({ userId,refreshData }) {
         if (!userId) return;
         setError(null);
         setLoadingMore(true);
-        setLoading(limit==1);
+        setLoading(limit == 1);
         const [userData, messagesData] = await Promise.all([
           authServices.getUserById({ userId }),
           messageService.getMessages(userId, limit * 10)
@@ -80,9 +96,9 @@ function InboxForm({ userId,refreshData }) {
     fetchMessages();
 
     return () => { isMounted = false }; // Cleanup
-  }, [userId, limit, refreshData]); // Only depend on userId
+  }, [userId, limit]); // Only depend on userId
 
- 
+
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
     setSelectedFiles(files.map(file => file.name));
@@ -92,6 +108,7 @@ function InboxForm({ userId,refreshData }) {
   const handleSendMessage = async (data) => {
     try {
       setNewMessage[data.message];
+      setNewFiles[data.messageFiles];
       setSendingError(null);
       setSendingLoading(true);
       const formData = new FormData();
@@ -109,6 +126,7 @@ function InboxForm({ userId,refreshData }) {
         reset();
         setSelectedFiles([]);
         refreshData();
+        fetchMessagesAfterSending();
       }
     } catch (error) {
       setSendingError(error.response?.data?.error || "Failed to send message");
@@ -129,7 +147,7 @@ function InboxForm({ userId,refreshData }) {
   const handleSeeMore = useCallback(() => {
     skipAutoScroll.current = true;
     setLimit(prev => prev + 1);
-  },[userId,setLimit,limit]);
+  }, [userId, setLimit, limit]);
 
 
 
@@ -137,7 +155,7 @@ function InboxForm({ userId,refreshData }) {
 
 
 
-  return !error && !loading ? (
+  return !error && (sendingLoading || !loading) ? (
     <div className="flex flex-col h-full bg-[var(--color-primary)">
       {/* Header */}
       {receiver && (
@@ -158,52 +176,52 @@ function InboxForm({ userId,refreshData }) {
       <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-[var(--color-primary)">
 
         {!loadingMore && hasMore ? (
-  <button
-    onClick={handleSeeMore}
-    className="relative top-0 left-1/2 -translate-x-1/2 z-10
+          <button
+            onClick={handleSeeMore}
+            className="relative top-0 left-1/2 -translate-x-1/2 z-10
               bg-[#F2F4F7] hover:bg-white border border-gray-200
               rounded-full shadow-sm hover:shadow-md
               px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900
               transition-all duration-200 ease-in-out
               flex items-center gap-2
               backdrop-blur-sm"
-  >
-    <svg 
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-4 w-4 text-gray-500"
-      viewBox="0 0 20 20"
-      fill="currentColor"
-    >
-      <path
-        fillRule="evenodd"
-        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-        clipRule="evenodd"
-    />
-    </svg>
-    Show older messages
-  </button>
-) : loadingMore ? (
-  <div className="absolute top-20 left-1/2 -translate-x-1/2 z-10
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4 text-gray-500"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Show older messages
+          </button>
+        ) : loadingMore ? (
+          <div className="absolute top-20 left-1/2 -translate-x-1/2 z-10
                  bg-white/90 border border-gray-200
                  rounded-full shadow-sm
                  p-2
                  backdrop-blur-sm">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-5 w-5 animate-spin text-gray-500"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-      />
-    </svg>
-  </div>
-) : null}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 animate-spin text-gray-500"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+          </div>
+        ) : null}
         {messages.length > 0 ? (
           messages.map((msg, index) => {
             const isSentByUser = msg.sender?._id !== userId;
@@ -315,6 +333,24 @@ function InboxForm({ userId,refreshData }) {
             <p className="text-sm">Send a message to start the conversation</p>
           </div>
         )}
+        {sendingLoading && (
+          <div className={`flex mb-3 px-4 justify-end`}>
+            <div className="flex flex-row items-end max-w-[80%]">
+              <div className="relative px-4 py-2 rounded-2xl rounded-br-none bg-[var(--color-primary)] text-sm text-white shadow-sm">
+                <div className="whitespace-pre-wrap break-words">
+                  {newMessage}
+                </div>
+                <div className="flex justify-end mt-1">
+                  <div className="flex space-x-1 items-center">
+                    <div className="w-2 h-2 rounded-full bg-white opacity-60 animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-2 h-2 rounded-full bg-white opacity-60 animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-2 h-2 rounded-full bg-white opacity-60 animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
       {sendingError && <p className="text-red-500 text-center">{sendingError || 'Failed to send message'}</p>}
@@ -332,6 +368,7 @@ function InboxForm({ userId,refreshData }) {
         </div>
       )}
 
+
       {/* Input Area */}
       <form onSubmit={handleSubmit(handleSendMessage)} className="rounded-xl p-3 bg-[var(--color-background] border-t border-[var(--color-card)]">
         <div className="flex items-center">
@@ -339,25 +376,12 @@ function InboxForm({ userId,refreshData }) {
             <MdAttachFile size={20} />
             <input type="file" multiple className="hidden" onChange={handleFileChange} />
           </label>
-          {!sendingLoading ? (<textarea
+          <textarea
             {...register('message')}
             placeholder="Type a message..."
             className="flex-1 border border-gray-200 rounded-full px-4 py-2 mx-2 focus:outline-none focus:ring-1 focus:ring-[#6C48E3] resize-none"
             rows="1"
-          />) : (
-            <div className="flex items-center gap-2">
-              <span className="text-gray-700">Sending</span>
-              <div className="flex space-x-1">
-                {[...Array(3)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
-                    style={{ animationDelay: `${i * 0.1}s` }}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
+          ></textarea>
           <button
             type={`${watch('message') ? 'submit' : 'button'}`}
             className={`bg-[#6C48E3] text-white p-2 rounded-full hover:bg-[#5a3ac9] transition ${watch('message') == '' || sendingLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -375,7 +399,7 @@ function InboxForm({ userId,refreshData }) {
         <p className="text-sm">{error}</p>
       </div>
     </div>
-  ):(
+  ) : (
     null
   );
 }

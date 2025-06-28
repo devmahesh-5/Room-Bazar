@@ -5,9 +5,15 @@ const API = import.meta.env.VITE_API_BASE_URL;
 
 class authServices {
 
-    async registerUser(formData) {
+    async registerUser(formData,email) {
 
         try {
+            const isDisposable = await axios.get(`https://disposable.debounce.io/?email=${email}`);
+            console.log(isDisposable);
+            
+            if(isDisposable.data['disposable']){
+                throw new Error("Email is disposable");
+            }
             const response = await axios.post(`${API}/api/v1/users/register`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });

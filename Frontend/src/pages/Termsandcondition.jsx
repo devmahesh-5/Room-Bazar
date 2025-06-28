@@ -49,8 +49,11 @@ const TermsAndConditions = () => {
                 <p>
                   <strong className="text-[#6C48E3]">Cancellations:</strong> There is no refund policy for cancellations for now.
                 </p>
-                <p>
+                {/* <p>
                   <strong className="text-[#6C48E3]">Check-in:</strong> Room booked by user gets auto check-in after 24 hours if not checked in by user and room will never be available.
+                </p> */}
+                <p>
+                  <strong className="text-[#6C48E3]">Access Restrictions:</strong> You may not access the main profile of user but can access other Roommate Profile.
                 </p>
               </div>
             </section>
@@ -80,7 +83,7 @@ const TermsAndConditions = () => {
                 Room-Bazar reserves the right to modify these terms at any time. Continued use of the service after changes constitutes acceptance of the new terms.
               </p>
               <div className="mt-6 p-4 bg-[#F5F3FF] rounded-lg">
-                <p className="font-medium text-[#6C48E3]">Last Updated: {'6/26/2025'}</p>
+                <p className="font-medium text-[#6C48E3]">Last Updated: {'6/28/2025'}</p>
               </div>
             </section>
           </div>
@@ -88,7 +91,7 @@ const TermsAndConditions = () => {
           <div className="mt-12 pt-6 border-t border-gray-200">
             <h3 className="text-lg font-medium text-gray-900">Have questions?</h3>
             <p className="mt-2 text-gray-600">
-              Contact us at <a href="mailto:roombazar25@gmail.com" className="text-[#6C48E3] hover:underline">support@roombazar.com</a>
+              Contact us at <a href="mailto:goroombazar@gmail.com" className="text-[#6C48E3] hover:underline">support@roombazar.com</a>
             </p>
           </div>
         </div>

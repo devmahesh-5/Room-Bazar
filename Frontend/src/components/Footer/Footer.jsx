@@ -26,7 +26,7 @@ function Footer() {
             
             <ul className="list-none flex flex-row justify-between space-x-8">
               <li className="mb-3">
-                <a href="mailto:roombazar25@gmail.com" className="text-base font-medium text-[#2C2C2C] hover:text-[#6C48E3]">
+                <a href="mailto:goroombazar@gmail.com" className="text-base font-medium text-[#2C2C2C] hover:text-[#6C48E3]">
                 Mail
               </a>
               </li>

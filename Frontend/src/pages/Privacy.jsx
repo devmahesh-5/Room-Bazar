@@ -141,7 +141,7 @@ const PrivacyPolicy = () => {
                 We may update this policy periodically. We'll notify you of significant changes via email or through our website. The "Last Updated" date below indicates when this policy was last revised.
               </p>
               <div className="mt-6 p-4 bg-[#F5F3FF] rounded-lg">
-                <p className="font-medium text-[#6C48E3]">Last Updated: 06/26/2025</p>
+                <p className="font-medium text-[#6C48E3]">Last Updated: 06/28/2025</p>
               </div>
             </section>
           </div>
@@ -162,7 +162,7 @@ const PrivacyPolicy = () => {
               <Link to="/legal/privacy-policy" className="text-gray-600 hover:text-[#6C48E3] text-sm">
                 Privacy Policy
               </Link>
-              <a href="mailto:roombazar25@gmail.com" className="text-gray-600 hover:text-[#6C48E3] text-sm">
+              <a href="mailto:goroombazar@gmail.com" className="text-gray-600 hover:text-[#6C48E3] text-sm">
                 Contact Us
               </a>
             </div>

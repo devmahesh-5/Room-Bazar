@@ -364,13 +364,13 @@ function Room() {
                     {reviews.map((review, index) => (
                         <div key={index} className="border-b border-gray-200 pb-4 last:border-0">
                             <div className="flex items-start space-x-4">
-                                <Link to={`/roommates/${review.user?._id}`}>
+                                {/* <Link to={`/roommates/${review.user?._id}`}> */}
                                     <img
                                         src={review.user?.avatar || "https://via.placeholder.com/150"}
                                         alt="User"
                                         className="w-12 h-12 rounded-full object-cover"
                                     />
-                                </Link>
+                                {/* </Link> */}
                                 <div className="flex-1">
                                     <div className="flex justify-between items-start">
                                         <div>

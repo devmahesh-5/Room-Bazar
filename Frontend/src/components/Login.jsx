@@ -57,15 +57,15 @@ function Login() {
                 <form onSubmit={handleSubmit(login)} className="mt-8">
                     <div className="space-y-4">
                         <Input
-                            label="Email: "
-                            type="email"
-                            placeholder="Enter your email address"
+                            label="Email or Username: "
+                            type="text"
+                            placeholder="Enter your email address or username"
                             {...register('email', {
                                 required: true,
-                                validate: {
-                                    matchPattern: (value) => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value) ||
-                                        "Email address must be a valid address",
-                                }
+                                // validate: {
+                                //     matchPattern: (value) => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value) ||
+                                //         "Email address must be a valid address",
+                                // }
                             })}
                         />
                         <div className="relative">

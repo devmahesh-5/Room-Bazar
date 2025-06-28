@@ -42,13 +42,13 @@ function Signup() {
         }
 
         try {
-            const userSession = await authService.registerUser(formData);
+            const userSession = await authService.registerUser(formData, data.email);
             if (userSession) {
                 setLoading(false);
                 navigate(`/users/verify-otp/${userSession.data.email}`);
             }
         } catch (error) {
-            setError(error.response?.data?.error || "Signup failed");
+            setError(error.response?.data || error.message || "Signup failed");
         } finally {
             setLoading(false);
         }

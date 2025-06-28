@@ -446,24 +446,26 @@ export const unVerifiedUserRemoval = async () => {
 export const emailValidator = async (email) => {
     if (!validator.isEmail(email)) {
         return false;
+    }else{
+        return true;
     }
 
-    try {
-        const exists = await new Promise((resolve, reject) => {
-            emailExistence.check(email, (error, response) => {
-                if (error) {
-                    reject(error);
-                } else {
-                    resolve(response);
-                }
-            });
-        });
+    // try {
+    //     const exists = await new Promise((resolve, reject) => {
+    //         emailExistence.check(email, (error, response) => {
+    //             if (error) {
+    //                 reject(error);
+    //             } else {
+    //                 resolve(response);
+    //             }
+    //         });
+    //     });
 
-        return exists; // true if email exists, false otherwise
-    } catch (error) {
-        console.error('Email existence check failed:', error);
-        return false; // Fail-safe: assume invalid if check fails
-    }
+    //     return exists; // true if email exists, false otherwise
+    // } catch (error) {
+    //     console.error('Email existence check failed:', error);
+    //     return false; // Fail-safe: assume invalid if check fails
+    // }
 };
 
 // export const checkinBookedRoom = async()=>{

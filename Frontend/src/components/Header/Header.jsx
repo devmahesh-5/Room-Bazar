@@ -102,7 +102,7 @@ function Header({ isNotification, unreadMessages, unreadNotifications, fetchNoti
                     {item.icon}
                     {item.name === 'messages' && unreadMessages > 0 && (
                       <span className="absolute -top-2 -right-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
-                        {unreadMessages}
+                        {unreadMessages<=9 ? unreadMessages : '9+'}
                       </span>
                     )}
                   </button>
@@ -123,7 +123,7 @@ function Header({ isNotification, unreadMessages, unreadNotifications, fetchNoti
                   <MdNotifications />
                   {unreadNotifications > 0 && (
                     <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-5 h-5 text-xs font-bold leading-none text-white bg-red-600 rounded-full transform translate-x-1/2 -translate-y-1/2">
-                      {unreadNotifications}
+                      {unreadNotifications<=9 ? unreadNotifications : '9+'}
                     </span>
                   )}
                 </button>
@@ -153,7 +153,7 @@ function Header({ isNotification, unreadMessages, unreadNotifications, fetchNoti
                   <button
                     title={item.name} // Displays a tooltip on hover
                     onClick={() => navigate(item.slug)}
-                    className={`inline-block px-4 py-2 duration-200 text-[#6C48E3] rounded-lg ${location.pathname === item.slug
+                    className={`relative inline-block px-4 py-2 duration-200 text-[#6C48E3] rounded-lg ${location.pathname === item.slug
                       ? 'bg-[#6C48E3] text-white hover:bg-[#6C48E3] hover:text-white' // Active state
                       : 'bg-[#F2F4F7] text-[#131038] hover:bg-[#6C48E3] hover:text-white' // Inactive state
                       }`}
@@ -161,7 +161,7 @@ function Header({ isNotification, unreadMessages, unreadNotifications, fetchNoti
                     {item.icon}
                     {item.name === 'messages' && unreadMessages > 0 && (
                       <span className="absolute -top-2 -right-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
-                        {unreadMessages}
+                        {unreadMessages<10 ? unreadMessages : '9+'}
                       </span>
                     )}
                   </button>
@@ -181,9 +181,9 @@ function Header({ isNotification, unreadMessages, unreadNotifications, fetchNoti
                     }`}
                 >
                   <MdNotifications />
-                  {unreadNotifications > 0 && (
+                    {unreadNotifications > 0 && (
                     <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-5 h-5 text-xs font-bold leading-none text-white bg-red-600 rounded-full transform translate-x-1/2 -translate-y-1/2">
-                      {unreadNotifications}
+                      {unreadNotifications<10 ? unreadNotifications : '9+'}
                     </span>
                   )}
                 </button>

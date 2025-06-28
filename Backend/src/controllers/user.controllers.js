@@ -26,7 +26,11 @@ const generateAccessAndRefreshTokens = async (userId) => {
 }
 
 const registerUser = asyncHandler(async (req, res) => {
+  
+   
    const { fullName, email, password, username, phone, address, gender, latitude, longitude } = req.body;
+   console.log(email);
+   
    if ([fullName, email, password, username, phone, address, gender].some((field) => !field || String(field.trim()) === '')) {
       throw new ApiError(400, 'All fields are required');
    }
@@ -278,7 +282,7 @@ const loginUser = asyncHandler(async (req, res) => {
    );
 
    if (!user) {
-      throw new ApiError(404, 'User not found');
+      throw new ApiError(404, 'invalid email or username');
    }
 
    const isPasswordCorrect = await user.isPasswordCorrect(password);
