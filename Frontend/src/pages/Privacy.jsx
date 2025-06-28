@@ -105,7 +105,7 @@ const PrivacyPolicy = () => {
                   <li>Request a copy of your data in a portable format</li>
                   <li>Withdraw consent where processing is based on consent</li>
                 </ul>
-                <p>To exercise these rights, please contact us at <a href="mailto:roombazar25@gmail.com" className="text-[#6C48E3] hover:underline">privacy@roombazar.com</a></p>
+                <p>To exercise these rights, please contact us at <a href="mailto:goroombazar@gmail.com" className="text-[#6C48E3] hover:underline">privacy@roombazar.com</a></p>
               </div>
             </section>
 

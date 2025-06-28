@@ -62,7 +62,10 @@ const userSchema = new mongoose.Schema({
     },
     gender : {
         type: String,
-        required: true
+        required: function () {
+            // Required only if no Google ID (i.e., normal signup)
+            return !this.googleId;
+          }
     },
     latitude : {
         type: Number
