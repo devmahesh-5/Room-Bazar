@@ -171,13 +171,14 @@ function Signup() {
                             />
 
                             <Input
-                                type="number"
+                                type="tel"
+                                inputMode="numeric"
                                 label="Phone Number"
                                 placeholder="9800000000"
                                 {...register("phone", { 
                                     required: "Phone number is required",
                                     pattern: {
-                                        value: /^[0-9]{10}$/,
+                                        pattern: /^[0-9]{10}$/,
                                         message: "Invalid phone number (10 digits required)"
                                     }
                                 })}
