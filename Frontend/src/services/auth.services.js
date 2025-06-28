@@ -8,10 +8,9 @@ class authServices {
     async registerUser(formData,email) {
 
         try {
-            const isDisposable = await axios.get(`https://disposable.debounce.io/?email=${email}`);
-            console.log(isDisposable);
-            
-            if(isDisposable.data['disposable']){
+            const responseOfDisposable = await axios.get(`https://disposable.debounce.io/?email=${email}`);
+            const isDisposable=responseOfDisposable;
+            if(isDisposable.data.disposable==true){
                 throw new Error("Email is disposable");
             }
             const response = await axios.post(`${API}/api/v1/users/register`, formData, {
@@ -31,7 +30,9 @@ class authServices {
 
     async verifyOTP(data) {
         try {
-            const response = await axios.post(`${API}/api/v1/users/verify-otp`, data);
+            const response = await axios.post(`${API}/api/v1/users/verify-otp`, data, {
+                withCredentials: true
+            });
             if (!response) {
                 throw new Error("Error verifying OTP");
             }

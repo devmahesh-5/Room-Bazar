@@ -67,9 +67,9 @@ const router = createBrowserRouter([
           {
             path: 'verify-otp/:email',
             element: (
-              <Protected authentication={false}>
+              // <Protected authentication={false}>
                 <VerifyOtp />
-              </Protected>
+              // </Protected>
             )
           },
           {

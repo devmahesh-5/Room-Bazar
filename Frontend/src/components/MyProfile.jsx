@@ -126,7 +126,6 @@ const ProfilePage = () => {
 
   const handleMyBookings = useCallback(async (bookingId) => {
     try {
-      console.log(bookingId);
       await bookingService.updateBooking(bookingId);
       await fetchMyBookings();
     } catch (error) {
@@ -139,6 +138,7 @@ const ProfilePage = () => {
       setVerifyLoading(true);
       const response = await authService.resendOTP({ email: userData?.email });
       if (response) {
+        setVerifyLoading(false);
         navigate(`/users/verify-otp/${userData?.email}`);
       }
     } catch (error) {

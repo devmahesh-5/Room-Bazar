@@ -29,7 +29,6 @@ const registerUser = asyncHandler(async (req, res) => {
   
    
    const { fullName, email, password, username, phone, address, gender, latitude, longitude } = req.body;
-   console.log(email);
    
    if ([fullName, email, password, username, phone, address, gender].some((field) => !field || String(field.trim()) === '')) {
       throw new ApiError(400, 'All fields are required');
@@ -50,10 +49,12 @@ const registerUser = asyncHandler(async (req, res) => {
    if (!validEmail) {
       throw new ApiError(400, 'Invalid email');
    }
-
-   const avatarLocalPath = req.files?.avatar[0]?.path;
-   const coverImagePath = req.files?.coverImage[0]?.path;
-
+   console.log(req.files);
+   
+   const avatarLocalPath = req.files?.avatar?.[0]?.path;
+   const coverImagePath = req.files?.coverImage?.[0]?.path;
+   console.log("avatarLocalPath",avatarLocalPath);
+   
    if (!avatarLocalPath) {
       throw new ApiError(400, 'Avatar image is required');
    }
@@ -205,7 +206,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
       .json(
          new ApiResponse(
             200,
-            verifiedUser,
+            null,
             'User verified successfully'
          )
       )
