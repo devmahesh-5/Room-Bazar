@@ -721,7 +721,7 @@ const updateCoverPicture = asyncHandler(async (req, res) => {
    }
 
    const coverCloudinaryPath = await uploadOnCloudinary(coverLocalPath);
-   const oldCoverPublicId = user.coverImage.split('/').pop().split('.')[0];
+   const oldCoverPublicId = user?.coverImage?.split('/')?.pop()?.split('.')[0];
 
    if (!coverCloudinaryPath) {
       throw new ApiError(500, 'Error uploading cover picture');

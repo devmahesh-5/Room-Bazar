@@ -31,7 +31,7 @@ function VerifyOTP() {
                 }
             }
         } catch (error) {
-            setError(error.response?.data?.error || "Verification failed");
+            navigate("/users/login");
         } finally {
             setLoading(false);
         }
