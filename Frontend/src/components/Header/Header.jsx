@@ -93,7 +93,12 @@ function Header({ isNotification, unreadMessages, unreadNotifications, fetchNoti
                 <li key={item.slug} className="relative">
                   <button
                     title={item.name}
-                    onClick={() => navigate(item.slug)}
+                    onClick={() => {
+                      navigate(item.slug);
+                      clearNav();
+                      //item.name === 'messages' && unreadMessages > 0 && markAsRead();
+                      isNotification(true);
+                    }}
                     className={`inline-block px-4 py-2 duration-200 text-[#6C48E3] rounded-lg ${location.pathname === item.slug
                       ? 'bg-[#6C48E3] text-white hover:bg-[#6C48E3] hover:text-white'
                       : 'bg-[#F2F4F7] text-[#131038] hover:bg-[#6C48E3] hover:text-white'
@@ -151,8 +156,13 @@ function Header({ isNotification, unreadMessages, unreadNotifications, fetchNoti
                 <li key={item.slug}>
 
                   <button
-                    title={item.name} // Displays a tooltip on hover
-                    onClick={() => navigate(item.slug)}
+                    title={item.name}
+                    onClick={() => {
+                      navigate(item.slug);
+                      clearNav();
+                      //item.name === 'messages' && unreadMessages > 0 && markAsRead();
+                      isNotification(true);
+                    }}
                     className={`relative inline-block px-4 py-2 duration-200 text-[#6C48E3] rounded-lg ${location.pathname === item.slug
                       ? 'bg-[#6C48E3] text-white hover:bg-[#6C48E3] hover:text-white' // Active state
                       : 'bg-[#F2F4F7] text-[#131038] hover:bg-[#6C48E3] hover:text-white' // Inactive state

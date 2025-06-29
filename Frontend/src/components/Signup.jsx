@@ -204,7 +204,7 @@ function Signup() {
                                             file:text-sm file:font-semibold
                                             file:bg-[#6C48E3] file:text-white
                                             hover:file:bg-[#5a3acf]"
-                                        {...register("avatar", { required: "Profile picture is required" })}
+                                        {...register("avatar")}
                                     />
                                     {errors.avatar && (
                                         <p className="mt-1 text-sm text-red-600">{errors.avatar.message}</p>

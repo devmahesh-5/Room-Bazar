@@ -24,8 +24,16 @@ function App() {
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
 
-  const notificationHandler = () => {
-    setNotificationSection((prev) => !prev);
+  const notificationHandler = (otherNav=false) => {
+    console.log("other nav",otherNav);
+    
+    if (otherNav===true) {
+      setNotificationSection(false);
+      console.log(notificationSection);
+      
+    } else {
+      setNotificationSection((prev) => !prev);
+    }
   };
 
   const fetchNotifications = useCallback(async () => {
@@ -93,7 +101,7 @@ function App() {
         
         {/* Notification panel (fixed position overlapping content) */}
         {authStatus && notificationSection &&(
-          <div className="fixed top-16 right-0 h-[calc(100vh-4rem)] w-96 bg-[#F2F4F7] shadow-lg border-l border-gray-200 z-40 overflow-y-auto">
+          <div className="fixed top-16 right-0 h-[calc(100vh-4rem)] w-96 bg-[#F2F4F7] shadow-lg border-l border-gray-200 z-40 overflow-y-auto w-1/3">
             <div className="sticky top-0 bg-[#F2F4F7] p-4">
               <h2 className="text-lg font-semibold text-[#6C48E3]">Notifications</h2>
             </div>
