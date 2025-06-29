@@ -65,12 +65,11 @@ const Roomform = ({ room }) => {
         navigate(`/rooms/${room?._id}`);
       } else {
         const newRoom = await roomServices.addRoom(formData);
-        console.log(newRoom);
 
         if (!newRoom) {
           throw new Error("Error adding room");
         }
-        navigate(`/rooms/${newRoom?._id}`);
+        navigate(`/rooms/${newRoom?.data?._id}`);
       }
     } catch (error) {
       setError(error.response.data.error);
