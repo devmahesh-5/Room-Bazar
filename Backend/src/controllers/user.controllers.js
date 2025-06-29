@@ -922,6 +922,7 @@ const getDashboard = asyncHandler(async (req, res) => {
                price: 1,
                thumbnail: 1,
                rentPerMonth: 1,
+               status: 1,
                owner: { $arrayElemAt: ["$owner", 0] }
             }
          },

@@ -82,7 +82,6 @@ function Rooms() {
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
-                  <span>Search</span>
                 </button>
               </div>
             </div>
@@ -100,14 +99,13 @@ function Rooms() {
                 Filters
               </button>
 
-              {watch('query') && (
+              {/* {watch('query') && (
                 <button
                   type="submit"
                   className="text-xs text-[#6C48E3]"
                 >
-                  Search
                 </button>
-              )}
+              )} */}
             </div>
 
             {/* Expanded Mobile Filters */}
@@ -170,7 +168,6 @@ function Rooms() {
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
-                  <span>Search</span>
                 </button>
               </div>
             </div>
@@ -188,14 +185,6 @@ function Rooms() {
                 Filters
               </button>
 
-              {watch('query') && (
-                <button
-                  type="submit"
-                  className="text-xs text-[#6C48E3]"
-                >
-                  Search
-                </button>
-              )}
             </div>
 
             {/* Expanded Mobile Filters */}

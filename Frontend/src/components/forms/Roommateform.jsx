@@ -140,7 +140,7 @@ const Roommateform = ({ roommate }) => {
         label="Pets:"
         placeholder="Specify pets"
         className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#6C48E3] focus:border-transparent"
-        defaultValue={roommate?.pets}
+        defaultValue={roommate?.pets || ''}
         {...register("pets", { required: !roommate })}
       />
     </div>

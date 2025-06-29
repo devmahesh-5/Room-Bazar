@@ -22,9 +22,9 @@ const ProfilePage = () => {
   const [receivedRequest, setReceivedRequest] = useState([]);
   const [activeSection, setActiveSection] = useState('roommates');
   const [loading, setLoading] = useState(!userData?._id);
-  const [myRoommateAccount, setMyRoommateAccount] = useState(null);
+  // const [myRoommateAccount, setMyRoommateAccount] = useState(null);
   const [verifyLoading, setVerifyLoading] = useState(false);
-  const [deleteLoading, setDeleteLoading] = useState(false);
+  //const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -54,9 +54,7 @@ const ProfilePage = () => {
       isMounted = false;
     };
   }, []);
-console.log("DAshboard Data", dashboardData);
 
-  // Memoized fetch functions
   const fetchSentRequests = useCallback(async () => {
     try {
       const response = await roommateService.getSentRoommateRequests();
@@ -174,16 +172,16 @@ console.log("DAshboard Data", dashboardData);
         {/* Cover Image */}
         <div className="h-48 bg-[#F2F4F7] relative">
           {userData?.coverImage ? (
-            
-              <img
-                src={userData?.coverImage}
-                alt="Cover"
-                className="absolute w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.className = "absolute w-full h-full bg-[#F2F4F7]";
-                }}
-              />
+
+            <img
+              src={userData?.coverImage}
+              alt="Cover"
+              className="absolute w-full h-full object-cover"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.className = "absolute w-full h-full bg-[#F2F4F7]";
+              }}
+            />
           ) : (
             <div className="w-full h-full bg-[#F2F4F7] "></div>
           )}
@@ -382,7 +380,19 @@ console.log("DAshboard Data", dashboardData);
                     key={index}
                     className="bg-[var(--color-card)] rounded-lg overflow-hidden hover:shadow-md transition-shadow"
                   >
-                    <RoomCard {...room} compact={true} />
+                    <RoomCard
+                      _id={room?._id}
+                      thumbnail={room?.thumbnail}
+                      price={room?.price}
+                      title={room?.title}
+                      location={room?.location?.address}
+                      rentPerMonth={room?.rentPerMonth}
+                      status={room?.status}
+                      owner={room?.owner}
+                      category={room?.category}
+                      createdAt={room?.createdAt}
+                      updatedAt={room?.updatedAt}
+                      compact={true} />
                   </div>
                 ))}
               </div>
