@@ -1,12 +1,43 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const RoomCard = ({ _id, thumbnail, price, title, location, rentPerMonth, status, owner, className = '', compact = false }) => {
+const RoomCard = ({ _id, thumbnail, price, title, location, rentPerMonth, status, owner, className = '', compact = false,createdAt,updatedAt }) => {
   const statusColors = {
     Available: 'bg-[#6C48E3] text-[#6C48E3] border border-[#6C48E3]',
     Reserved: 'bg-[#F2F4F7] text-red-800 border border-red-800',
   };
 
+  const [time,setTime]=React.useState('just now');
+  const formatDate = (createdAt)=>{
+    const date = new Date(createdAt);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(months / 12);
+    if (years > 0) {
+      return `${years} years ago`;
+    } else if (months > 0) {
+      return `${months} months ago`;
+    } else if (days > 0) {
+      return `${days} days ago`;
+    } else if (hours > 0) {
+      return `${hours} hours ago`;
+    } else if (minutes > 0) {
+      return `${minutes} minutes ago`;
+    } else {
+      return 'just now';
+    }
+  }
+
+  React.useEffect(()=>{
+    if(createdAt){
+      setTime(formatDate(createdAt));
+    }
+  })
   return (
     <Link 
       to={`/rooms/${_id}`} 
@@ -43,6 +74,7 @@ const RoomCard = ({ _id, thumbnail, price, title, location, rentPerMonth, status
               </svg>
               {location}
             </p>
+            <p className="text-xs text-[#6C48E3]">Posted:{time}</p>
           </div>
 
           <div className="flex justify-between items-center pt-2 border-t border-gray-100">

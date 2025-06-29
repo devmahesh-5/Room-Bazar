@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { RoomCard, Input, Button, Select } from '../components'
+import { RoomCard, Input, Button, Select, Authloader } from '../components'
 import roomService from '../services/room.services.js'
 import { useForm } from 'react-hook-form'
 
 function Rooms() {
   const [rooms, setRooms] = useState([])
-  const { register, handleSubmit,watch } = useForm();
+  const { register, handleSubmit, watch } = useForm();
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   useEffect(() => {
@@ -13,7 +13,9 @@ function Rooms() {
       try {
         const rooms = await roomService.getAllRooms();
         if (rooms) {
-          setRooms(rooms.data)
+          setRooms(rooms.data);
+          
+          
         }
       } catch (error) {
         setError(error.response.data.error)
@@ -23,8 +25,8 @@ function Rooms() {
   const getSearchResults = useCallback(
     async (data) => {
       try {
-        setError(null)
-        setLoading(true)
+        setError(null);
+        setLoading(true);
         const rooms = await roomService.searchRooms(1, 10, data);
         if (rooms) {
           setRooms(rooms.data);
@@ -36,7 +38,7 @@ function Rooms() {
       }
     }, [setRooms]);
 
-    
+
 
   if (!Array.isArray(rooms) || rooms.length === 0 || error) {
     return (
@@ -52,13 +54,13 @@ function Rooms() {
 
             <Select
               options={["location", "title", "category", "description"]}
-              className="px-3 py-2 rounded-lg bg-white text-black outline-none focus:bg-gray-50 duration-200 border border-gray-200 w-48 focus:outline-none focus:ring-2 focus:ring-[#6C48E3]"
+              className="px-3 py-2 rounded-lg bg-white text-black outline-none focus:bg-gray-50 duration-200 border border-gray-200 w-48 focus:outline-none focus:ring-2 focus:ring-[#6C48E3] appearance-none"
               {...register("field")}
             />
 
             <button
               type={`${watch('query') ? 'submit' : 'button'}`}
-             className="bg-[#6C48E3] text-white px-3 py-2 rounded-lg hover:opacity-80 hover:text-white">
+              className="bg-[#6C48E3] text-white px-3 py-2 rounded-lg hover:opacity-80 hover:text-white">
               Search
             </button>
           </div>
@@ -88,14 +90,14 @@ function Rooms() {
               {...register("field")}
             />
 
-            <button 
-            type={`${watch('query') ? 'submit' : 'button'}`}
-            className="bg-[#6C48E3] text-white px-3 py-2 rounded-lg hover:opacity-80 hover:text-white">
+            <button
+              type={`${watch('query') ? 'submit' : 'button'}`}
+              className="bg-[#6C48E3] text-white px-3 py-2 rounded-lg hover:opacity-80 hover:text-white">
               Search
             </button>
           </div>
         </form>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+        {!loading ? (<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
           {rooms.map((room) => (
             <div key={room._id} className="p-2">
               <RoomCard
@@ -105,14 +107,20 @@ function Rooms() {
                 title={room?.title}
                 location={room?.location?.address}
                 rentPerMonth={room?.rentPerMonth}
-                status = {room?.status}
-                owner = {room?.owner}
+                status={room?.status}
+                owner={room?.owner}
+                category={room?.category}
+                createdAt={room?.createdAt}
+                updatedAt={room?.updatedAt}
               />
             </div>
           ))}
-        </div>
+        </div>)
+          : (
+            <Authloader message='searching...' fullScreen={false} inline={false} size='md' color='primary' />
+          )}
       </div>
-    );
+    )
   }
 }
 

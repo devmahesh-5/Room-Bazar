@@ -76,7 +76,7 @@ const Profiles = () => {
       fetchProfiles()
     }
   }
-  return !loading ? (
+  return (
     <div className="flex-grow bg-[#F2F4F7] flex flex-col lg:flex-row-reverse">
       {/* Hidden on small screens, visible from lg breakpoint */}
       <div className="hidden lg:block lg:ml-4 lg:w-1/4">
@@ -141,7 +141,7 @@ const Profiles = () => {
         id="search-query"
         type="text"
         placeholder="Search by keyword..."
-        className="px-4 py-3 rounded-lg bg-white text-black outline-none w-full focus:ring-2 focus:ring-[#6C48E3] border border-gray-300 transition-all"
+        className="px-4 py-3 rounded-lg bg-white text-black outline-none w-full focus:ring-2 focus:ring-[#6C48E3] transition-all"
         {...register("query")}
       />
     </div>
@@ -153,13 +153,12 @@ const Profiles = () => {
       </label>
       <select
         id="search-field"
-        className="px-4 py-3 rounded-lg bg-white text-black outline-none w-full focus:ring-2 focus:ring-[#6C48E3] border border-gray-300 appearance-none"
+        className="px-4 py-3 rounded-lg bg-white text-black outline-none w-full focus:ring-2 focus:ring-[#6C48E3] appearance-none"
         {...register("field")}
       >
         <option value="location">Location</option>
         <option value="gender">Gender</option>
         <option value="job">Job</option>
-        <option value="age">Age</option>
       </select>
     </div>
 
@@ -175,7 +174,7 @@ const Profiles = () => {
 </form>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 py-4">
+    {    !loading?(<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 py-4">
           {!error?(Array.isArray(users) && users?.length > 0 ? (
             users.map((user) => (
               <div key={user?._id} className="w-full">
@@ -203,12 +202,12 @@ const Profiles = () => {
               <p className='text-gray-700'>{error?.response?.data?.error || 'Something went wrong while fetching Roommates'}</p>
             </div>
           )}
-        </div>
+        </div>): (
+    <Authloader message='Searching Roommates...' fullScreen={false} />
+  )}
       </div>
     </div>
-  ) : (
-    <Authloader message='Searching Roommates...' fullScreen={false} />
-  );
+  ) 
 };
 
 export default Profiles;

@@ -148,6 +148,10 @@ function Room() {
         setShowCommentBox(!showCommentBox);
     };
 
+    const handleMessageClick = () => {
+        navigate(`/messages/ib/${room?.owner?._id}`);
+    };
+
     if (!room && error && typeof error === "string") {
         return <div className="flex justify-center items-center h-screen">{error}</div>;
     }
@@ -196,12 +200,22 @@ function Room() {
                             alt="Owner"
                             className="w-16 h-16 rounded-full object-cover border-2 border-[#6C48E3]"
                         />
-                        <div>
-                            <h3 className="text-lg font-semibold text-gray-800">{room?.owner?.fullName || "Owner"}</h3>
-                            <p className="text-gray-600 flex items-center">
-                                <FaMapMarkerAlt className="mr-1 text-[#6C48E3]" />
-                                {room?.location?.address}
-                            </p>
+                        <div className="flex items-center justify-between gap-2">
+                            <h3 className="text-lg font-semibold text-gray-800 truncate">
+                                {room?.owner?.fullName || "Owner"}
+                            </h3>
+                            {!isOwner && (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        handleMessageClick();
+                                    }}
+                                    className="shrink-0 px-3 py-1 bg-indigo-100 text-indigo-700 text-sm font-medium rounded-md hover:bg-indigo-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1"
+                                >
+                                    Message
+                                </button>
+                            )}
                         </div>
                     </div>
 
@@ -214,6 +228,10 @@ function Room() {
                         <div className="pt-4 border-t border-gray-200">
                             <h4 className="font-medium text-gray-800 mb-2">Room Details</h4>
                             <div className="grid grid-cols-2 gap-2">
+                                <div className="bg-[#F2F4F7] p-2 rounded">
+                                    <p className="text-xs text-gray-500">Location</p>
+                                    {room?.location?.address}
+                                </div>
                                 <div className="bg-[#F2F4F7] p-2 rounded">
                                     <p className="text-xs text-gray-500">Agent Service Fee</p>
                                     <p className="font-semibold">Rs. {room?.price}</p>
@@ -230,6 +248,10 @@ function Room() {
                                     <p className="text-xs text-gray-500">Capacity</p>
                                     <p className="font-semibold">{room?.capacity}</p>
                                 </div>
+                                <div className="bg-[#F2F4E3] p-2 rounded">
+                                    <p className="text-xs text-gray-500">Category</p>
+                                    <p className="font-semibold">{room?.category}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -241,9 +263,9 @@ function Room() {
                 {/* Title and Category */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
                     <h1 className="text-3xl font-bold text-gray-800">{room?.title}</h1>
-                    <span className="bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-semibold">
+                    {/* <span className="bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-semibold">
                         Category: {room?.category}
-                    </span>
+                    </span> */}
                 </div>
 
                 {/* Description */}
@@ -293,8 +315,8 @@ function Room() {
                         <FaHeart className="text-lg text-red-600" />
                         {
                             favLoading ? (
-                                        <span className="text-red-600">making changes...</span>
-                               
+                                <span className="text-red-600">making changes...</span>
+
                             ) : (<span className={`${isFavourite ? "text-red-600" : "text-gray-600"}`}>{isFavourite ? "Remove Favorite" : "Add to Favorites"}</span>)
                         }
                     </Button>
@@ -365,11 +387,11 @@ function Room() {
                         <div key={index} className="border-b border-gray-200 pb-4 last:border-0">
                             <div className="flex items-start space-x-4">
                                 {/* <Link to={`/roommates/${review.user?._id}`}> */}
-                                    <img
-                                        src={review.user?.avatar || "https://via.placeholder.com/150"}
-                                        alt="User"
-                                        className="w-12 h-12 rounded-full object-cover"
-                                    />
+                                <img
+                                    src={review.user?.avatar || "https://via.placeholder.com/150"}
+                                    alt="User"
+                                    className="w-12 h-12 rounded-full object-cover"
+                                />
                                 {/* </Link> */}
                                 <div className="flex-1">
                                     <div className="flex justify-between items-start">

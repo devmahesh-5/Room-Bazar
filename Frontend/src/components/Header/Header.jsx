@@ -72,14 +72,14 @@ function Header({ isNotification, unreadMessages, unreadNotifications, fetchNoti
   }
 
   return !loading ? (
-    <header className="bg-[#F2F4F7] sticky top-0 z-50 ">
-      <div className="text-2xl font-bold text-[#2C2C2C] block md:hidden flex items-center justify-between px-6 py-4">
+    <header className="bg-[#F2F4F7] sticky top-0 z-50">
+     <div className="w-full text-2xl font-bold text-[#2C2C2C] block md:hidden flex items-center justify-between px-4 py-4">
         <Logo msg='Room Bazar' />
         {authStatus && (<div className='flex items-center text-[#6C48E3]'>
           <MdMenu className='cursor-pointer' onClick={() => setPopUp(!popUp)} />
         </div>)}
       </div>
-      <nav className="container mx-auto flex items-center justify-between px-6 py-4">
+      <nav className="w-full flex items-center justify-between px-4 py-4 md:container md:mx-auto">
         {/* Logo */}
         <div className="hidden md:block text-2xl font-bold text-[#2C2C2C]">
           <Logo />
@@ -144,7 +144,7 @@ function Header({ isNotification, unreadMessages, unreadNotifications, fetchNoti
           )}
         </ul>
 
-        <ul className="flex space-x-6 items-center md:hidden">
+        <ul className="flex w-full justify-around items-center md:hidden px-2">
           {mobileNavItems.map(
             (item) =>
               item.active && (

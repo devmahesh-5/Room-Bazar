@@ -156,7 +156,7 @@ function InboxForm({ userId, refreshData }) {
 
 
   return !error && (sendingLoading || !loading) ? (
-    <div className="flex flex-col h-full bg-[var(--color-primary)">
+    <div className="flex flex-col h-full bg-[var(--color-primary) w-full">
       {/* Header */}
       {receiver && (
         <div className="flex items-center p-4 bg-[#F2F4F7] rounded-xl border-b border-gray-200">
