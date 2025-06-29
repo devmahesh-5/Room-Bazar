@@ -256,7 +256,7 @@ const Roomform = ({ room }) => {
     {!room && (
       <div className="space-y-1">
         <Input
-          label="Room Video"
+          label="Room Video (less than 10 MB)"
           type="file"
           className="w-full file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#6C48E3]/10 file:text-[#6C48E3] hover:file:bg-[#6C48E3]/20"
           accept="video/mp4, video/webm"
