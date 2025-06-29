@@ -25,12 +25,8 @@ function App() {
   const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   const notificationHandler = (otherNav=false) => {
-    console.log("other nav",otherNav);
-    
     if (otherNav===true) {
       setNotificationSection(false);
-      console.log(notificationSection);
-      
     } else {
       setNotificationSection((prev) => !prev);
     }

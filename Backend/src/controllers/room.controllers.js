@@ -62,7 +62,7 @@ const createRoom = asyncHandler(async (req, res) => {
         khaltiId,
         owner: req.user._id,
         rentPerMonth,
-        video: videoCloudinaryPath.url
+        video: videoCloudinaryPath.secure_url || videoCloudinaryPath.url
     })
 
     if (!room) {
@@ -521,6 +521,8 @@ const searchRooms = asyncHandler(async (req, res) => {
                     location: 1,
                     owner: 1,
                     roomPhotos: 1,
+                    createdAt: 1,
+                    updatedAt: 1
                 }
             }
         ]

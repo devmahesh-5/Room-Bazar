@@ -54,6 +54,7 @@ const ProfilePage = () => {
       isMounted = false;
     };
   }, []);
+console.log("DAshboard Data", dashboardData);
 
   // Memoized fetch functions
   const fetchSentRequests = useCallback(async () => {

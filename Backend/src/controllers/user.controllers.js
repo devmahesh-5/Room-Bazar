@@ -49,17 +49,15 @@ const registerUser = asyncHandler(async (req, res) => {
    if (!validEmail) {
       throw new ApiError(400, 'Invalid email');
    }
-   console.log(req.files);
    
    const avatarLocalPath = req.files?.avatar?.[0]?.path;
    const coverImagePath = req.files?.coverImage?.[0]?.path;
-   console.log("avatarLocalPath",avatarLocalPath);
    
-   if (!avatarLocalPath) {
-      throw new ApiError(400, 'Avatar image is required');
-   }
+   // if (!avatarLocalPath) {
+   //    throw new ApiError(400, 'Avatar image is required');
+   // }
 
-   const avatarCloudinaryPath = await uploadOnCloudinary(avatarLocalPath);
+   let avatarCloudinaryPath;
    let coverImageCloudinaryPath;
    if (coverImagePath) {
       coverImageCloudinaryPath = await uploadOnCloudinary(coverImagePath);
@@ -69,8 +67,11 @@ const registerUser = asyncHandler(async (req, res) => {
       }
    }
 
-   if (!avatarCloudinaryPath) {
-      throw new ApiError(500, 'Failed to upload avatar image');
+   if (avatarLocalPath) {
+      avatarCloudinaryPath = await uploadOnCloudinary(avatarLocalPath);
+      if(!avatarCloudinaryPath){
+         throw new ApiError(500, 'Failed to upload avatar image');
+      }
    }
 
    const user = await User.create(
@@ -899,10 +900,25 @@ const getDashboard = asyncHandler(async (req, res) => {
             }
          },
          {
+            $lookup: {
+               from: 'locations',
+               localField: 'location',
+               foreignField: '_id',
+               as: 'location'
+            }
+         },
+         {
+            $addFields: {
+               location: { $arrayElemAt: ['$location', 0] }
+            }
+         },
+         {
             $project: {
                _id: 1,
                name: 1,
+               createdAt: 1,
                category: 1,
+               location: 1,
                price: 1,
                thumbnail: 1,
                rentPerMonth: 1,

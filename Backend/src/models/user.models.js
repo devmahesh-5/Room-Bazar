@@ -74,8 +74,7 @@ const userSchema = new mongoose.Schema({
         type: Number
     },
     avatar : {
-        type: String,
-        required: true
+        type: String
     },
     coverImage : {
         type: String,

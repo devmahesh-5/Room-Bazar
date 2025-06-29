@@ -7,6 +7,7 @@ import { Roommateform, Authloader } from '../components/index.js';
 import MessageProfile from '../components/MessageProfile.jsx';
 
 const Profiles = () => {
+  const [showFilters, setShowFilters] = useState(false);
   const [myAccount, setMyAccount] = useState([]);
   const [users, setUsers] = useState([]);
   const { register, handleSubmit, watch } = useForm();
@@ -127,33 +128,40 @@ const Profiles = () => {
           </div>
         )}
 
-         <form 
+<form 
   onSubmit={handleSubmit(getSearchResults)} 
-  className="bg-[#F2F4F7] p-4 rounded-lg w-full"
+  className="bg-[#F2F4F7] p-2 rounded-lg w-full shadow-sm"
 >
-  <div className="flex flex-col sm:flex-row gap-3 w-full items-end">
-    {/* Search Input */}
-    <div className="w-full sm:w-auto flex-grow">
-      <label htmlFor="search-query" className="block text-sm font-medium text-gray-700 mb-1 sr-only">
-        Search query
+  <div className="flex items-center gap-2 w-full">
+    {/* Search Input - Takes priority space */}
+    <div className="flex-grow relative">
+      <label htmlFor="search-query" className="sr-only">
+        Search
       </label>
       <input
         id="search-query"
         type="text"
-        placeholder="Search by keyword..."
-        className="px-4 py-3 rounded-lg bg-white text-black outline-none w-full focus:ring-2 focus:ring-[#6C48E3] transition-all"
+        placeholder="Search rooms..."
+        className="px-4 py-2 rounded-lg bg-gray-50 w-full text-sm focus:bg-white focus:ring-1 focus:ring-[#6C48E3] focus:border-[#6C48E3] border border-gray-200 transition-all"
         {...register("query")}
       />
+      
+      {/* Search icon inside input (visible on mobile) */}
+      <button 
+        type="submit"
+        className="md:hidden absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#6C48E3]"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </button>
     </div>
 
-    {/* Dropdown Select */}
-    <div className="w-full sm:w-auto">
-      <label htmlFor="search-field" className="block text-sm font-medium text-gray-700 mb-1 sr-only">
-        Search field
-      </label>
+    {/* Dropdown Select - Collapses on mobile */}
+    <div className="hidden sm:block w-32 flex-shrink-0">
       <select
         id="search-field"
-        className="px-4 py-3 rounded-lg bg-white text-black outline-none w-full focus:ring-2 focus:ring-[#6C48E3] appearance-none"
+        className="px-3 py-2 text-sm rounded-lg bg-gray-50 border border-gray-200 focus:ring-1 focus:ring-[#6C48E3] focus:border-[#6C48E3] w-full"
         {...register("field")}
       >
         <option value="location">Location</option>
@@ -162,15 +170,59 @@ const Profiles = () => {
       </select>
     </div>
 
-    {/* Search Button */}
+    {/* Search Button - Hidden on mobile, visible on desktop */}
     <button
-      type={watch('query') ? 'submit' : 'button'}
-      disabled={!watch('query')}
-      className="bg-[#6C48E3] text-white px-6 py-3 rounded-lg hover:bg-[#5a3acf] transition-colors w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+      type="submit"
+      className="hidden sm:flex items-center justify-center bg-[#6C48E3] text-white p-2 rounded-lg hover:bg-[#5a3acf] transition-colors flex-shrink-0"
+      title="Search"
     >
-      Search
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+      <span className="sr-only">Search</span>
     </button>
   </div>
+
+  {/* Mobile filter toggle - appears only on mobile */}
+  <div className="sm:hidden flex justify-between mt-2">
+    <button 
+      type="button"
+      onClick={() => setShowFilters(!showFilters)}
+      className="text-xs text-[#6C48E3] flex items-center gap-1"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+      </svg>
+      Filters
+    </button>
+    
+    {watch('query') && (
+      <button 
+        type="submit"
+        className="hidden sm:block md:block text-xs text-[#6C48E3]"
+      >
+        Search
+      </button>
+    )}
+  </div>
+
+  {/* Expanded filters - appears when showFilters is true on mobile */}
+  {showFilters && (
+    <div className="sm:hidden mt-3 space-y-2">
+      <label htmlFor="mobile-search-field" className="block text-xs font-medium text-gray-700">
+        Search by:
+      </label>
+      <select
+        id="mobile-search-field"
+        className="px-3 py-2 text-sm rounded-lg bg-gray-50 border border-gray-200 w-full"
+        {...register("field")}
+      >
+        <option value="location">Location</option>
+        <option value="gender">Gender</option>
+        <option value="job">Job</option>
+      </select>
+    </div>
+  )}
 </form>
         </div>
 
