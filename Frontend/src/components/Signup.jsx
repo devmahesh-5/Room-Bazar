@@ -58,7 +58,7 @@ function Signup() {
     <div className="w-full max-w-2xl bg-[#F2F4F7] rounded-2xl shadow-lg p-8">
       <div className="mb-6 flex justify-center">
         <span className="inline-block w-24">
-          <Logo width="100%" />
+          <Logo width="100%"/>
         </span>
       </div>
 
@@ -184,6 +184,10 @@ function Signup() {
                 pattern: {
                   pattern: /^[0-9]{10}$/,
                   message: "Invalid phone number (10 digits required)"
+                },
+                validate: (value) => {
+                  if (value.length !== 10) return "Invalid phone number (10 digits required)";
+                  return true;
                 }
               })}
               error={errors.phone?.message}
@@ -198,7 +202,7 @@ function Signup() {
             />
 
             <div className="space-y-4">
-              <span className="text-sm font-bold text-[#6C48E3]">optional</span>
+              <span className="text-sm font-bold text-[#6C48E3]">optional fields</span>
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium text-gray-700">Profile Picture</label>
                 <input
