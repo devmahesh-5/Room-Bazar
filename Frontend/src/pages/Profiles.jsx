@@ -77,6 +77,10 @@ const Profiles = () => {
       fetchProfiles()
     }
   }
+
+  const handleClose = ()=>{
+    setActiveSection('');
+  }
   return (
     <div className="flex-grow bg-[#F2F4F7] flex flex-col lg:flex-row-reverse">
       {/* Hidden on small screens, visible from lg breakpoint */}
@@ -103,7 +107,7 @@ const Profiles = () => {
               <div className="ml-auto">
                 <Button
                   onClick={() => setActiveSection(prev => prev === 'edit' ? '' : 'edit')}
-                  className={`flex items-center space-x-2 ${activeSection === 'edit' ? 'text-[#6C48E3]' : 'text-gray-700'}`}
+                  className={`flex items-center space-x-2 pointer-cursor hover:bg-[#F2F4F7] hover:text-[#6C48E3] ${activeSection === 'edit' ? 'text-[#6C48E3]' : 'text-gray-700'}`}
                 >
                   {activeSection === 'edit' ? <span>Close</span> : <span>Edit</span>}
                 </Button>
@@ -124,9 +128,11 @@ const Profiles = () => {
 
 {flag && activeSection === 'edit' && (
           <div className="bg-[#F2F4F7] rounded-lg shadow-md p-4 mb-4">
-            <Roommateform roommate={myAccount} />
+            <Roommateform roommate={myAccount} closeEdit={handleClose} />
           </div>
         )}
+
+
 
 <form 
   onSubmit={handleSubmit(getSearchResults)} 

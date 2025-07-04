@@ -35,6 +35,9 @@ const AuthLoader = ({
     danger: 'text-red-600',
     success: 'text-green-600'
   };
+String.prototype.capitalize = function() {
+  return this.charAt(0).toUpperCase() + this.slice(1);
+};
 
   return (
     <div 
@@ -53,7 +56,7 @@ const AuthLoader = ({
         {/* Loading Message */}
         {message && (
           <p className={`text-gray-700 ${sizeClasses[size].text} text-center max-w-xs`}>
-            {message}
+            {message.capitalize()}
           </p>
         )}
         

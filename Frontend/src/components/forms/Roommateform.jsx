@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Input, Button, Select } from '../../components/index';
 import { useId } from 'react';
-const Roommateform = ({ roommate }) => {
+const Roommateform = ({ roommate, closeEdit }) => {
     const [loading, setLoading] = React.useState(false);
     const id = useId();
     const navigate = useNavigate();
@@ -51,6 +51,7 @@ const Roommateform = ({ roommate }) => {
                 if (!updatedRoommate) {
                     throw new Error("Error updating room");
                 }
+                closeEdit();
                 navigate(`/roommates`);
             } else {
                 
