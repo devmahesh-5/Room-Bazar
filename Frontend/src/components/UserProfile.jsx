@@ -21,7 +21,7 @@ const UserProfile = () => {
 
     useEffect(() => {
         let isMounted = true;
-        
+
         const fetchData = async () => {
             try {
                 const [myAccountResponse, myRoommatesResponse] = await Promise.all([
@@ -79,7 +79,7 @@ const UserProfile = () => {
                 <div className="p-4 md:p-6">
                     <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
                         <div className="relative -mt-16 md:-mt-32">
-                            <img
+                            {userData?.user?.avatar ? (<img
                                 src={userData?.user?.avatar}
                                 alt={userData?.user?.fullName}
                                 className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white object-cover shadow-md"
@@ -87,15 +87,22 @@ const UserProfile = () => {
                                     e.target.onerror = null;
                                     e.target.src = '/default-avatar.png';
                                 }}
-                            />
+                            />) : (
+                                <svg
+                                    className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white object-cover shadow-md text-gray-400"
+                                    fill="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                                </svg>)}
                         </div>
-                        
+
                         <div className="flex-1 space-y-2">
                             <h3 className="text-2xl font-bold text-gray-800">{userData?.user?.fullName}</h3>
                             {userData?.description && (
                                 <p className="text-gray-600 italic">"{userData.description}"</p>
                             )}
-                            
+
                             <div className="flex flex-wrap gap-2">
                                 {userData?.job && (
                                     <span className="px-3 py-1 rounded-full text-sm">
@@ -123,7 +130,7 @@ const UserProfile = () => {
                                     </span>
                                 )}
                             </div>
-                            
+
                             <div className="flex flex-wrap gap-4 pt-2">
                                 {userData?.user?.email && (
                                     <a href={`mailto:${userData.user.email}`} className="text-[#6C48E3] hover:underline flex items-center">
@@ -143,7 +150,7 @@ const UserProfile = () => {
 
             {/* Navigation Tabs */}
             <div className="flex overflow-x-auto mb-6 bg-white rounded-lg shadow-sm">
-                
+
                 <button
                     onClick={() => setActiveSection('roommates')}
                     className={`flex-1 py-3 px-4 text-center font-medium ${activeSection === 'roommates' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
@@ -189,7 +196,7 @@ const UserProfile = () => {
                                         className="bg-gray-50 p-4 rounded-lg flex items-center space-x-4 hover:bg-gray-100 transition-colors border border-gray-200"
                                     >
                                         <div className="flex-shrink-0">
-                                            <img
+                                            {roommate?.myRoommates?.user?.avatar ? (<img
                                                 src={roommate?.myRoommates?.user?.avatar || '/default-avatar.png'}
                                                 alt={roommate?.myRoommates?.user?.fullName}
                                                 className="w-12 h-12 rounded-full object-cover border-2 border-indigo-100"
@@ -197,7 +204,14 @@ const UserProfile = () => {
                                                     e.target.onerror = null;
                                                     e.target.src = '/default-avatar.png';
                                                 }}
-                                            />
+                                            />) : (
+                                                <svg
+                                                    className="w-12 h-12 rounded-full object-cover border-2 border-indigo-100"
+                                                    fill="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                                                </svg>)}
                                         </div>
                                         <div className="min-w-0">
                                             <p className="font-medium text-gray-800 truncate">

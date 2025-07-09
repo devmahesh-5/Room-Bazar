@@ -24,7 +24,7 @@ class authServices {
             return response.data;
         } catch (error) {
             console.error("Error registering user:", error.response?.data || error.message);
-            throw error; // Rethrow the error so it can be handled in UI
+            throw error; 
         }
     }
 

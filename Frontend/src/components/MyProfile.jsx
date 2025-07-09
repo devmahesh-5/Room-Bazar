@@ -193,7 +193,7 @@ const ProfilePage = () => {
             {/* Avatar */}
             <div className="relative">
               <div className="w-32 h-32 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white">
-                <img
+                {userData?.avatar ? (<img
                   src={userData?.avatar}
                   alt={userData?.fullName}
                   className="w-full h-full object-cover"
@@ -201,7 +201,14 @@ const ProfilePage = () => {
                     e.target.onerror = null;
                     e.target.className = "w-full h-full bg-gradient-to-r from-gray-200 to-gray-300";
                   }}
-                />
+                />) : (
+                  <svg
+                    className="w-full h-full rounded-full object-cover text-gray-300"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                  </svg>)}
               </div>
             </div>
 
@@ -342,7 +349,7 @@ const ProfilePage = () => {
 
                     <Link to={`/roommates/${roommate?.myRoommates?._id}`} key={index}>
                       <div className="flex-shrink-0">
-                        <img
+                        {roommate?.myRoommates?.user?.avatar ? (<img
                           src={roommate?.myRoommates?.user?.avatar || '/default-avatar.png'}
                           alt={roommate?.myRoommates?.user?.fullName}
                           className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
@@ -350,7 +357,14 @@ const ProfilePage = () => {
                             e.target.onerror = null;
                             e.target.src = '/default-avatar.png';
                           }}
-                        />
+                        />) : (
+                          <svg
+                            className="w-12 h-12 rounded-full object-cover text-gray-400"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                          </svg>)}
                       </div>
                       <div>
                         <h3 className="font-medium text-gray-800">{roommate?.myRoommates?.user?.fullName || 'User'}</h3>

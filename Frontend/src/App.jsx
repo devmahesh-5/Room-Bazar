@@ -89,7 +89,7 @@ function App() {
 
 
   return !loading? (
-    <div className="min-h-screen flex flex-col relative">
+    <div className="min-h-screen flex flex-col relative bottom-0">
       <Header isNotification={notificationHandler} unreadMessages={unreadMessages} unreadNotifications={unreadNotifications} fetchNotifications={fetchNotifications}/>
       
       <main className="flex-grow bg-[var(--color-card)] relative">

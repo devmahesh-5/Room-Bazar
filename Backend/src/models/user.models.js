@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { validate } from "node-cron";
 const userSchema = new mongoose.Schema({
     fullName: {
         type: String,
@@ -44,8 +45,9 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    
     phone : {
-        type: Number,
+        type: String,
         unique: true,
         required:function () {
             // Required only if no Google ID (i.e., normal signup)

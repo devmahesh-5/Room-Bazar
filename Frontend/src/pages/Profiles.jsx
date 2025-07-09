@@ -38,7 +38,11 @@ const Profiles = () => {
           }
         }
       } catch (error) {
+        if(!myAccountResponse.data){
+          setError("Please create a Roommate Account to see profiles");
+        }else{
         setError(error);
+        }
       } finally {
         if (isMounted) setLoading(false);
       }

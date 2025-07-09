@@ -5,7 +5,7 @@ import { Logo } from '../index';
 function Footer() {
   return (
     <section className="relative overflow-hidden py-10 bg-[#F2F4F7] w-full">
-      <div className="relative z-10 mx-auto max-w-7xl px-4">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 hidden md:block">
         <div className="flex flex-wrap justify-between">
           {/* Logo */}
           <div className="w-full p-6 md:w-1/2 lg:w-5/12 hidden md:block">
@@ -53,6 +53,7 @@ function Footer() {
               </p>
       </div>
     </section>
+    
   );
 }
 

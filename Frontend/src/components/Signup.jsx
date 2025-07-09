@@ -47,7 +47,7 @@ function Signup() {
                 navigate(`/users/verify-otp/${userSession.data.email}`);
             }
         } catch (error) {
-            setError(error.response?.data || error.message || "Signup failed");
+            setError(error?.response?.data?.error || error.message || "Signup failed");
         } finally {
             setLoading(false);
         }
@@ -70,7 +70,7 @@ function Signup() {
         Join our community and start your journey
       </p>
 
-      {error && typeof error === "string" && (
+      {error && (
         <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-center">
           {error}
         </div>

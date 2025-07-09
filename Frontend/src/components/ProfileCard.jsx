@@ -51,11 +51,14 @@ const ProfileCard = ({ avatar, _id, userId, fullName, location, haveRoom, job, a
               alt="Profile"
               className="w-16 h-16 object-cover rounded-full mr-4"
             />
-          ) : (
-            <div className="w-16 h-16 bg-gray-400 rounded-full flex items-center justify-center text-white font-bold mr-4">
-              {fullName ? fullName.charAt(0) : 'U'}
-            </div>
-          )}
+          ) :  (
+                  <svg
+                    className="w-16 h-16 rounded-full object-cover text-[#6C48E3] border-2 border-gray-300"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                  </svg>)}
           <div>
             <h2 className="text-lg font-semibold text-gray-800">{fullName}</h2>
             <h2 className="text-sm text-[#6C48E3]">{job}</h2>

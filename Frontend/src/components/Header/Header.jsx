@@ -72,11 +72,24 @@ function Header({ isNotification, unreadMessages, unreadNotifications, fetchNoti
   }
 
   return !loading ? (
-    <header className="bg-[#F2F4F7] sticky top-0 z-50">
-     <div className="w-full text-2xl font-bold text-[#2C2C2C] block md:hidden flex items-center justify-between px-4 py-4">
+    <header className="bg-[#F2F4F7] sticky top-0 z-50 h-16">
+      <div className="w-full text-2xl font-bold text-[#2C2C2C] block md:hidden flex items-center justify-between px-4 py-4">
         <Logo msg='Room Bazar' />
-        {authStatus && (<div className='flex items-center text-[#6C48E3]'>
-          <MdMenu className='cursor-pointer' onClick={() => setPopUp(!popUp)} />
+        {authStatus && (<div className='flex items-center text-[#6C48E3] cursor-pointer' onClick={() => setPopUp(!popUp)}>
+          {userData?.avatar && userData?.avatar !== '' && userData?.avatar !== 'undefined' ? (
+            <img
+              src={userData.avatar}
+              alt="Profile"
+              className="w-10 h-10 rounded-full object-cover cursor-pointer"
+              onClick={() => setPopUp(!popUp)}
+            />
+          ) : (<svg
+                    className="w-10 h-10 rounded-full object-cover text-gray-400"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                  </svg>)}
         </div>)}
       </div>
       <nav className="w-full flex items-center justify-between px-4 py-4 md:container md:mx-auto">
@@ -107,7 +120,7 @@ function Header({ isNotification, unreadMessages, unreadNotifications, fetchNoti
                     {item.icon}
                     {item.name === 'messages' && unreadMessages > 0 && (
                       <span className="absolute -top-2 -right-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
-                        {unreadMessages<=9 ? unreadMessages : '9+'}
+                        {unreadMessages <= 9 ? unreadMessages : '9+'}
                       </span>
                     )}
                   </button>
@@ -128,7 +141,7 @@ function Header({ isNotification, unreadMessages, unreadNotifications, fetchNoti
                   <MdNotifications />
                   {unreadNotifications > 0 && (
                     <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-5 h-5 text-xs font-bold leading-none text-white bg-red-600 rounded-full transform translate-x-1/2 -translate-y-1/2">
-                      {unreadNotifications<=9 ? unreadNotifications : '9+'}
+                      {unreadNotifications <= 9 ? unreadNotifications : '9+'}
                     </span>
                   )}
                 </button>
@@ -136,20 +149,30 @@ function Header({ isNotification, unreadMessages, unreadNotifications, fetchNoti
             )
           }
           {authStatus && (
-          
+
             <li>
-              <div className='rounded-full w-10 h-10 cursor-pointer' onClick={() => setPopUp(!popUp)}>
+              <div className='w-12 h-12 rounded-full cursor-pointer border-4 border-white shadow-lg overflow-hidden bg-white' onClick={() => setPopUp(!popUp)}>
+                {userData?.avatar && userData?.avatar !== '' && userData?.avatar !== 'undefined' ? (
                 <img
                   src={userData.avatar}
                   alt="Profile"
                   className="w-full h-full rounded-full object-cover"
                 />
+                ) : (
+                  <svg
+                    className="w-full h-full rounded-full object-cover text-gray-400"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                  </svg>)
+                }
               </div>
             </li>
           )}
         </ul>
 
-        <ul className="flex w-full justify-around items-center md:hidden px-2">
+        <ul className="flex w-full justify-around items-center md:hidden px-2 py-2 fixed bottom-0  left-0 bg-[#F2F4F7] border-t border-gray-200 z-20">
           {mobileNavItems.map(
             (item) =>
               item.active && (
@@ -171,7 +194,7 @@ function Header({ isNotification, unreadMessages, unreadNotifications, fetchNoti
                     {item.icon}
                     {item.name === 'messages' && unreadMessages > 0 && (
                       <span className="absolute -top-2 -right-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
-                        {unreadMessages<10 ? unreadMessages : '9+'}
+                        {unreadMessages < 10 ? unreadMessages : '9+'}
                       </span>
                     )}
                   </button>
@@ -181,19 +204,19 @@ function Header({ isNotification, unreadMessages, unreadNotifications, fetchNoti
           )}
           {
             authStatus && (
-              <li className="relative"> 
+              <li className="relative">
                 <button
                   title='Notifications'
                   onClick={markAsRead}
                   className={`relative inline-block px-4 py-2 duration-200 text-[#6C48E3] rounded-lg ${location.pathname === '/notifications'
-                      ? 'bg-[#6C48E3] text-white hover:bg-[#6C48E3] hover:text-white'
-                      : 'bg-[#F2F4F7] text-[#131038] hover:bg-[#6C48E3] hover:text-white'
+                    ? 'bg-[#6C48E3] text-white hover:bg-[#6C48E3] hover:text-white'
+                    : 'bg-[#F2F4F7] text-[#131038] hover:bg-[#6C48E3] hover:text-white'
                     }`}
                 >
                   <MdNotifications />
-                    {unreadNotifications > 0 && (
+                  {unreadNotifications > 0 && (
                     <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-5 h-5 text-xs font-bold leading-none text-white bg-red-600 rounded-full transform translate-x-1/2 -translate-y-1/2">
-                      {unreadNotifications<10 ? unreadNotifications : '9+'}
+                      {unreadNotifications < 10 ? unreadNotifications : '9+'}
                     </span>
                   )}
                 </button>
@@ -205,7 +228,7 @@ function Header({ isNotification, unreadMessages, unreadNotifications, fetchNoti
       </nav>
       {
         popUp && (
-          <div className="fixed top-36 right-0 h-[calc(50vh-4rem)] w-80 bg-[#F2F4F7] shadow-lg border-l border-gray-200 z-30 overflow-y-auto transform transition-all duration-200 ease-in-out md:top-16">
+          <div className="fixed top-16 right-0 h-[calc(50vh-16)] w-80 bg-[#F2F4F7] shadow-lg border-l border-gray-200 z-30 overflow-y-auto transform transition-all duration-200 ease-in-out md:top-16">
             {/* Profile Header */}
             <div className="p-4 border-b border-gray-200 flex items-center space-x-3 bg-[#F2F4F7] cursor-pointer hover:bg-gray-200" onClick={
               () => {
@@ -213,12 +236,20 @@ function Header({ isNotification, unreadMessages, unreadNotifications, fetchNoti
                 setPopUp(false);
               }
             }>
-              <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#6C48E3] cursor-pointer">
-                <img
+              <div className="w-10 h-10 rounded-full cursor-pointer border-4 border-white shadow-lg overflow-hidden bg-white">
+                {userData?.avatar?(<img
                   src={userData?.avatar || '/default-avatar.png'}
                   alt="Profile"
                   className="w-full h-full object-cover"
-                />
+                />):(
+                  <svg
+                    className="w-full h-full rounded-full cursor-pointer border-4 border-white shadow-lg overflow-hidden bg-white text-gray-500"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                  </svg>
+                )}
               </div>
               <h1 className="text-lg font-semibold">{userData?.fullName}</h1>
             </div>
