@@ -4,6 +4,10 @@
 
 🔗 **Live Demo**: [https://room-bazar.vercel.app](https://room-bazar.vercel.app/)
 
+![home](/demo/home.png)
+![message](/demo/message.png)
+![booking](/demo/booking.png)
+
 ---
 
 ##  Features
@@ -58,37 +62,36 @@
   - Render (for backend deployment)
 
 ---
-
+```python
 Room-Bazar/
 │
 ├── Backend/
-│   ├── public/                     # Static files (if needed)
+│   ├── public/                     
 │   ├── src/
-│   │   ├── controllers/            # Business logic for each route
-│   │   ├── middlewares/           # Custom middlewares (auth, error handling, etc.)
-│   │   ├── models/                 # Mongoose models/schemas
-│   │   ├── routes/                 # API route definitions
-│   │   ├── services/               # External API wrappers, business services
-│   │   ├── utils/                  # Utility functions (validators, formatters, etc.)
-│   │   ├── constants/              # App-wide constants 
-│   │   └── index.js                # Main server entry point
-│   └── .env.sample                 # Sample environment variables
+│   │   ├── controllers/            
+│   │   ├── middlewares/           
+│   │   ├── models/                 
+│   │   ├── routes/                 
+│   │   ├── services/               
+│   │   ├── utils/                  
+│   │   ├── constants/               
+│   │   └── index.js                
+│   └── .env.sample                 
 │
 ├── Frontend/
-│   ├── public/                     # HTML template and public assets
+│   ├── public/                     
 │   ├── src/
-│   │   ├── assets/                 # Images, icons, fonts, etc.
+│   │   ├── assets/                 
 │   │   ├── components/    
-│   │   ├── pages/                  # Route-level pages
-│   │   ├── services/               # API calls (Axios instances, etc.)
-│   │   ├── store/                  # State management (Redux)
-│   │   └── App.jsx                 # Root component
-│   └── .env.sample                 # Frontend environment variables
+│   │   ├── pages/                  
+│   │   ├── services/               
+│   │   ├── store/                  
+│   │   └── App.jsx                 
+│   └── .env.sample                 
 │
-├── demo/                           # Screenshots and media for README
-│
+├── demo/                           
 ├── README.md
-
+```
 
 ## ⚙️ Installation
 # Backend
@@ -97,7 +100,7 @@ cd Backend
 npm install
 npm run dev
 ```
-#Frontend
+# Frontend
 ```bash
 cd Backend
 npm install
