@@ -4,6 +4,10 @@
 
 🔗 **Live Demo**: [https://room-bazar.vercel.app](https://room-bazar.vercel.app/)
 
+![home](/demo/home.png)
+![message](/demo/message.png)
+![booking](/demo/booking.png)
+
 ---
 
 ##  Features
@@ -86,7 +90,6 @@ Room-Bazar/
 │   └── .env.sample                 
 │
 ├── demo/                           
-│
 ├── README.md
 ```
 
